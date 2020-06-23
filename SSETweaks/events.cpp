@@ -88,53 +88,55 @@ namespace SDT
 
     void IEvents::CreateMSTCMap()
     {
-        //_DMESSAGE("> %s   |   %s", __FUNCTION__, (*g_UIStringHolder)->console.c_str());
+        //_DMESSAGE("> %s   |   %s", __FUNCTION__, UIStringHolder_ptr->console.c_str());
 
-        m_mstc_map[(*g_UIStringHolder)->loadingMenu.c_str()] = MenuEvent::OnLoadingMenu;
-        m_mstc_map[(*g_UIStringHolder)->mainMenu.c_str()] = MenuEvent::OnMainMenu;
-        m_mstc_map[(*g_UIStringHolder)->console.c_str()] = MenuEvent::OnConsoleMenu;
-        m_mstc_map[(*g_UIStringHolder)->mapMenu.c_str()] = MenuEvent::OnMapMenu;
-        m_mstc_map[(*g_UIStringHolder)->inventoryMenu.c_str()] = MenuEvent::OnInventoryMenu;
-        m_mstc_map[(*g_UIStringHolder)->closeMenu.c_str()] = MenuEvent::OnCloseMenu;
-        m_mstc_map[(*g_UIStringHolder)->favoritesMenu.c_str()] = MenuEvent::OnFavoritesMenu;
-        m_mstc_map[(*g_UIStringHolder)->barterMenu.c_str()] = MenuEvent::OnBarterMenu;
-        m_mstc_map[(*g_UIStringHolder)->bookMenu.c_str()] = MenuEvent::OnBookMenu;
-        m_mstc_map[(*g_UIStringHolder)->craftingMenu.c_str()] = MenuEvent::OnCraftingMenu;
-        m_mstc_map[(*g_UIStringHolder)->creditsMenu.c_str()] = MenuEvent::OnCreditsMenu;
-        m_mstc_map[(*g_UIStringHolder)->dialogueMenu.c_str()] = MenuEvent::OnDialogueMenu;
-        m_mstc_map[(*g_UIStringHolder)->lockpickingMenu.c_str()] = MenuEvent::OnLockpickingMenu;
-        m_mstc_map[(*g_UIStringHolder)->trainingMenu.c_str()] = MenuEvent::OnTrainingMenu;
-        m_mstc_map[(*g_UIStringHolder)->tutorialMenu.c_str()] = MenuEvent::OnTutorialMenu;
-        m_mstc_map[(*g_UIStringHolder)->giftMenu.c_str()] = MenuEvent::OnGiftMenu;
-        m_mstc_map[(*g_UIStringHolder)->statsMenu.c_str()] = MenuEvent::OnStatsMenu;
-        m_mstc_map[(*g_UIStringHolder)->topMenu.c_str()] = MenuEvent::OnTopMenu;
-        m_mstc_map[(*g_UIStringHolder)->hudMenu.c_str()] = MenuEvent::OnHUDMenu;
-        m_mstc_map[(*g_UIStringHolder)->journalMenu.c_str()] = MenuEvent::OnJournalMenu;
-        m_mstc_map[(*g_UIStringHolder)->cursorMenu.c_str()] = MenuEvent::OnCursorMenu;
-        m_mstc_map[(*g_UIStringHolder)->kinectMenu.c_str()] = MenuEvent::OnKinectMenu;
-        m_mstc_map[(*g_UIStringHolder)->levelUpMenu.c_str()] = MenuEvent::OnLevelUpMenu;
-        m_mstc_map[(*g_UIStringHolder)->magicMenu.c_str()] = MenuEvent::OnMagicMenu;
-        m_mstc_map[(*g_UIStringHolder)->mistMenu.c_str()] = MenuEvent::OnMistMenu;
-        m_mstc_map[(*g_UIStringHolder)->raceSexMenu.c_str()] = MenuEvent::OnRaceSexMenu;
-        m_mstc_map[(*g_UIStringHolder)->sleepWaitMenu.c_str()] = MenuEvent::OnSleepWaitMenu;
-        m_mstc_map[(*g_UIStringHolder)->modManagerMenu.c_str()] = MenuEvent::OnModManagerMenu;
-        m_mstc_map[(*g_UIStringHolder)->quantityMenu.c_str()] = MenuEvent::OnQuantityMenu;
-        m_mstc_map[(*g_UIStringHolder)->refreshMenu.c_str()] = MenuEvent::OnRefreshMenu;
-        m_mstc_map[(*g_UIStringHolder)->faderMenu.c_str()] = MenuEvent::OnFaderMenu;
-        m_mstc_map[(*g_UIStringHolder)->loadWaitSpinner.c_str()] = MenuEvent::OnLoadWaitSpinner;
-        m_mstc_map[(*g_UIStringHolder)->streamingInstallMenu.c_str()] = MenuEvent::OnStreamingInstallMenu;
-        m_mstc_map[(*g_UIStringHolder)->debugTextMenu.c_str()] = MenuEvent::OnDebugTextMenu;
-        m_mstc_map[(*g_UIStringHolder)->tweenMenu.c_str()] = MenuEvent::OnTweenMenu;
-        m_mstc_map[(*g_UIStringHolder)->overlayMenu.c_str()] = MenuEvent::OnOverlayMenu;
-        m_mstc_map[(*g_UIStringHolder)->overlayInteractionMenu.c_str()] = MenuEvent::OnOverlayInteractionMenu;
-        m_mstc_map[(*g_UIStringHolder)->titleSequenceMenu.c_str()] = MenuEvent::OnTitleSequenceMenu;
-        m_mstc_map[(*g_UIStringHolder)->consoleNativeUIMenu.c_str()] = MenuEvent::OnConsoleNativeUIMenu;
-        m_mstc_map[(*g_UIStringHolder)->containerMenu.c_str()] = MenuEvent::OnContainerMenu;
-        m_mstc_map[(*g_UIStringHolder)->messageBoxMenu.c_str()] = MenuEvent::OnMessageBoxMenu;
+        auto UIStringHolder_ptr = UIStringHolder::GetSingleton();
+
+        m_mstc_map[UIStringHolder_ptr->loadingMenu.c_str()] = MenuEvent::OnLoadingMenu;
+        m_mstc_map[UIStringHolder_ptr->mainMenu.c_str()] = MenuEvent::OnMainMenu;
+        m_mstc_map[UIStringHolder_ptr->console.c_str()] = MenuEvent::OnConsoleMenu;
+        m_mstc_map[UIStringHolder_ptr->mapMenu.c_str()] = MenuEvent::OnMapMenu;
+        m_mstc_map[UIStringHolder_ptr->inventoryMenu.c_str()] = MenuEvent::OnInventoryMenu;
+        m_mstc_map[UIStringHolder_ptr->closeMenu.c_str()] = MenuEvent::OnCloseMenu;
+        m_mstc_map[UIStringHolder_ptr->favoritesMenu.c_str()] = MenuEvent::OnFavoritesMenu;
+        m_mstc_map[UIStringHolder_ptr->barterMenu.c_str()] = MenuEvent::OnBarterMenu;
+        m_mstc_map[UIStringHolder_ptr->bookMenu.c_str()] = MenuEvent::OnBookMenu;
+        m_mstc_map[UIStringHolder_ptr->craftingMenu.c_str()] = MenuEvent::OnCraftingMenu;
+        m_mstc_map[UIStringHolder_ptr->creditsMenu.c_str()] = MenuEvent::OnCreditsMenu;
+        m_mstc_map[UIStringHolder_ptr->dialogueMenu.c_str()] = MenuEvent::OnDialogueMenu;
+        m_mstc_map[UIStringHolder_ptr->lockpickingMenu.c_str()] = MenuEvent::OnLockpickingMenu;
+        m_mstc_map[UIStringHolder_ptr->trainingMenu.c_str()] = MenuEvent::OnTrainingMenu;
+        m_mstc_map[UIStringHolder_ptr->tutorialMenu.c_str()] = MenuEvent::OnTutorialMenu;
+        m_mstc_map[UIStringHolder_ptr->giftMenu.c_str()] = MenuEvent::OnGiftMenu;
+        m_mstc_map[UIStringHolder_ptr->statsMenu.c_str()] = MenuEvent::OnStatsMenu;
+        m_mstc_map[UIStringHolder_ptr->topMenu.c_str()] = MenuEvent::OnTopMenu;
+        m_mstc_map[UIStringHolder_ptr->hudMenu.c_str()] = MenuEvent::OnHUDMenu;
+        m_mstc_map[UIStringHolder_ptr->journalMenu.c_str()] = MenuEvent::OnJournalMenu;
+        m_mstc_map[UIStringHolder_ptr->cursorMenu.c_str()] = MenuEvent::OnCursorMenu;
+        m_mstc_map[UIStringHolder_ptr->kinectMenu.c_str()] = MenuEvent::OnKinectMenu;
+        m_mstc_map[UIStringHolder_ptr->levelUpMenu.c_str()] = MenuEvent::OnLevelUpMenu;
+        m_mstc_map[UIStringHolder_ptr->magicMenu.c_str()] = MenuEvent::OnMagicMenu;
+        m_mstc_map[UIStringHolder_ptr->mistMenu.c_str()] = MenuEvent::OnMistMenu;
+        m_mstc_map[UIStringHolder_ptr->raceSexMenu.c_str()] = MenuEvent::OnRaceSexMenu;
+        m_mstc_map[UIStringHolder_ptr->sleepWaitMenu.c_str()] = MenuEvent::OnSleepWaitMenu;
+        m_mstc_map[UIStringHolder_ptr->modManagerMenu.c_str()] = MenuEvent::OnModManagerMenu;
+        m_mstc_map[UIStringHolder_ptr->quantityMenu.c_str()] = MenuEvent::OnQuantityMenu;
+        m_mstc_map[UIStringHolder_ptr->refreshMenu.c_str()] = MenuEvent::OnRefreshMenu;
+        m_mstc_map[UIStringHolder_ptr->faderMenu.c_str()] = MenuEvent::OnFaderMenu;
+        m_mstc_map[UIStringHolder_ptr->loadWaitSpinner.c_str()] = MenuEvent::OnLoadWaitSpinner;
+        m_mstc_map[UIStringHolder_ptr->streamingInstallMenu.c_str()] = MenuEvent::OnStreamingInstallMenu;
+        m_mstc_map[UIStringHolder_ptr->debugTextMenu.c_str()] = MenuEvent::OnDebugTextMenu;
+        m_mstc_map[UIStringHolder_ptr->tweenMenu.c_str()] = MenuEvent::OnTweenMenu;
+        m_mstc_map[UIStringHolder_ptr->overlayMenu.c_str()] = MenuEvent::OnOverlayMenu;
+        m_mstc_map[UIStringHolder_ptr->overlayInteractionMenu.c_str()] = MenuEvent::OnOverlayInteractionMenu;
+        m_mstc_map[UIStringHolder_ptr->titleSequenceMenu.c_str()] = MenuEvent::OnTitleSequenceMenu;
+        m_mstc_map[UIStringHolder_ptr->consoleNativeUIMenu.c_str()] = MenuEvent::OnConsoleNativeUIMenu;
+        m_mstc_map[UIStringHolder_ptr->containerMenu.c_str()] = MenuEvent::OnContainerMenu;
+        m_mstc_map[UIStringHolder_ptr->messageBoxMenu.c_str()] = MenuEvent::OnMessageBoxMenu;
         m_mstc_map["CustomMenu"] = MenuEvent::OnCustomMenu;
     }
 
-    auto MenuOpenCloseEventHandler::ReceiveEvent(MenuOpenCloseEvent* evn, EventDispatcherEx<MenuOpenCloseEvent>* dispatcher)
+    auto MenuOpenCloseEventHandler::ReceiveEvent(MenuOpenCloseEvent* evn, EventDispatcher<MenuOpenCloseEvent>* dispatcher)
         -> EventResult
     {
         if (evn) {
@@ -149,7 +151,7 @@ namespace SDT
         return EventResult::kEvent_Continue;
     }
 
-    auto MenuOpenCloseEventInitializer::ReceiveEvent(MenuOpenCloseEvent* evn, EventDispatcherEx<MenuOpenCloseEvent>* dispatcher)
+    auto MenuOpenCloseEventInitializer::ReceiveEvent(MenuOpenCloseEvent* evn, EventDispatcher<MenuOpenCloseEvent>* dispatcher)
         -> EventResult
     {
         IEvents::m_Instance.CreateMSTCMap();

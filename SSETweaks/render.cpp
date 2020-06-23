@@ -175,7 +175,8 @@ namespace SDT
         tearing_enabled(false), has_fl_override(false),
         fps_limit(-1), present_flags(0),
         lslExtraTime(0), lslPostLoadExtraTime(0),
-        oo_expire_time(0), gameLoadState(0)
+        oo_expire_time(0), oo_current_fps_max(0),
+        gameLoadState(0)
     {
         swapchain.flags = 0;
         swapchain.width = 0;
@@ -328,7 +329,7 @@ namespace SDT
 
     void DRender::PostLoadConfig()
     {
-        tts = fts = PerfCounter::Query();
+        tts = PerfCounter::Query();
 
         if (conf.upscale) {
             if (!(!conf.fullscreen && conf.borderless))
@@ -676,7 +677,7 @@ namespace SDT
         has_fl_override = false;
     }
 
-    bool DRender::OnMenuEvent(MenuEvent code, MenuOpenCloseEvent* evn, EventDispatcherEx<MenuOpenCloseEvent>*)
+    bool DRender::OnMenuEvent(MenuEvent code, MenuOpenCloseEvent* evn, EventDispatcher<MenuOpenCloseEvent>*)
     {
         auto& fl = m_Instance.m_uifl;
         MenuFramerateLimitDescriptor ld;
@@ -972,7 +973,7 @@ namespace SDT
         auto evd_pre = D3D11CreateEventPre(pSwapChainDesc);
         IEvents::TriggerEvent(Event::OnD3D11PreCreate, reinterpret_cast<void*>(&evd_pre));
 
-        HRESULT hr = m_Instance.D3D11CreateDeviceAndSwapChain_JMP(
+        HRESULT hr = D3D11CreateDeviceAndSwapChain_JMP(
             pAdapter, DriverType, Software, Flags,
             pFeatureLevels, FeatureLevels, SDKVersion,
             pSwapChainDesc, ppSwapChain, ppDevice, pFeatureLevel,
@@ -1009,8 +1010,7 @@ namespace SDT
             if (SUCCEEDED(factory.As(&tmp))) {
                 dxgi.caps = (
                     DXGI_CAP_FLIP_SEQUENTIAL |
-                    DXGI_CAP_FLIP_DISCARD
-                    );
+                    DXGI_CAP_FLIP_DISCARD);
 
                 BOOL allowTearing;
                 hr = tmp->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &allowTearing, sizeof(allowTearing));
@@ -1028,8 +1028,7 @@ namespace SDT
             if (SUCCEEDED(factory.As(&tmp))) {
                 dxgi.caps = (
                     DXGI_CAP_FLIP_SEQUENTIAL |
-                    DXGI_CAP_FLIP_DISCARD
-                    );
+                    DXGI_CAP_FLIP_DISCARD);
 
                 return;
             }
@@ -1057,12 +1056,12 @@ namespace SDT
             }
 
             ComPtr<IDXGIOutput6> output6;
-            if (SUCCEEDED(output->QueryInterface(__uuidof(IDXGIOutput6), &output6)))
+            if (SUCCEEDED(output.As(&output6)))
             {
                 UINT flags;
                 HRESULT hr = output6->CheckHardwareCompositionSupport(&flags);
 
-                if (SUCCEEDED(hr) && flags & DXGI_HARDWARE_COMPOSITION_SUPPORT_FLAG_WINDOWED) {
+                if (SUCCEEDED(hr) && (flags & DXGI_HARDWARE_COMPOSITION_SUPPORT_FLAG_WINDOWED)) {
                     return true;
                 }
             }

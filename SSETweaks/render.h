@@ -159,12 +159,11 @@ namespace SDT
 
         static void MessageHandler(Event m_code, void* args);
         static void OnConfigLoad(Event m_code, void* args);
-        static bool OnMenuEvent(MenuEvent m_code, MenuOpenCloseEvent* evn, EventDispatcherEx<MenuOpenCloseEvent>* dispatcher);
+        static bool OnMenuEvent(MenuEvent m_code, MenuOpenCloseEvent* evn, EventDispatcher<MenuOpenCloseEvent>* dispatcher);
 
         void SetFPSLimitOverride(long long max, bool disable_vsync);
         void ResetFPSLimitOverride();
 
-        long long fts;
         long long tts;
         int fps_limit;
         bool has_swap_effect;

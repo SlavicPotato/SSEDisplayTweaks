@@ -58,40 +58,41 @@ extern "C"
             GET_EXE_VERSION_BUILD(skse->runtimeVersion),
             GET_EXE_VERSION_SUB(skse->runtimeVersion));
 
-        if (!SDT::IAL::IsLoaded()) {
+        if (!IAL::IsLoaded()) {
             _FATALERROR("Could not load the address library");
             return false;
         }
 
-        if (SDT::IAL::HasBadQuery()) {
+        if (IAL::HasBadQuery()) {
             _FATALERROR("One or more addresses could not be retrieved from the database");
             return false;
         }
 
-        auto tStart = SDT::PerfCounter::Query();
+        auto tStart = PerfCounter::Query();
 
         bool result = SDT::Initialize(skse);
 
-        auto tInit = SDT::PerfCounter::delta<float>(
-            tStart, SDT::PerfCounter::Query());
+        auto tInit = PerfCounter::delta(
+            tStart, PerfCounter::Query());
 
-        tStart = SDT::PerfCounter::Query();
+        tStart = PerfCounter::Query();
 
-        SDT::IAL::Unload();
+        IAL::Release();
 
-        auto tUnload = SDT::PerfCounter::delta<float>(
-            tStart, SDT::PerfCounter::Query());
+        auto tUnload = PerfCounter::delta(
+            tStart, PerfCounter::Query());
 
         if (result) {
             _DMESSAGE("[%s] db load: %.3f ms, init: %.3f ms, db unload: %.3f ms", __FUNCTION__,
-                SDT::IAL::GetLoadTime() * 1000.0f, tInit * 1000.0f, tUnload * 1000.0f);
+                IAL::GetLoadTime() * 1000.0f, tInit * 1000.0f, tUnload * 1000.0f);
         }
 
         return result;
     }
 };
 
-BOOL APIENTRY DllMain(HMODULE hModule,
+BOOL APIENTRY DllMain(
+    HMODULE hModule,
     DWORD  ul_reason_for_call,
     LPVOID lpReserved
 )

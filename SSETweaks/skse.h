@@ -4,31 +4,6 @@ namespace SDT {
     constexpr size_t MAX_TRAMPOLINE_BRANCH = 256;
     constexpr size_t MAX_TRAMPOLINE_CODEGEN = 256;
 
-    class SettingCollectionListEx
-    {
-    public:
-        virtual ~SettingCollectionListEx();
-
-        struct Entry
-        {
-            Setting* setting;
-            Entry* next;
-        };
-
-        //	void	** _vtbl;	// 000
-        UInt64	pad008[(0x118 - 0x008) >> 3];
-        Entry	items;	// 118
-
-        MEMBER_FN_PREFIX(SettingCollectionListEx);
-        DEFINE_MEMBER_FN(Get_Internal, Setting*, offset1, const char* name);
-
-        Setting* Addr(const char* name);
-
-    private:
-        inline static auto offset1 = IAL::Offset(AID::INISettingsCollection_offset1);
-    };
-    STATIC_ASSERT(offsetof(SettingCollectionListEx, items) == 0x118);
-
     class MenuManagerEx :
         public MenuManager
     {
@@ -40,10 +15,8 @@ namespace SDT {
 
         static MenuManagerEx* GetSingleton(void)
         {
-            return *MenuManager_ptr;
+            return reinterpret_cast<MenuManagerEx*>(MenuManager::GetSingleton());
         }
-    private:
-        inline static auto MenuManager_ptr = IAL::Addr<MenuManagerEx**>(AID::MenuManager);
     };
     STATIC_ASSERT(sizeof(MenuManagerEx) == 0x1C8);
 
@@ -56,7 +29,7 @@ namespace SDT {
         template <typename T>
         static T GetINISettingAddr(const char* name)
         {
-            Setting* setting = (*iniSettingCollection)->Addr(name);
+            Setting* setting = (*g_iniSettingCollection)->Get(name);
             if (setting) {
                 return reinterpret_cast<T>(&setting->data);
             }
@@ -65,10 +38,8 @@ namespace SDT {
 
         static Setting* GetINISetting(const char* name)
         {
-            return (*iniSettingCollection)->Addr(name);
+            return (*g_iniSettingCollection)->Get(name);
         }
-
-        inline static auto iniSettingCollection = IAL::Addr<SettingCollectionListEx**>(AID::INISettingsCollection);
 
         static HMODULE g_moduleHandle;
         static PluginHandle g_pluginHandle;

@@ -58,60 +58,13 @@ namespace SDT
         OnMessageBoxMenu,
         OnCustomMenu
     };
-
-    template <typename T> class BSTEventSinkEx;
-
-    template <typename EventT, typename EventArgT = EventT>
-    class EventDispatcherEx
-    {
-        typedef BSTEventSinkEx<EventT> SinkT;
-
-        tArray<SinkT*>		eventSinks;			// 000
-        tArray<SinkT*>		addBuffer;			// 018 - schedule for add
-        tArray<SinkT*>		removeBuffer;		// 030 - schedule for remove
-        SimpleLock			lock;				// 048
-        bool				stateFlag;			// 050 - some internal state changed while sending
-        char				pad[7];				// 051
-
-        // Note: in SE there are multiple identical copies of all these functions 
-        MEMBER_FN_PREFIX(EventDispatcherEx);
-        // 66B1C7AC473D5EA48E4FD620BBFE0A06392C5885+66
-        DEFINE_MEMBER_FN(AddEventSink_Internal, void, EventDispatcherEx_offset1, SinkT* eventSink);
-        // ??_7BGSProcedureShoutExecState@@6B@ dtor | +43
-        DEFINE_MEMBER_FN(RemoveEventSink_Internal, void, EventDispatcherEx_offset2, SinkT* eventSink);
-        // D6BA7CEC95B2C2B9C593A9AEE7F0ADFFB2C10E11+456
-        DEFINE_MEMBER_FN(SendEvent_Internal, void, EventDispatcherEx_offset3, EventArgT* evn);
-
-    public:
-
-        EventDispatcherEx() : stateFlag(false) {}
-
-        void AddEventSink(SinkT* eventSink) { CALL_MEMBER_FN(this, AddEventSink_Internal)(eventSink); }
-        void RemoveEventSink(SinkT* eventSink) { CALL_MEMBER_FN(this, RemoveEventSink_Internal)(eventSink); }
-        void SendEvent(EventArgT* evn) { CALL_MEMBER_FN(this, SendEvent_Internal)(evn); }
-    private:
-
-        inline static auto EventDispatcherEx_offset1 = IAL::Offset(AID::EventDispatcher_offset1);
-        inline static auto EventDispatcherEx_offset2 = IAL::Offset(AID::EventDispatcher_offset2);
-        inline static auto EventDispatcherEx_offset3 = IAL::Offset(AID::EventDispatcher_offset3);
-    };
-    STATIC_ASSERT(sizeof(EventDispatcherEx<void*>) == 0x58);
-
-    // 08 
-    template <typename T>
-    class BSTEventSinkEx
-    {
-    public:
-        virtual ~BSTEventSinkEx() { };
-        virtual	EventResult	ReceiveEvent(T* evn, EventDispatcherEx<T>* dispatcher) { return kEvent_Continue; }; // pure
-    //	void	** _vtbl;	// 00
-    };
+       
 
     class MenuOpenCloseEventInitializer : 
-        public BSTEventSinkEx <MenuOpenCloseEvent>
+        public BSTEventSink <MenuOpenCloseEvent>
     {
     public:
-        virtual EventResult	ReceiveEvent(MenuOpenCloseEvent* evn, EventDispatcherEx<MenuOpenCloseEvent>* dispatcher) override;
+        virtual EventResult	ReceiveEvent(MenuOpenCloseEvent* evn, EventDispatcher<MenuOpenCloseEvent>* dispatcher) override;
 
         static MenuOpenCloseEventInitializer* GetSingleton()
         {
@@ -121,10 +74,10 @@ namespace SDT
     };
 
     class MenuOpenCloseEventHandler :
-        public BSTEventSinkEx <MenuOpenCloseEvent>
+        public BSTEventSink <MenuOpenCloseEvent>
     {
     public:
-        virtual EventResult	ReceiveEvent(MenuOpenCloseEvent* evn, EventDispatcherEx<MenuOpenCloseEvent>* dispatcher) override;
+        virtual EventResult	ReceiveEvent(MenuOpenCloseEvent* evn, EventDispatcher<MenuOpenCloseEvent>* dispatcher) override;
 
         static MenuOpenCloseEventHandler* GetSingleton()
         {
@@ -133,7 +86,7 @@ namespace SDT
         }
     };
 
-    typedef EventDispatcherEx<MenuOpenCloseEvent> EDE_MenuOpenCloseEvent;
+    typedef EventDispatcher<MenuOpenCloseEvent> EDE_MenuOpenCloseEvent;
     typedef void (*EventCallback)(Event, void*);
     typedef bool (*MenuEventCallback)(MenuEvent, MenuOpenCloseEvent*, EDE_MenuOpenCloseEvent*);
 
@@ -254,7 +207,6 @@ namespace SDT
         std::map<MenuEvent, std::vector<_MenuEventCallbackDescriptor>> m_menu_events;
 
         inline static auto phookLoadPluginINI = IAL::Addr<inihookproc>(AID::LoadPluginINI);
-        inline static auto g_UIStringHolder = IAL::Addr<UIStringHolder**>(AID::UIStringHolder);
         inline static auto LoadPluginINI_C = IAL::Addr(AID::Init0, Offsets::LoadPluginINI_C);
 
         MenuNameToCodeMap m_mstc_map;

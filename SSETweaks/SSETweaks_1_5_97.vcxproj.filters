@@ -21,9 +21,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="framework.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="pch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -78,15 +75,6 @@
     <ClInclude Include="misc.h">
       <Filter>Header Files\Drivers</Filter>
     </ClInclude>
-    <ClInclude Include="tlib.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="versiondb.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="addrlib.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="havok.h">
       <Filter>Header Files\Drivers</Filter>
     </ClInclude>
@@ -97,9 +85,6 @@
       <Filter>Header Files\Drivers</Filter>
     </ClInclude>
     <ClInclude Include="jitasm.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="rtti.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="input.h">
@@ -155,12 +140,6 @@
     <ClCompile Include="misc.cpp">
       <Filter>Source Files\Drivers</Filter>
     </ClCompile>
-    <ClCompile Include="tlib.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="addrlib.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="havok.cpp">
       <Filter>Source Files\Drivers</Filter>
     </ClCompile>
@@ -168,9 +147,6 @@
       <Filter>Source Files\Drivers</Filter>
     </ClCompile>
     <ClCompile Include="jitasm.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="rtti.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="input.cpp">

@@ -4,16 +4,6 @@ namespace SDT
 {
     DInput DInput::m_Instance;
 
-    bool InputEventDispatcherEx::IsGamepadEnabled(void)
-    {
-        return (gamepad != NULL) && gamepad->IsEnabled();
-    }
-
-    InputEventDispatcherEx* InputEventDispatcherEx::GetSingleton()
-    {
-        return *inputEventDispatcher;
-    }
-
     void DInput::RegisterHooks()
     {
         IEvents::RegisterForEvent(Event::OnMessage, MessageHandler);
@@ -41,7 +31,7 @@ namespace SDT
                 break;
             }
 
-            auto evd = InputEventDispatcherEx::GetSingleton();
+            auto evd = InputEventDispatcher::GetSingleton();
             if (evd) {
                 evd->AddEventSink(KeyPressHandler::GetSingleton());
                 m_Instance.Debug("Added input event sink");
@@ -61,7 +51,7 @@ namespace SDT
         }
     }
 
-    auto DInput::KeyPressHandler::ReceiveEvent(InputEvent** evns, InputEventDispatcherEx* dispatcher)
+    auto DInput::KeyPressHandler::ReceiveEvent(InputEvent** evns, InputEventDispatcher* dispatcher)
         -> EventResult
     {
         if (!*evns) {
@@ -72,7 +62,7 @@ namespace SDT
         {
             if (e->eventType == InputEvent::kEventType_Button)
             {
-                ButtonEvent* t = IRTTI::Cast<ButtonEvent>(e, RTTIInputEvent, RTTIButtonEvent);
+                ButtonEvent* t = IRTTI::Cast<ButtonEvent>(e, RTTI::InputEvent, RTTI::ButtonEvent);
 
                 UInt32	deviceType = t->deviceType;
 

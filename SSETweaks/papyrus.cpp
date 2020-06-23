@@ -128,7 +128,7 @@ namespace SDT
     float DPapyrus::CalculateUpdateBudget()
     {
         long long fte = PerfCounter::Query();
-        float cft = PerfCounter::delta<float>(m_Instance.fts, fte);
+        float cft = PerfCounter::delta(m_Instance.fts, fte);
         m_Instance.fts = fte;
 
         if (cft > m_Instance.t_max) {

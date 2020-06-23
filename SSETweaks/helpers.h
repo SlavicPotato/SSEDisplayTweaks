@@ -59,7 +59,7 @@ namespace StrHelpers
     }
 
     __inline void
-        SplitStringW(const wstring& s, wchar_t delim, vector<wstring>& elems)
+        SplitString(const wstring& s, wchar_t delim, vector<wstring>& elems)
     {
         wistringstream ss(s);
         wstring item;
@@ -71,10 +71,10 @@ namespace StrHelpers
 
     template <typename T>
     __inline void
-        SplitStringW(const wstring& s, wchar_t delim, vector<T>& elems)
+        SplitString(const wstring& s, wchar_t delim, vector<T>& elems)
     {
-        std::vector<wstring> tmp;
-        SplitStringW(s, delim, tmp);
+        vector<wstring> tmp;
+        SplitString(s, delim, tmp);
 
         if (tmp.size())
         {
@@ -90,7 +90,7 @@ namespace StrHelpers
     }
 
     __inline void
-        SplitStringA(const string& s, char delim, vector<string>& elems)
+        SplitString(const string& s, char delim, vector<string>& elems)
     {
         istringstream ss(s);
         string item;
@@ -102,10 +102,10 @@ namespace StrHelpers
 
     template <typename T>
     __inline void
-        SplitStringA(const string& s, char delim, vector<T>& elems)
+        SplitString(const string& s, char delim, vector<T>& elems)
     {
-        std::vector<string> tmp;
-        SplitStringA(s, delim, tmp);
+        vector<string> tmp;
+        SplitString(s, delim, tmp);
 
         if (tmp.size())
         {
@@ -119,7 +119,6 @@ namespace StrHelpers
             }
         }
     }
-
 
 #ifdef UNICODE
     __inline wstring ToNative(const string& str)
@@ -135,19 +134,6 @@ namespace StrHelpers
     __inline string StrToStr(const wstring& str)
     {
         return GetConverter()->to_bytes(str);
-    }
-
-    __inline uint32_t
-        SplitString(const wstring& s, wchar_t delim, vector<wstring>& elems)
-    {
-        return SplitStringW(s, delim, elems);
-    }
-
-    template <typename T>
-    __inline uint32_t
-        SplitString(const wstring& s, wchar_t delim, vector<T>& elems)
-    {
-        return SplitStringW<T>(s, delim, elems);
     }
 
 #else
@@ -166,18 +152,6 @@ namespace StrHelpers
         return str;
     }
 
-    __inline void
-        SplitString(const string& s, wchar_t delim, vector<string>& elems)
-    {
-        SplitStringA(s, delim, elems);
-    }
-
-    template <typename T>
-    __inline void
-        SplitString(const wstring& s, wchar_t delim, vector<T>& elems)
-    {
-        SplitStringA<T>(s, delim, elems);
-    }
 
 #endif
 

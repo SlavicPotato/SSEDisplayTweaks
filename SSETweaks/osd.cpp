@@ -1,5 +1,8 @@
 #include "pch.h"
 
+#define DIRECTINPUT_VERSION 0x0800
+#include <dinput.h>
+
 namespace SDT
 {
     constexpr char* SECTION_OSD = "OSD";
@@ -186,7 +189,7 @@ namespace SDT
     void DOSD::ConfigParseColors(const string& in, XMVECTORF32& out)
     {
         vector<float> cols;
-        StrHelpers::SplitStringA<float>(in, ' ', cols);
+        StrHelpers::SplitString<float>(in, ' ', cols);
         if (cols.size() > 2)
         {
             for (int i = 0; i < 3; i++) {
@@ -207,7 +210,7 @@ namespace SDT
     void DOSD::ConfigParseScale(const std::string& in, DirectX::XMFLOAT2& out)
     {
         vector<float> scale;
-        StrHelpers::SplitStringA<float>(in, ' ', scale);
+        StrHelpers::SplitString<float>(in, ' ', scale);
         if (scale.size() > 0)
         {
             if (scale.size() > 1) {
@@ -228,7 +231,7 @@ namespace SDT
     void DOSD::ConfigParseVector2(const std::string& in, DirectX::XMFLOAT2& out)
     {
         vector<float> v2;
-        StrHelpers::SplitStringA<float>(in, ' ', v2);
+        StrHelpers::SplitString<float>(in, ' ', v2);
         if (v2.size() > 0) {
             out.x = v2[0];
             if (v2.size() > 1) {
@@ -242,7 +245,7 @@ namespace SDT
         out = 0U;
 
         vector<string> items;
-        StrHelpers::SplitStringA(in, ',', items);
+        StrHelpers::SplitString(in, ',', items);
         for (auto s : items) {
             transform(s.begin(), s.end(), s.begin(), ::tolower);
             auto it = ItemToFlag.find(s);

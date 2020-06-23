@@ -1,29 +1,27 @@
 #ifndef PCH_H
 #define PCH_H
 
-#include "framework.h"
 #include "common/IMemPool.h"
+
 #include "skse64_common/skse_version.h"
 #include "skse64_common/Relocation.h"
 #include "skse64_common/SafeWrite.h"
 #include "skse64_common/BranchTrampoline.h"
+
 #include "skse64/PluginAPI.h"
-#include "skse64/PapyrusEvents.h"
-#include "skse64/GameData.h"
-#include "skse64/GameEvents.h"
-#include "skse64/GameMenus.h"
-#include "skse64/GameSettings.h"
-#include "skse64/Hooks_DirectInput8Create.h"
 #include "xbyak/xbyak.h"
 
-#include "detours/include/detours.h"
+#include "ext/ICommon.h"
+#include "skse64-m/GameData.h"
+#include "skse64-m/GameEvents.h"
+#include "skse64-m/GameMenus.h"
+#include "skse64-m/GameSettings.h"
 
 #include <list>
 #include <chrono>
 #include <string>
 #include <sstream> 
 #include <algorithm>
-//#include <mutex>
 #include <cmath>
 #include <atomic>
 #include <queue>
@@ -34,11 +32,10 @@
 #include <shlobj.h>
 #include <d3d11.h>
 #include <dxgi1_6.h>
-
 #include <wrl/client.h>
 
-#include <DirectXTK/Inc/SpriteFont.h>
-#include <DirectXTK/Inc/CommonStates.h>
+#include "Inc/SpriteFont.h"
+#include "Inc/CommonStates.h"
 
 #include "resource.h"
 
@@ -69,10 +66,7 @@ constexpr wchar_t* OSD_FONT_PATH = PLUGIN_BASE_PATHW L"SDTFonts\\";
 
 #include "helpers.h"
 #include "common.h"
-#include "tlib.h"
 #include "INIReader.h"
-#include "versiondb.h"
-#include "addrlib.h"
 #include "patching.h"
 #include "stats.h"
 #include "logging.h"
@@ -81,7 +75,6 @@ constexpr wchar_t* OSD_FONT_PATH = PLUGIN_BASE_PATHW L"SDTFonts\\";
 #include "drv_base.h"
 #include "dispatcher.h"
 #include "jitasm.h"
-#include "rtti.h"
 #include "events.h"
 #include "input.h"
 #include "render.h"

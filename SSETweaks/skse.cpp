@@ -9,11 +9,6 @@ namespace SDT
 
     SKSEMessagingInterface* ISKSE::g_messaging;
 
-    Setting* SettingCollectionListEx::Addr(const char* name)
-    {
-        return CALL_MEMBER_FN(this, Get_Internal)(name);
-    }
-
     bool ISKSE::Query(const SKSEInterface* skse, PluginInfo* info)
     {
         gLog.OpenRelative(CSIDL_MYDOCUMENTS, PLUGIN_LOG_PATH);

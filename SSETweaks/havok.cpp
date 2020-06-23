@@ -123,7 +123,7 @@ namespace SDT
     void DHavok::CalculateHavokValues()
     {
         long long fte = PerfCounter::Query();
-        float cft = PerfCounter::delta<float>(fts, fte);
+        float cft = PerfCounter::delta(fts, fte);
         fts = fte;
 
         if (cft > fmt_max) {
@@ -244,14 +244,14 @@ namespace SDT
     void DHavok::hookRTH()
     {
         m_Instance.CalculateHavokValues();
-        m_Instance.PhysFuncUnk0_O();
+        PhysFuncUnk0_O();
     }
 
     void DHavok::hookRTHStats()
     {
         m_Instance.CalculateHavokValues();
         m_Instance.UpdateHavokStats();
-        m_Instance.PhysFuncUnk0_O();
+        PhysFuncUnk0_O();
     }
 
     const wchar_t* DHavok::StatsRendererCallback1()
