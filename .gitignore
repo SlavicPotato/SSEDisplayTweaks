@@ -360,3 +360,4 @@ MigrationBackup/
 FodyWeavers.xsd
 /SSETweaks/SSEDisplayTweaks.ini
 /x64_v141/common_1_5_97_vc14/PreRelease
+/x64_v141/common_1_5_97_vc14/ReleaseAVX2
