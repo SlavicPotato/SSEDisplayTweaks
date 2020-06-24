@@ -15,6 +15,7 @@
 #include "skse64/GameEvents.h"
 #include "skse64/GameMenus.h"
 #include "skse64/GameSettings.h"
+#include "skse64/GameRTTI.h"
 
 #include <string>
 #include <vector>

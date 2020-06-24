@@ -172,7 +172,6 @@ namespace SDT
         typedef EventTriggerDescriptor<Event, EventCallback> _EventTriggerDescriptor;
         typedef EventTriggerDescriptor<MenuEvent, MenuEventCallback> _MenuEventCallbackDescriptor;
 
-
         static bool Initialize();
         static void RegisterForEvent(Event m_code, EventCallback fn);
         static void RegisterForEvent(MenuEvent m_code, MenuEventCallback fn);

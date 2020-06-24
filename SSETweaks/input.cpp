@@ -62,7 +62,7 @@ namespace SDT
         {
             if (e->eventType == InputEvent::kEventType_Button)
             {
-                ButtonEvent* t = IRTTI::Cast<ButtonEvent>(e, RTTI::InputEvent, RTTI::ButtonEvent);
+                auto t = DYNAMIC_CAST(e, InputEvent, ButtonEvent);
 
                 UInt32	deviceType = t->deviceType;
 

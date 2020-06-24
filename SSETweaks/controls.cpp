@@ -12,7 +12,7 @@ namespace SDT {
 
     void DControls::LoadConfig()
     {
-        conf.damping_fix = GetConfigValue(SECTION_CONTROLS, CKEY_DAMPINGFIX, false);
+        conf.damping_fix = GetConfigValue(SECTION_CONTROLS, CKEY_DAMPINGFIX, true);
         conf.tcpf_threshold = clamp(GetConfigValue(SECTION_CONTROLS, CKEY_TCPFTHRESH, 0.25f), 0.01f, 5.0f);
     }
 

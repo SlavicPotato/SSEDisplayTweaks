@@ -30,7 +30,6 @@ namespace SDT
         conf.fmt_max = GetConfigValue(SECTION_HAVOK, CKEY_MAXFPS, 0.0f);
         conf.fmtc_offset = std::clamp(GetConfigValue(SECTION_HAVOK, CKEY_FMTCOFFSET, 30.0f), 0.0f, 30.0f);
         conf.stats_enabled = GetConfigValue(SECTION_HAVOK, CKEY_STATSON, false);
-
         conf.adjust_ini = GetConfigValue(SECTION_GENERAL, CKEY_ADJUSTINICFG, true);
     }
 
