@@ -8,16 +8,6 @@ namespace SDT
     {
         m_Instance.RegisterHook(LoadPluginINI_C, reinterpret_cast<uintptr_t>(hookLoadPluginINI));
 
-        auto mm = MenuManager::GetSingleton();        
-        if (mm) {
-            auto dispatcher = mm->MenuOpenCloseEventDispatcher();
-            dispatcher->AddEventSink(MenuOpenCloseEventInitializer::GetSingleton());
-            dispatcher->AddEventSink(MenuOpenCloseEventHandler::GetSingleton());
-        }
-        else {
-            return false;
-        }
-
         if (!m_Instance.InstallHooks()) {
             m_Instance.FatalError("Could not install event hooks");
             return false;
@@ -84,6 +74,18 @@ namespace SDT
 
     void IEvents::MessageHandler(SKSEMessagingInterface::Message* message)
     {
+        if (message->type == SKSEMessagingInterface::kMessage_InputLoaded) {
+            auto mm = MenuManager::GetSingleton();
+            if (mm) {
+                auto dispatcher = mm->MenuOpenCloseEventDispatcher();
+                dispatcher->AddEventSink(MenuOpenCloseEventInitializer::GetSingleton());
+                dispatcher->AddEventSink(MenuOpenCloseEventHandler::GetSingleton());
+            }
+            else {
+                m_Instance.Error("Could not add menu open/close event sinks");
+            }
+        }
+
         m_Instance.TriggerEvent(OnMessage, reinterpret_cast<void*>(message));
     }
 
