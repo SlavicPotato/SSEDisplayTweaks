@@ -59,7 +59,7 @@ extern "C"
             GET_EXE_VERSION_SUB(skse->runtimeVersion));
 
         if (!IAL::IsLoaded()) {
-            _FATALERROR("Could not load the address library");
+            _FATALERROR("Could not load the address library, check requirements on the nexus page");
             return false;
         }
 

@@ -12,8 +12,7 @@ namespace SDT
 
     DWindow DWindow::m_Instance;
 
-    DWindow::DWindow() :
-        cursorLocked(false)
+    DWindow::DWindow()
     {
         upscaling.hWnd = NULL;
     }
@@ -61,7 +60,7 @@ namespace SDT
             { WM_WINDOWPOSCHANGED, WM_SIZING }),
             [&](HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             {
-                UpdateCursorLock(hWnd);
+                CaptureCursor(hWnd, true);
             });
 
         mp.Add(WM_ACTIVATE,
@@ -135,36 +134,13 @@ namespace SDT
         return false;
     }
 
-    void DWindow::UpdateCursorLock(HWND hwnd)
-    {
-        if (cursorLocked) {
-            SetCursorLock(hwnd);
-        }
-    }
-
     void DWindow::CaptureCursor(HWND hwnd, bool sw)
     {
         if (sw) {
-            if (!cursorLocked) {
-                cursorLocked = SetCursorLock(hwnd);
-                if (cursorLocked) {
-                    Debug("[0x%llX] Cursor locked", hwnd);
-                }
-                else {
-                    Error("[0x%llX] Could not lock cursor", hwnd);
-                }
-            }
+            SetCursorLock(hwnd);
         }
         else {
-            if (cursorLocked) {
-                cursorLocked = !static_cast<bool>(::ClipCursor(NULL));
-                if (!cursorLocked) {
-                    Debug("[0x%llX] Cursor unlocked", hwnd);
-                }
-                else {
-                    Error("[0x%llX] Could not unlock cursor", hwnd);
-                }
-            }
+            ::ClipCursor(NULL);
         }
     }
 

@@ -33,13 +33,13 @@ namespace SDT {
         if (conf.damping_fix)
         {
             struct MovementThresholdInject : JITASM {
-                MovementThresholdInject(uintptr_t retnAddr, void* maxvAddr)
+                MovementThresholdInject(uintptr_t retnAddr, float* maxvAddr)
                     : JITASM()
                 {
                     Xbyak::Label maxvLabel;
                     Xbyak::Label retnLabel;
 
-                    movss(xmm9, ptr[rip + maxvLabel]);
+                    movss(xmm9, dword[rip + maxvLabel]);
                     mov(dword[rsp + 0x30], 0x7F7FFFFF);
 
                     jmp(ptr[rip + retnLabel]);
@@ -48,10 +48,10 @@ namespace SDT {
                     dq(retnAddr);
 
                     L(maxvLabel);
-                    db(reinterpret_cast<Xbyak::uint8*>(maxvAddr), 4);
+                    db(reinterpret_cast<Xbyak::uint8*>(maxvAddr), sizeof(float));
                 }
             };
-
+  
             LogPatchBegin(CKEY_DAMPINGFIX);
             {
                 MovementThresholdInject code(MT_Inject + 0x8, &conf.tcpf_threshold);

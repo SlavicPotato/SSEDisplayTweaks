@@ -197,7 +197,7 @@ namespace SDT
         IEvents() = default;
         //void TriggerEvent(Event m_code, void* args);
 
-        static void hookLoadPluginINI();
+        static void PostLoadPluginINI_Hook();
         static void MessageHandler(SKSEMessagingInterface::Message* message);
 
         void CreateMSTCMap();

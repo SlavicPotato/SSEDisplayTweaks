@@ -6,7 +6,7 @@ namespace SDT
 
     bool IEvents::Initialize()
     {
-        m_Instance.RegisterHook(LoadPluginINI_C, reinterpret_cast<uintptr_t>(hookLoadPluginINI));
+        m_Instance.RegisterHook(LoadPluginINI_C, reinterpret_cast<uintptr_t>(PostLoadPluginINI_Hook));
 
         if (!m_Instance.InstallHooks()) {
             m_Instance.FatalError("Could not install event hooks");
@@ -66,7 +66,7 @@ namespace SDT
         }
     }
 
-    void IEvents::hookLoadPluginINI()
+    void IEvents::PostLoadPluginINI_Hook()
     {
         m_Instance.phookLoadPluginINI();
         m_Instance.TriggerEvent(OnConfigLoad, nullptr);
@@ -80,6 +80,7 @@ namespace SDT
                 auto dispatcher = mm->MenuOpenCloseEventDispatcher();
                 dispatcher->AddEventSink(MenuOpenCloseEventInitializer::GetSingleton());
                 dispatcher->AddEventSink(MenuOpenCloseEventHandler::GetSingleton());
+                m_Instance.Debug("Added menu event sinks");
             }
             else {
                 m_Instance.Error("Could not add menu open/close event sinks");

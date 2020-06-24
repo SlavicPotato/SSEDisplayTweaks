@@ -95,9 +95,7 @@ namespace SDT
         void SetupCursorLockMP();
         void SetupForceMinimizeMP();
 
-        bool cursorLocked;
         bool SetCursorLock(HWND hwnd);
-        void UpdateCursorLock(HWND hwnd);
         void CaptureCursor(HWND hwnd, bool sw);
 
         struct {
