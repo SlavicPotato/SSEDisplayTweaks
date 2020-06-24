@@ -329,10 +329,10 @@
     <ProjectReference Include="..\..\DirectXTK\DirectXTK_Desktop_2017_Win10.vcxproj">
       <Project>{e0b52ae7-e160-4d32-bf3f-910b785e5a8e}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\..\skse64\common\common_vc14.vcxproj">
+    <ProjectReference Include="..\..\sse-build-resources\skse64\common\common_vc14.vcxproj">
       <Project>{472e19ab-def0-42df-819b-18722e8dc822}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\..\skse64\skse64\skse64_common\skse64_common.vcxproj">
+    <ProjectReference Include="..\..\sse-build-resources\skse64\skse64\skse64_common\skse64_common.vcxproj">
       <Project>{5fd1c08d-db80-480c-a1c6-f0920005cd13}</Project>
     </ProjectReference>
     <ProjectReference Include="..\..\sse-build-resources\sse-build-resources.vcxproj">
