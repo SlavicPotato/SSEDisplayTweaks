@@ -86,9 +86,8 @@ namespace SDT
         }
     };
 
-    typedef EventDispatcher<MenuOpenCloseEvent> EDE_MenuOpenCloseEvent;
     typedef void (*EventCallback)(Event, void*);
-    typedef bool (*MenuEventCallback)(MenuEvent, MenuOpenCloseEvent*, EDE_MenuOpenCloseEvent*);
+    typedef bool (*MenuEventCallback)(MenuEvent, MenuOpenCloseEvent*, EventDispatcher<MenuOpenCloseEvent>*);
 
     template <typename E, typename C>
     class EventTriggerDescriptor
@@ -179,9 +178,9 @@ namespace SDT
         static void RegisterForEvent(MenuEvent m_code, MenuEventCallback fn);
         static void TriggerEvent(Event m_code, void* args);
         //static void TriggerMenuEvent(MenuEvent m_code, MenuOpenCloseEvent* evn, EDE_MenuOpenCloseEvent* dispatcher);
-        static void TriggerMenuEventAny(MenuEvent m_code, MenuOpenCloseEvent* evn, EDE_MenuOpenCloseEvent* dispatcher);
+        static void TriggerMenuEventAny(MenuEvent m_code, MenuOpenCloseEvent* evn, EventDispatcher<MenuOpenCloseEvent>* dispatcher);
 
-        void _TriggerMenuEvent(MenuEvent triggercode, MenuEvent code, MenuOpenCloseEvent* evn, EDE_MenuOpenCloseEvent* dispatcher);
+        void _TriggerMenuEvent(MenuEvent triggercode, MenuEvent code, MenuOpenCloseEvent* evn, EventDispatcher<MenuOpenCloseEvent>* dispatcher);
 
         static __inline MenuEvent GetMenuEventCode(const char* str)
         {

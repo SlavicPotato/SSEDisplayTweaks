@@ -15,7 +15,7 @@ namespace SDT
 
         m_Instance.Message("Installed event hooks");
 
-        auto dispatcher = reinterpret_cast<EDE_MenuOpenCloseEvent*>(MenuManager::GetSingleton()->MenuOpenCloseEventDispatcher());
+        auto dispatcher = MenuManager::GetSingleton()->MenuOpenCloseEventDispatcher();
         if (dispatcher) {
             dispatcher->AddEventSink(MenuOpenCloseEventInitializer::GetSingleton());
             dispatcher->AddEventSink(MenuOpenCloseEventHandler::GetSingleton());
@@ -55,12 +55,12 @@ namespace SDT
         m_Instance._TriggerMenuEvent(m_code, m_code, evn, dispatcher);
     }*/
 
-    void IEvents::TriggerMenuEventAny(MenuEvent m_code, MenuOpenCloseEvent* evn, EDE_MenuOpenCloseEvent* dispatcher)
+    void IEvents::TriggerMenuEventAny(MenuEvent m_code, MenuOpenCloseEvent* evn, EventDispatcher<MenuOpenCloseEvent>* dispatcher)
     {
         m_Instance._TriggerMenuEvent(MenuEvent::OnAnyMenu, m_code, evn, dispatcher);
     }
 
-    void IEvents::_TriggerMenuEvent(MenuEvent triggercode, MenuEvent code, MenuOpenCloseEvent* evn, EDE_MenuOpenCloseEvent* dispatcher)
+    void IEvents::_TriggerMenuEvent(MenuEvent triggercode, MenuEvent code, MenuOpenCloseEvent* evn, EventDispatcher<MenuOpenCloseEvent>* dispatcher)
     {
         auto& tl = m_menu_events[triggercode];
         auto it = tl.begin();
@@ -88,8 +88,6 @@ namespace SDT
 
     void IEvents::CreateMSTCMap()
     {
-        //_DMESSAGE("> %s   |   %s", __FUNCTION__, UIStringHolder_ptr->console.c_str());
-
         auto UIStringHolder_ptr = UIStringHolder::GetSingleton();
 
         m_mstc_map[UIStringHolder_ptr->loadingMenu.c_str()] = MenuEvent::OnLoadingMenu;
@@ -145,7 +143,6 @@ namespace SDT
             //_DMESSAGE(">>>>>>>>>>>> %d   [%s]  opening:%d | %d  ", code, evn->menuName.c_str(), evn->opening, MenuManagerEx::GetSingleton()->InPausedMenu());
 
             IEvents::TriggerMenuEventAny(code, evn, dispatcher);
-            //IEvents::TriggerMenuEvent(code, evn, reinterpret_cast<EDE_MenuOpenCloseEvent*>(dispatcher));
         }
 
         return EventResult::kEvent_Continue;
@@ -158,27 +155,5 @@ namespace SDT
         dispatcher->RemoveEventSink(this);
         return EventResult::kEvent_Continue;
     }
-
-
-    /*void MenuEventTrack::Dump()
-    {
-        _DMESSAGE("\n(");
-        for (const auto& m : m_stack)
-        {
-            bool found = false;
-            for (auto it = IEvents::m_Instance.m_mstc_map.begin(); it != IEvents::m_Instance.m_mstc_map.end(); ++it)
-                if (it->second == m) {
-                    _DMESSAGE("\t %s", it->first.c_str());
-                    found = true;
-                    break;
-                }
-
-            if (!found) {
-                _DMESSAGE("\t %d", m);
-            }
-        }
-        _DMESSAGE(")\n");
-    }*/
-
 }
 
