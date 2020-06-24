@@ -8,21 +8,22 @@ namespace SDT
     {
         m_Instance.RegisterHook(LoadPluginINI_C, reinterpret_cast<uintptr_t>(hookLoadPluginINI));
 
-        if (!m_Instance.InstallHooks()) {
-            m_Instance.FatalError("Could not install event hooks");
-            return false;
-        }
-
-        m_Instance.Message("Installed event hooks");
-
-        auto dispatcher = MenuManager::GetSingleton()->MenuOpenCloseEventDispatcher();
-        if (dispatcher) {
+        auto mm = MenuManager::GetSingleton();        
+        if (mm) {
+            auto dispatcher = mm->MenuOpenCloseEventDispatcher();
             dispatcher->AddEventSink(MenuOpenCloseEventInitializer::GetSingleton());
             dispatcher->AddEventSink(MenuOpenCloseEventHandler::GetSingleton());
         }
         else {
             return false;
         }
+
+        if (!m_Instance.InstallHooks()) {
+            m_Instance.FatalError("Could not install event hooks");
+            return false;
+        }
+
+        m_Instance.Message("Installed event hooks");
 
         ISKSE::g_messaging->RegisterListener(ISKSE::g_pluginHandle, "SKSE", MessageHandler);
 
