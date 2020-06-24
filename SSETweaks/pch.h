@@ -4,7 +4,6 @@
 #include "common/IMemPool.h"
 
 #include "skse64_common/skse_version.h"
-#include "skse64_common/Relocation.h"
 #include "skse64_common/SafeWrite.h"
 #include "skse64_common/BranchTrampoline.h"
 
@@ -12,19 +11,15 @@
 #include "xbyak/xbyak.h"
 
 #include "ext/ICommon.h"
-#include "skse64-m/GameData.h"
-#include "skse64-m/GameEvents.h"
-#include "skse64-m/GameMenus.h"
-#include "skse64-m/GameSettings.h"
+#include "skse64/GameData.h"
+#include "skse64/GameEvents.h"
+#include "skse64/GameMenus.h"
+#include "skse64/GameSettings.h"
 
-#include <list>
-#include <chrono>
 #include <string>
+#include <vector>
 #include <sstream> 
 #include <algorithm>
-#include <cmath>
-#include <atomic>
-#include <queue>
 #include <map>
 #include <unordered_map>
 #include <functional>

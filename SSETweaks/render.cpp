@@ -682,7 +682,7 @@ namespace SDT
         auto& fl = m_Instance.m_uifl;
         MenuFramerateLimitDescriptor ld;
 
-        auto mm = MenuManagerEx::GetSingleton();
+        auto mm = MenuManager::GetSingleton();
         if (mm->InPausedMenu())
         {
             fl.Track(code, evn->opening);

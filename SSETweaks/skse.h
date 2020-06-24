@@ -4,22 +4,6 @@ namespace SDT {
     constexpr size_t MAX_TRAMPOLINE_BRANCH = 256;
     constexpr size_t MAX_TRAMPOLINE_CODEGEN = 256;
 
-    class MenuManagerEx :
-        public MenuManager
-    {
-        friend class ISKSE;
-    public:
-        bool InPausedMenu() {
-            return numPauseGame > 0;
-        };
-
-        static MenuManagerEx* GetSingleton(void)
-        {
-            return reinterpret_cast<MenuManagerEx*>(MenuManager::GetSingleton());
-        }
-    };
-    STATIC_ASSERT(sizeof(MenuManagerEx) == 0x1C8);
-
     class ISKSE
     {
     public:

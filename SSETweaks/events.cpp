@@ -15,7 +15,7 @@ namespace SDT
 
         m_Instance.Message("Installed event hooks");
 
-        auto dispatcher = reinterpret_cast<EDE_MenuOpenCloseEvent*>(MenuManagerEx::GetSingleton()->MenuOpenCloseEventDispatcher());
+        auto dispatcher = reinterpret_cast<EDE_MenuOpenCloseEvent*>(MenuManager::GetSingleton()->MenuOpenCloseEventDispatcher());
         if (dispatcher) {
             dispatcher->AddEventSink(MenuOpenCloseEventInitializer::GetSingleton());
             dispatcher->AddEventSink(MenuOpenCloseEventHandler::GetSingleton());
