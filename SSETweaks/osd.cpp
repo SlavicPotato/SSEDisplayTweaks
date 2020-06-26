@@ -100,6 +100,12 @@ namespace SDT
 
     void DOSD::PostLoadConfig()
     {
+        auto rd = IDDispatcher::GetDriver<DRender>(DRIVER_RENDER);
+        if (!rd->IsOK()) {
+            Warning("Render driver unavailable, disabling");
+            conf.enabled = false;
+        }
+
         if (conf.enabled)
         {
             if (!conf.key || conf.key >= InputMap::kMaxMacros) {

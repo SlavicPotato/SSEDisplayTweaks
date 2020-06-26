@@ -15,10 +15,16 @@ namespace SDT
         LoadConfig();
         PostLoadConfig();
         RegisterHooks();
-        if (!InstallHooks()) {
-            return false;
+
+        if (IsOK()) {
+            if (InstallHooks()) { // can't softfail atm
+                Patch();
+            }
+            else {
+                SetOK(false);
+            }
         }
-        Patch();
+
         //RegisterPapyrusFunctions();
 
         b_Initialized = true;

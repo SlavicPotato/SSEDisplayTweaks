@@ -106,6 +106,7 @@ namespace SDT
         if (mp.HasProcessors() || conf.upscale) {
             if (!Hook::Call6(CreateWindowEx_C, reinterpret_cast<uintptr_t>(CreateWindowExA_Hook), CreateWindowExA_O)) {
                 Error("CreateWindowExA hook failed");
+                SetOK(false);
                 return;
             }
         }

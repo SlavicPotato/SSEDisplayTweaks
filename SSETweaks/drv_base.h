@@ -70,7 +70,7 @@ namespace SDT {
         //void SetPapyrusFuncRegProc(SKSEPapyrusInterface::RegisterFunctions proc);
 
         bool Initialize();
-        void SetOK(bool b = true) { b_IsOK = b; }
+        void SetOK(bool b) { b_IsOK = b; }
         virtual bool Prepare() { return false; };
 
     private:
