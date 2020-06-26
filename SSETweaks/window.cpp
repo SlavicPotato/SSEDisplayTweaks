@@ -104,7 +104,10 @@ namespace SDT
     void DWindow::RegisterHooks()
     {
         if (mp.HasProcessors() || conf.upscale) {
-            ASSERT(Hook::Call6(CreateWindowEx_C, reinterpret_cast<uintptr_t>(CreateWindowExA_Hook), CreateWindowExA_O));
+            if (!Hook::Call6(CreateWindowEx_C, reinterpret_cast<uintptr_t>(CreateWindowExA_Hook), CreateWindowExA_O)) {
+                Error("CreateWindowExA hook failed");
+                return;
+            }
         }
 
         if (conf.upscale) {

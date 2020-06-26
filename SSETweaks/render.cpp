@@ -576,8 +576,14 @@ namespace SDT
 
     void DRender::RegisterHooks()
     {
-        ASSERT(Hook::Call5(D3D11CreateDeviceAndSwapChain_C, reinterpret_cast<uintptr_t>(D3D11CreateDeviceAndSwapChain_Hook), D3D11CreateDeviceAndSwapChain_O));
-        ASSERT(Hook::Call5(CreateDXGIFactory_C, reinterpret_cast<uintptr_t>(CreateDXGIFactory_Hook), CreateDXGIFactory_O));
+        if (Hook::Call5(CreateDXGIFactory_C, reinterpret_cast<uintptr_t>(CreateDXGIFactory_Hook), CreateDXGIFactory_O)) {
+            if (!Hook::Call5(D3D11CreateDeviceAndSwapChain_C, reinterpret_cast<uintptr_t>(D3D11CreateDeviceAndSwapChain_Hook), D3D11CreateDeviceAndSwapChain_O)) {
+                Error("D3D11CreateDeviceAndSwapChain hook failed");
+            }
+        }
+        else {
+            Error("CreateDXGIFactory hook failed");
+        }
 
         if (HasLimits()) {
             RegisterHook(
