@@ -11,6 +11,7 @@
 #include "xbyak/xbyak.h"
 
 #include "ext/ICommon.h"
+#include "ext/IHook.h"
 #include "skse64/GameData.h"
 #include "skse64/GameEvents.h"
 #include "skse64/GameMenus.h"
