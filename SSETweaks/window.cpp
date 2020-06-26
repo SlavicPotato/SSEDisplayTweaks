@@ -10,6 +10,8 @@ namespace SDT
     constexpr const char* CKEY_LOCKCURSOR = "LockCursor";
     constexpr const char* CKEY_FORCEMIN = "ForceMinimize";
 
+    DWindow::CreateWindowExA_T DWindow::CreateWindowExA_O;
+
     DWindow DWindow::m_Instance;
 
     DWindow::DWindow()
@@ -102,11 +104,7 @@ namespace SDT
     void DWindow::RegisterHooks()
     {
         if (mp.HasProcessors() || conf.upscale) {
-            RegisterHook(
-                CreateWindowEx_C,
-                reinterpret_cast<uintptr_t>(phookCreateWindowExA),
-                HookDescriptor::kWR6Call
-            );
+            ASSERT(Hook::Call6(CreateWindowEx_C, reinterpret_cast<uintptr_t>(CreateWindowExA_Hook), CreateWindowExA_O));
         }
 
         if (conf.upscale) {
@@ -144,7 +142,7 @@ namespace SDT
         }
     }
 
-    HWND WINAPI DWindow::phookCreateWindowExA(
+    HWND WINAPI DWindow::CreateWindowExA_Hook(
         _In_ DWORD dwExStyle,
         _In_opt_ LPCSTR lpClassName,
         _In_opt_ LPCSTR lpWindowName,
@@ -158,7 +156,7 @@ namespace SDT
         _In_opt_ HINSTANCE hInstance,
         _In_opt_ LPVOID lpParam)
     {
-        HWND hWnd = ::CreateWindowExA(
+        HWND hWnd = CreateWindowExA_O(
             dwExStyle, lpClassName, lpWindowName, dwStyle,
             X, Y, nWidth, nHeight,
             hWndParent, hMenu, hInstance, lpParam);

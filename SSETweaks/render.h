@@ -48,6 +48,8 @@ namespace SDT
 
         typedef std::unordered_map<MenuEvent, std::string> MCLDMap;
         static MCLDMap menuCodeToLimitDesc;
+
+        typedef HRESULT(WINAPI* CreateDXGIFactory_T)(REFIID riid, _COM_Outptr_ void** ppFactory);
     public:
         typedef void(*RTProcR) (void);
         typedef void(*PhysCalcR) (void*, int32_t);
@@ -141,7 +143,7 @@ namespace SDT
         static void OnD3D11PreCreate(IDXGIAdapter* pAdapter, const DXGI_SWAP_CHAIN_DESC* pSwapChainDesc);
         static void OnD3D11PostCreate(const DXGI_SWAP_CHAIN_DESC* pSwapChainDesc, ID3D11Device** ppDevice);
 
-        static HRESULT WINAPI hookD3D11CreateDeviceAndSwapChain(_In_opt_ IDXGIAdapter* pAdapter,
+        static HRESULT WINAPI D3D11CreateDeviceAndSwapChain_Hook(_In_opt_ IDXGIAdapter* pAdapter,
             D3D_DRIVER_TYPE DriverType,
             HMODULE Software,
             UINT Flags,
@@ -153,6 +155,8 @@ namespace SDT
             _COM_Outptr_opt_ ID3D11Device** ppDevice,
             _Out_opt_ D3D_FEATURE_LEVEL* pFeatureLevel,
             _COM_Outptr_opt_ ID3D11DeviceContext** ppImmediateContext);
+
+        static HRESULT WINAPI CreateDXGIFactory_Hook(REFIID riid, _COM_Outptr_ void** ppFactory);
 
         void DXGI_GetCapabilities();
         bool HasWindowedHWCompositionSupport(IDXGIAdapter* adapter) const;
@@ -197,8 +201,13 @@ namespace SDT
         uint8_t* bLockFramerate;
         int32_t* iFPSClamp;
 
+        IDXGIFactory* pFactory;
+
+        static PFN_D3D11_CREATE_DEVICE_AND_SWAP_CHAIN D3D11CreateDeviceAndSwapChain_O;
+        static CreateDXGIFactory_T CreateDXGIFactory_O;
+
+        inline static auto CreateDXGIFactory_C = IAL::Addr(AID::D3D11Create, Offsets::CreateDXGIFactory_C);
         inline static auto D3D11CreateDeviceAndSwapChain_C = IAL::Addr(AID::D3D11Create, Offsets::D3D11CreateDeviceAndSwapChain_C);
-        inline static auto D3D11CreateDeviceAndSwapChain_JMP = IAL::Addr<PFN_D3D11_CREATE_DEVICE_AND_SWAP_CHAIN>(AID::D3D11CreateDeviceAndSwapChain_JMP);
         inline static auto Present_Limiter = IAL::Addr(AID::Present, Offsets::Present_Limiter);
         inline static auto Present_Flags_Inject = IAL::Addr(AID::Present, Offsets::Present_Flags_Inject);
 

@@ -45,6 +45,20 @@ namespace SDT
         public IDriver,
         IConfig
     {
+        typedef HWND (WINAPI* CreateWindowExA_T)(
+            _In_ DWORD dwExStyle,
+            _In_opt_ LPCSTR lpClassName,
+            _In_opt_ LPCSTR lpWindowName,
+            _In_ DWORD dwStyle,
+            _In_ int X,
+            _In_ int Y,
+            _In_ int nWidth,
+            _In_ int nHeight,
+            _In_opt_ HWND hWndParent,
+            _In_opt_ HMENU hMenu,
+            _In_opt_ HINSTANCE hInstance,
+            _In_opt_ LPVOID lpParam);
+
     public:
         FN_NAMEPROC("Window")
         FN_ESSENTIAL(false)
@@ -73,7 +87,7 @@ namespace SDT
                 _In_opt_ HINSTANCE hInstance,
                 _In_opt_ LPVOID lpParam);
                 */
-        static HWND WINAPI phookCreateWindowExA(
+        static HWND WINAPI CreateWindowExA_Hook(
             _In_ DWORD dwExStyle,
             _In_opt_ LPCSTR lpClassName,
             _In_opt_ LPCSTR lpWindowName,
@@ -86,6 +100,8 @@ namespace SDT
             _In_opt_ HMENU hMenu,
             _In_opt_ HINSTANCE hInstance,
             _In_opt_ LPVOID lpParam);
+
+        static CreateWindowExA_T CreateWindowExA_O;
 
         virtual void LoadConfig() override;
         virtual void PostLoadConfig() override;

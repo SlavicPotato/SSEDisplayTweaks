@@ -87,6 +87,8 @@ namespace SDT
         // 40555357488DAC248092FFFFB8806E0000E8????????482BE0488D542460488D0D????????+2E3  (75589)
         constexpr uintptr_t D3D11CreateDeviceAndSwapChain_C = 0x2E3;
 
+        constexpr uintptr_t CreateDXGIFactory_C = 0x25;
+
         //constexpr uintptr_t IDXGISwapChain_Present_C = 0xD6A027;
 
         // 35548

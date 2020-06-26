@@ -61,6 +61,9 @@ namespace SDT
 
     using namespace Structures;
 
+    PFN_D3D11_CREATE_DEVICE_AND_SWAP_CHAIN DRender::D3D11CreateDeviceAndSwapChain_O;
+    DRender::CreateDXGIFactory_T DRender::CreateDXGIFactory_O;
+
     DRender DRender::m_Instance;
 
     DRender::SEMap DRender::cfgSwapEffectMap = {
@@ -573,10 +576,8 @@ namespace SDT
 
     void DRender::RegisterHooks()
     {
-        RegisterHook(
-            D3D11CreateDeviceAndSwapChain_C,
-            reinterpret_cast<uintptr_t>(hookD3D11CreateDeviceAndSwapChain)
-        );
+        ASSERT(Hook::Call5(D3D11CreateDeviceAndSwapChain_C, reinterpret_cast<uintptr_t>(D3D11CreateDeviceAndSwapChain_Hook), D3D11CreateDeviceAndSwapChain_O));
+        ASSERT(Hook::Call5(CreateDXGIFactory_C, reinterpret_cast<uintptr_t>(CreateDXGIFactory_Hook), CreateDXGIFactory_O));
 
         if (HasLimits()) {
             RegisterHook(
@@ -959,7 +960,7 @@ namespace SDT
     {
     }
 
-    HRESULT WINAPI DRender::hookD3D11CreateDeviceAndSwapChain(
+    HRESULT WINAPI DRender::D3D11CreateDeviceAndSwapChain_Hook(
         _In_opt_ IDXGIAdapter* pAdapter,
         D3D_DRIVER_TYPE DriverType,
         HMODULE Software,
@@ -978,7 +979,7 @@ namespace SDT
         auto evd_pre = D3D11CreateEventPre(pSwapChainDesc);
         IEvents::TriggerEvent(Event::OnD3D11PreCreate, reinterpret_cast<void*>(&evd_pre));
 
-        HRESULT hr = D3D11CreateDeviceAndSwapChain_JMP(
+        HRESULT hr = D3D11CreateDeviceAndSwapChain_O(
             pAdapter, DriverType, Software, Flags,
             pFeatureLevels, FeatureLevels, SDKVersion,
             pSwapChainDesc, ppSwapChain, ppDevice, pFeatureLevel,
@@ -998,27 +999,32 @@ namespace SDT
         return hr;
     }
 
+    HRESULT WINAPI DRender::CreateDXGIFactory_Hook(REFIID riid, _COM_Outptr_ void** ppFactory)
+    {
+        HRESULT hr = CreateDXGIFactory_O(riid, ppFactory);
+        if (SUCCEEDED(hr)) {
+            m_Instance.pFactory = reinterpret_cast<IDXGIFactory*>(*ppFactory);
+        }
+        else {
+            m_Instance.FatalError("CreateDXGIFactory failed (%lX)", hr);
+            abort();
+        }
+        return hr;
+    }
+
     void DRender::DXGI_GetCapabilities()
     {
         dxgi.caps = 0;
 
-        ComPtr<IDXGIFactory> factory;
-        HRESULT hr = ::CreateDXGIFactory(IID_PPV_ARGS(&factory));
-
-        if (!SUCCEEDED(hr)) {
-            Warning("%s: CreateDXGIFactory failed", __FUNCTION__);
-            return;
-        }
-
         {
             ComPtr<IDXGIFactory5> tmp;
-            if (SUCCEEDED(factory.As(&tmp))) {
+            if (SUCCEEDED(pFactory->QueryInterface(__uuidof(IDXGIFactory5), &tmp))) {
                 dxgi.caps = (
                     DXGI_CAP_FLIP_SEQUENTIAL |
                     DXGI_CAP_FLIP_DISCARD);
 
                 BOOL allowTearing;
-                hr = tmp->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &allowTearing, sizeof(allowTearing));
+                HRESULT hr = tmp->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &allowTearing, sizeof(allowTearing));
 
                 if (SUCCEEDED(hr) && allowTearing) {
                     dxgi.caps |= DXGI_CAP_TEARING;
@@ -1030,7 +1036,7 @@ namespace SDT
 
         {
             ComPtr<IDXGIFactory4> tmp;
-            if (SUCCEEDED(factory.As(&tmp))) {
+            if (SUCCEEDED(pFactory->QueryInterface(__uuidof(IDXGIFactory4), &tmp))) {
                 dxgi.caps = (
                     DXGI_CAP_FLIP_SEQUENTIAL |
                     DXGI_CAP_FLIP_DISCARD);
@@ -1041,7 +1047,7 @@ namespace SDT
 
         {
             ComPtr<IDXGIFactory3> tmp;
-            if (SUCCEEDED(factory.As(&tmp))) {
+            if (SUCCEEDED(pFactory->QueryInterface(__uuidof(IDXGIFactory3), &tmp))) {
                 dxgi.caps = DXGI_CAP_FLIP_SEQUENTIAL;
             }
         }
