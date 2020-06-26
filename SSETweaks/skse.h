@@ -29,6 +29,9 @@ namespace SDT {
         static PluginHandle g_pluginHandle;
 
         static SKSEMessagingInterface* g_messaging;
+
+        static size_t branchTrampolineSize;
+        static size_t localTrampolineSize;
     protected:
         ISKSE() = default;
     };

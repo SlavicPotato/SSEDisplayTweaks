@@ -66,6 +66,7 @@ constexpr wchar_t* OSD_FONT_PATH = PLUGIN_BASE_PATHW L"SDTFonts\\";
 #include "patching.h"
 #include "stats.h"
 #include "logging.h"
+#include "os.h"
 #include "skse.h"
 #include "config.h"
 #include "drv_base.h"

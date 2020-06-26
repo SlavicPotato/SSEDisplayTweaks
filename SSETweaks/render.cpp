@@ -486,6 +486,7 @@ namespace SDT
                     uintptr_t(&modeDesc));
                 g_branchTrampoline.Write6Branch(
                     ResizeTarget, code.get());
+                safe_memset(ResizeTarget + 0x6, 0xCC, 0x2);
             }
             LogPatchEnd("IDXGISwapChain::ResizeTarget");
         }
@@ -521,6 +522,8 @@ namespace SDT
 
                 g_branchTrampoline.Write6Branch(
                     Present_Flags_Inject, code.get());
+
+                safe_write<uint8_t>(Present_Flags_Inject + 0x6, 0xCC);
             }
             LogPatchEnd("IDXGISwapChain::Present");
         }
@@ -561,6 +564,8 @@ namespace SDT
 
                 g_branchTrampoline.Write6Branch(
                     ResizeBuffers_Inject, code.get());
+
+                safe_memset(ResizeBuffers_Inject + 0x6, 0xCC, 0x12);
             }
             LogPatchEnd("IDXGISwapChain::ResizeBuffers");
         }

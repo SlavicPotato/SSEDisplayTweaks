@@ -96,6 +96,8 @@ namespace SDT
             {
                 UpdateBudgetInject code(UpdateBudgetGame, enable_stats);
                 g_branchTrampoline.Write6Branch(UpdateBudgetGame, code.get());
+
+                safe_memset(UpdateBudgetGame + 0x6, 0xCC, 2);
             }
             LogPatchEnd("UpdateBudget (game)");
 
@@ -103,6 +105,8 @@ namespace SDT
             {
                 UpdateBudgetInject code(UpdateBudgetUI, enable_stats);
                 g_branchTrampoline.Write6Branch(UpdateBudgetUI, code.get());
+
+                safe_memset(UpdateBudgetUI + 0x6, 0xCC, 2);
             }
             LogPatchEnd("UpdateBudget (UI)");
         }

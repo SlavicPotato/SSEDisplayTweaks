@@ -29,14 +29,11 @@ namespace SDT {
             return false;
         }
 
-        // Shouldn't be necessary since SKSE already flushes after plugin load
-        FlushInstructionCache(GetCurrentProcess(), NULL, 0);
-
         _DMESSAGE("[Trampoline] branch: %zu/%zu, codegen: %zu/%u",
-            MAX_TRAMPOLINE_BRANCH - g_branchTrampoline.Remain(),
-            MAX_TRAMPOLINE_BRANCH,
-            MAX_TRAMPOLINE_CODEGEN - g_localTrampoline.Remain(),
-            MAX_TRAMPOLINE_CODEGEN);
+            ISKSE::branchTrampolineSize - g_branchTrampoline.Remain(),
+            ISKSE::branchTrampolineSize,
+            ISKSE::localTrampolineSize - g_localTrampoline.Remain(),
+            ISKSE::localTrampolineSize);
 
         return true;
     }

@@ -9,6 +9,9 @@ namespace SDT
 
     SKSEMessagingInterface* ISKSE::g_messaging;
 
+    size_t ISKSE::branchTrampolineSize;
+    size_t ISKSE::localTrampolineSize;
+
     bool ISKSE::Query(const SKSEInterface* skse, PluginInfo* info)
     {
         gLog.OpenRelative(CSIDL_MYDOCUMENTS, PLUGIN_LOG_PATH);
@@ -48,16 +51,6 @@ namespace SDT
 
     bool ISKSE::Initialize(const SKSEInterface* skse)
     {
-        if (!g_branchTrampoline.Create(MAX_TRAMPOLINE_BRANCH)) {
-            _FATALERROR("Could not create branch trampoline.");
-            return false;
-        }
-
-        if (!g_localTrampoline.Create(MAX_TRAMPOLINE_CODEGEN)) {
-            _FATALERROR("Could not create codegen trampoline.");
-            return false;
-        }
-
         g_messaging = reinterpret_cast<SKSEMessagingInterface*>(skse->QueryInterface(kInterface_Messaging));
         if (g_messaging == nullptr) {
             _FATALERROR("Could not get messaging interface");
@@ -67,6 +60,27 @@ namespace SDT
         if (g_messaging->interfaceVersion < MIN_MESSAGING_INTERFACE_VER) {
             _FATALERROR("Messaging interface too old (%u expected >= %u)",
                 g_messaging->interfaceVersion, MIN_MESSAGING_INTERFACE_VER);
+            return false;
+        }
+
+        auto alignTo = GetAllocGranularity();
+        ASSERT(alignTo > 0);
+
+        auto r = MAX_TRAMPOLINE_BRANCH % alignTo;
+        branchTrampolineSize = r ? MAX_TRAMPOLINE_BRANCH + (alignTo - r) : MAX_TRAMPOLINE_BRANCH;
+
+        if (!g_branchTrampoline.Create(branchTrampolineSize))
+        {
+            _FATALERROR("Could not create branch trampoline.");
+            return false;
+        }
+
+        r = MAX_TRAMPOLINE_CODEGEN % alignTo;
+        localTrampolineSize = r ? MAX_TRAMPOLINE_CODEGEN + (alignTo - r) : MAX_TRAMPOLINE_CODEGEN;
+
+        if (!g_localTrampoline.Create(localTrampolineSize))
+        {
+            _FATALERROR("Could not create codegen trampoline.");
             return false;
         }
 
