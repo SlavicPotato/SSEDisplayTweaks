@@ -57,7 +57,7 @@ namespace SDT {
                 MovementThresholdInject code(MT_Inject + 0x8, &conf.tcpf_threshold);
                 g_branchTrampoline.Write6Branch(MT_Inject, code.get());
 
-                safe_memset(MT_Inject + 0x6, 0xCC, 0x2);
+                Patching::safe_memset(MT_Inject + 0x6, 0xCC, 0x2);
             }
             LogPatchEnd(CKEY_DAMPINGFIX);
         }

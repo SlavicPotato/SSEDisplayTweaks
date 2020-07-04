@@ -478,7 +478,6 @@
     <ClInclude Include="osd.h" />
     <ClInclude Include="papyrus.h" />
     <ClInclude Include="logging.h" />
-    <ClInclude Include="patching.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="plugin.h" />
     <ClInclude Include="render.h" />
@@ -502,7 +501,6 @@
     <ClCompile Include="os.cpp" />
     <ClCompile Include="osd.cpp" />
     <ClCompile Include="papyrus.cpp" />
-    <ClCompile Include="patching.cpp" />
     <ClCompile Include="render.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

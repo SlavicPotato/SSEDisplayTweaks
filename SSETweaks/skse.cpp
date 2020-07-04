@@ -63,11 +63,7 @@ namespace SDT
             return false;
         }
 
-        auto alignTo = GetAllocGranularity();
-        ASSERT(alignTo > 0);
-
-        auto r = MAX_TRAMPOLINE_BRANCH % alignTo;
-        branchTrampolineSize = r ? MAX_TRAMPOLINE_BRANCH + (alignTo - r) : MAX_TRAMPOLINE_BRANCH;
+        branchTrampolineSize = Hook::GetAlignedTrampolineSize(MAX_TRAMPOLINE_BRANCH);
 
         if (!g_branchTrampoline.Create(branchTrampolineSize))
         {
@@ -75,8 +71,7 @@ namespace SDT
             return false;
         }
 
-        r = MAX_TRAMPOLINE_CODEGEN % alignTo;
-        localTrampolineSize = r ? MAX_TRAMPOLINE_CODEGEN + (alignTo - r) : MAX_TRAMPOLINE_CODEGEN;
+        localTrampolineSize = Hook::GetAlignedTrampolineSize(MAX_TRAMPOLINE_CODEGEN);
 
         if (!g_localTrampoline.Create(localTrampolineSize))
         {

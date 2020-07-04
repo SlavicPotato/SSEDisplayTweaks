@@ -106,53 +106,12 @@ namespace SDT
     public:
         typedef std::unordered_map<MenuEvent, bool> TrackMap;
 
-        void SetTracked(TrackMap& map)
-        {
-            m_tracked = map;
-        };
-
-        void AddTracked(MenuEvent code)
-        {
-            m_tracked[code] = true;
-        }
-
-        void RemoveTracked(MenuEvent code)
-        {
-            m_tracked.erase(code);
-        }
-
-        //void Dump();
-
-        void Track(MenuEvent code, bool opening)
-        {
-            if (m_tracked.find(code) == m_tracked.end()) {
-                return;
-            }
-
-            if (opening) {
-                if (std::find(m_stack.begin(), m_stack.end(), code) == m_stack.end()) {
-                    m_stack.push_back(code);
-                }
-            }
-            else {
-                auto it = std::find(m_stack.begin(), m_stack.end(), code);
-                if (it != m_stack.end()) {
-                    m_stack.erase(it);
-                }
-            }
-        }
-
-        void ClearTracked()
-        {
-            if (m_stack.size()) {
-                m_stack.clear();
-            }
-        }
-
-        bool IsTracking()
-        {
-            return m_stack.size() > 0;
-        }
+        void SetTracked(TrackMap& map);
+        void AddTracked(MenuEvent code);
+        void RemoveTracked(MenuEvent code);
+        void Track(MenuEvent code, bool opening);
+        void ClearTracked();
+        bool IsTracking();
 
     protected:
 
@@ -164,6 +123,8 @@ namespace SDT
         protected IHook
     {
         friend class MenuEventTrack;
+        friend class MenuOpenCloseEventInitializer;
+
         typedef void(*inihookproc) (void);
     public:
 
@@ -181,12 +142,9 @@ namespace SDT
 
         void _TriggerMenuEvent(MenuEvent triggercode, MenuEvent code, MenuOpenCloseEvent* evn, EventDispatcher<MenuOpenCloseEvent>* dispatcher);
 
-        static __inline MenuEvent GetMenuEventCode(const char* str)
-        {
+        __forceinline static MenuEvent GetMenuEventCode(const char* str) {
             return m_Instance.m_mstc_map[str];
         }
-
-        friend class MenuOpenCloseEventInitializer;
 
         FN_NAMEPROC("Events")
         FN_ESSENTIAL(true)

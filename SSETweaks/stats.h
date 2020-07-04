@@ -17,7 +17,7 @@ namespace SDT
             s = PerfCounter::Query();
         }
 
-        bool __forceinline update(long long m, long long& out)
+        __forceinline bool update(long long m, long long& out)
         {
             auto e = PerfCounter::Query();
             auto delta = PerfCounter::delta_us(s, e);
@@ -36,13 +36,13 @@ namespace SDT
             return true;
         }
 
-        void __forceinline accum(double val)
+        __forceinline void accum(double val)
         {
             num++;
             fval += val;
         }
 
-        bool __forceinline get(double& out)
+        __forceinline bool get(double& out)
         {
             if (!num) {
                 return false;
@@ -66,25 +66,25 @@ namespace SDT
     class IStats
     {
     public:
-        static __forceinline
+        __forceinline static
             bool GetTime(uint8_t id, long long m, long long& out)
         {
             return data[id].update(m, out);
         }
 
-        static __forceinline
+        __forceinline static
             void Accum(uint8_t id, double val)
         {
             data[id].accum(val);
         }
 
-        static __forceinline
+        __forceinline static
             bool Addr(uint8_t id, double& out)
         {
             return data[id].get(out);
         }
 
-        static __forceinline
+        __forceinline static
             void Reset(uint8_t id)
         {
             return data[id].reset();

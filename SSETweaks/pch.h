@@ -12,6 +12,7 @@
 
 #include "ext/ICommon.h"
 #include "ext/IHook.h"
+#include "ext/Patching.h"
 #include "skse64/GameData.h"
 #include "skse64/GameEvents.h"
 #include "skse64/GameMenus.h"
@@ -64,7 +65,6 @@ constexpr wchar_t* OSD_FONT_PATH = PLUGIN_BASE_PATHW L"SDTFonts\\";
 #include "helpers.h"
 #include "common.h"
 #include "INIReader.h"
-#include "patching.h"
 #include "stats.h"
 #include "logging.h"
 #include "os.h"

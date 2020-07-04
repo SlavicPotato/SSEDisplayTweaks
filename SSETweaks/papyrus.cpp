@@ -10,6 +10,8 @@ namespace SDT
     constexpr char* CKEY_MAXTIME = "BudgetMaxFPS";
     constexpr char* CKEY_STATSON = "OSDStatsEnabled";
 
+    using namespace Patching;
+
     DPapyrus DPapyrus::m_Instance;
 
     void DPapyrus::LoadConfig()

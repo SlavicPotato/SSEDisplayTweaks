@@ -36,15 +36,10 @@ namespace SDT
 
     void IEvents::TriggerEvent(Event m_code, void* args)
     {
-        for (auto const& evtd : m_Instance.m_events[m_code]) {
+        for (const auto & evtd : m_Instance.m_events[m_code]) {
             evtd.m_callback(m_code, args);
         }
     }
-
-    /*void IEvents::TriggerMenuEvent(MenuEvent m_code, MenuOpenCloseEvent* evn, EDE_MenuOpenCloseEvent* dispatcher)
-    {
-        m_Instance._TriggerMenuEvent(m_code, m_code, evn, dispatcher);
-    }*/
 
     void IEvents::TriggerMenuEventAny(MenuEvent m_code, MenuOpenCloseEvent* evn, EventDispatcher<MenuOpenCloseEvent>* dispatcher)
     {
@@ -56,8 +51,7 @@ namespace SDT
         auto& tl = m_menu_events[triggercode];
         auto it = tl.begin();
         while (it != tl.end()) {
-            auto& evtd = *it;
-            if (evtd.m_callback(code, evn, dispatcher)) {
+            if (it->m_callback(code, evn, dispatcher)) {
                 ++it;
             }
             else {
@@ -144,7 +138,7 @@ namespace SDT
         if (evn) {
             MenuEvent code = IEvents::GetMenuEventCode(evn->menuName.c_str());
 
-            //_DMESSAGE(">>>>>>>>>>>> %d   [%s]  opening:%d | %d  ", code, evn->menuName.c_str(), evn->opening, MenuManagerEx::GetSingleton()->InPausedMenu());
+            //_DMESSAGE(">>>>>>>>>>>> %d   [%s]  opening:%d | %d  ", code, evn->menuName.c_str(), evn->opening, MenuManager::GetSingleton()->InPausedMenu());
 
             IEvents::TriggerMenuEventAny(code, evn, dispatcher);
         }
@@ -159,5 +153,53 @@ namespace SDT
         dispatcher->RemoveEventSink(this);
         return EventResult::kEvent_Continue;
     }
+
+    void MenuEventTrack::SetTracked(TrackMap& map)
+    {
+        m_tracked = map;
+    };
+
+    void MenuEventTrack::AddTracked(MenuEvent code)
+    {
+        m_tracked[code] = true;
+    }
+
+    void MenuEventTrack::RemoveTracked(MenuEvent code)
+    {
+        m_tracked.erase(code);
+    }
+
+    void MenuEventTrack::Track(MenuEvent code, bool opening)
+    {
+        if (m_tracked.find(code) == m_tracked.end()) {
+            return;
+        }
+
+        if (opening) {
+            if (std::find(m_stack.begin(), m_stack.end(), code) == m_stack.end()) {
+                m_stack.push_back(code);
+            }
+        }
+        else {
+            auto it = std::find(m_stack.begin(), m_stack.end(), code);
+            if (it != m_stack.end()) {
+                m_stack.erase(it);
+            }
+        }
+    }
+
+    void MenuEventTrack::ClearTracked()
+    {
+        if (m_stack.size()) {
+            m_stack.clear();
+        }
+    }
+
+    bool MenuEventTrack::IsTracking()
+    {
+        return m_stack.size() > 0;
+    }
+
+
 }
 

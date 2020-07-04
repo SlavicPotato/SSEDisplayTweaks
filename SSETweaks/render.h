@@ -185,13 +185,11 @@ namespace SDT
 
         MenuFramerateLimit m_uifl;
 
-        __inline bool HasLimits()
-        {
+        __forceinline bool HasLimits() {
             return fps_limit == 1 || m_uifl.HasLimits();
         }
 
-        __inline bool IsFlipOn(const DXGI_SWAP_CHAIN_DESC* pSwapChainDesc)
-        {
+        __forceinline bool IsFlipOn(const DXGI_SWAP_CHAIN_DESC* pSwapChainDesc) {
             return pSwapChainDesc->SwapEffect == DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL ||
                 pSwapChainDesc->SwapEffect == DXGI_SWAP_EFFECT_FLIP_DISCARD;
         }
@@ -224,9 +222,9 @@ namespace SDT
         inline static auto ResizeTarget = IAL::Addr(AID::WindowSwapChain2, Offsets::ResizeTarget);
 
         struct {
-            UInt32 width;
-            UInt32 height;
-            UInt32 flags;
+            uint32_t width;
+            uint32_t height;
+            uint32_t flags;
         }swapchain;
 
         DXGI_MODE_DESC modeDesc;

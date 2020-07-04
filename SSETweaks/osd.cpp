@@ -160,7 +160,7 @@ namespace SDT
                 PresentHook code(presentAddr);
                 g_branchTrampoline.Write6Branch(presentAddr, code.get());
 
-                safe_write<uint8_t>(presentAddr + 0x6, 0xCC);
+                Patching::safe_write<uint8_t>(presentAddr + 0x6, 0xCC);
             }
             LogPatchEnd("Present wrapper");
         }

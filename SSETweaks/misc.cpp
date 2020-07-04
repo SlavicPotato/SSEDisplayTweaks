@@ -34,7 +34,7 @@ namespace SDT
     void DMisc::Patch()
     {
         if (conf.skipmissingini) {
-            safe_write(
+            Patching::safe_write(
                 SkipNoINI,
                 reinterpret_cast<const void*>(Payloads::SkipNoINI),
                 sizeof(Payloads::SkipNoINI));

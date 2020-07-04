@@ -60,6 +60,7 @@ namespace SDT
     constexpr char* CKEY_ADJUSTINICFG = "AdjustGameSettings";
 
     using namespace Structures;
+    using namespace Patching;
 
     PFN_D3D11_CREATE_DEVICE_AND_SWAP_CHAIN DRender::D3D11CreateDeviceAndSwapChain_O;
     DRender::CreateDXGIFactory_T DRender::CreateDXGIFactory_O;
