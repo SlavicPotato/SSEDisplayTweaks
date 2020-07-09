@@ -190,10 +190,11 @@ namespace SDT
 
             MONITORINFO mi;
             mi.cbSize = sizeof(mi);
+
             if (::GetMonitorInfoA(hMonitor, &mi))
             {
-                int newWidth = mi.rcMonitor.right - mi.rcMonitor.left;
-                int newHeight = mi.rcMonitor.bottom - mi.rcMonitor.top;
+                int newWidth = static_cast<int>(mi.rcMonitor.right - mi.rcMonitor.left);
+                int newHeight = static_cast<int>(mi.rcMonitor.bottom - mi.rcMonitor.top);
 
                 if (::SetWindowPos(
                     hWnd,
