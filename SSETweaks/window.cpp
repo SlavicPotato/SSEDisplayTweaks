@@ -51,7 +51,7 @@ namespace SDT
     {
         mp.Add(MsgProc::MsgList(
             { WM_SETFOCUS , WM_CAPTURECHANGED }),
-            [&](HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+            [&](HWND hWnd, UINT, WPARAM, LPARAM)
             {
                 if (::GetFocus() == hWnd && ::GetActiveWindow() == hWnd) {
                     CaptureCursor(hWnd, true);
@@ -60,13 +60,13 @@ namespace SDT
 
         mp.Add(MsgProc::MsgList(
             { WM_WINDOWPOSCHANGED, WM_SIZING }),
-            [&](HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+            [&](HWND hWnd, UINT, WPARAM, LPARAM)
             {
                 CaptureCursor(hWnd, true);
             });
 
         mp.Add(WM_ACTIVATE,
-            [&](HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+            [&](HWND hWnd, UINT, WPARAM wParam, LPARAM)
             {
                 BOOL fMinimized = static_cast<BOOL>(HIWORD(wParam));
                 WORD fActive = LOWORD(wParam);
@@ -85,7 +85,7 @@ namespace SDT
 
         mp.Add(MsgProc::MsgList(
             { WM_KILLFOCUS, WM_DESTROY }),
-            [&](HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+            [&](HWND hWnd, UINT, WPARAM, LPARAM)
             {
                 CaptureCursor(hWnd, false);
             });
@@ -94,7 +94,7 @@ namespace SDT
     void DWindow::SetupForceMinimizeMP()
     {
         mp.Add(WM_KILLFOCUS,
-            [&](HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+            [&](HWND hWnd, UINT, WPARAM, LPARAM)
             {
                 Debug("[0x%llX] Window minimized", hWnd);
                 ::ShowWindow(hWnd, SW_MINIMIZE);

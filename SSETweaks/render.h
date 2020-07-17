@@ -127,10 +127,10 @@ namespace SDT
 
         void UISetLimit(MenuEvent code, float limit, bool disable_vsync);
 
-        bool ConfigTranslateSwapEffect(std::string& param, int& out);
-        std::string SwapEffectToConfigKey(DXGI_SWAP_EFFECT param);
+        bool ConfigTranslateSwapEffect(const std::string& param, int& out);
+        bool ConfigTranslateScalingMode(const std::string& param, DXGI_MODE_SCALING& out);
 
-        bool ConfigTranslateScalingMode(std::string& param, DXGI_MODE_SCALING& out);
+        std::string SwapEffectToConfigKey(DXGI_SWAP_EFFECT param);
 
         bool ValidateDisplayMode(const DXGI_SWAP_CHAIN_DESC* pSwapChainDesc) const;
         UINT GetRefreshRate(const DXGI_SWAP_CHAIN_DESC* pSwapChainDesc) const;

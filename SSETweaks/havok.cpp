@@ -285,8 +285,6 @@ namespace SDT
 
     void DHavok::OnD3D11PostCreate_Havok(Event code, void* data)
     {
-        auto info = reinterpret_cast<D3D11CreateEventPost*>(data);
-
         m_Instance.OSDDriver->AddStatsCallback(StatsRendererCallback1);
         m_Instance.OSDDriver->AddStatsCallback(StatsRendererCallback2);
     }

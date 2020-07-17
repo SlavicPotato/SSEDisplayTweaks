@@ -16,7 +16,7 @@ namespace SDT
             m_map[msg].push_back(f);
         }
 
-        void Add(MsgList& l, MsgProcFunc f)
+        void Add(const MsgList& l, MsgProcFunc f)
         {
             for (const auto msg : l) {
                 Add(msg, f);

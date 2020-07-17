@@ -106,7 +106,7 @@ namespace SDT
     public:
         typedef std::unordered_map<MenuEvent, bool> TrackMap;
 
-        void SetTracked(TrackMap& map);
+        void SetTracked(const TrackMap& map);
         void AddTracked(MenuEvent code);
         void RemoveTracked(MenuEvent code);
         void Track(MenuEvent code, bool opening);

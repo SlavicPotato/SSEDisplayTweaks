@@ -124,7 +124,7 @@ namespace SDT
         }
         else {
             m_limits[code] = MenuFramerateLimitDescriptor(
-                static_cast<long long>((1.0f / limit) * 1000000.0f),
+                static_cast<long long>((1.0 / static_cast<double>(limit)) * 1000000.0),
                 disable_vsync
             );
         }
@@ -282,7 +282,7 @@ namespace SDT
         conf.adjust_ini = GetConfigValue(SECTION_GENERAL, CKEY_ADJUSTINICFG, true);
     }
 
-    bool DRender::ConfigTranslateSwapEffect(string& param, int& out)
+    bool DRender::ConfigTranslateSwapEffect(const string& param, int& out)
     {
         auto it = cfgSwapEffectMap.find(param);
         if (it != cfgSwapEffectMap.end()) {
@@ -294,7 +294,7 @@ namespace SDT
         }
     }
 
-    bool DRender::ConfigTranslateScalingMode(string& param, DXGI_MODE_SCALING& out)
+    bool DRender::ConfigTranslateScalingMode(const string& param, DXGI_MODE_SCALING& out)
     {
         auto it = cfgScalingModeMap.find(param);
         if (it != cfgScalingModeMap.end()) {
@@ -348,7 +348,7 @@ namespace SDT
         vsync = conf.vsync_on ? conf.vsync_present_interval : 0;
 
         if (conf.limits.game > 0.0f) {
-            current_fps_max = fps_max = static_cast<long long>((1.0f / conf.limits.game) * 1000000.0f);
+            current_fps_max = fps_max = static_cast<long long>((1.0 / static_cast<double>(conf.limits.game)) * 1000000.0);
             fps_limit = 1;
             Message("Framerate limit (game): %.6g", conf.limits.game);
         }

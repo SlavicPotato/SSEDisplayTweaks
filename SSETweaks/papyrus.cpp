@@ -170,9 +170,9 @@ namespace SDT
         return m_Instance.bufStats1;
     }
 
-    void DPapyrus::OnD3D11PostCreate_Papyrus(Event code, void* data)
+    void DPapyrus::OnD3D11PostCreate_Papyrus(Event, void*)
     {
-        auto info = reinterpret_cast<D3D11CreateEventPost*>(data);
+        //auto info = reinterpret_cast<D3D11CreateEventPost*>(data);
 
         m_Instance.bufStats1[0] = 0x0;
         m_Instance.OSDDriver->AddStatsCallback(StatsRendererCallback);

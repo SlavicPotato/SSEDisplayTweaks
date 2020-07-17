@@ -35,7 +35,6 @@
     <ProjectGuid>{AD6B6406-5132-4EB0-B8C7-3882681FBE5E}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>SSEDisplayTweaks</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.18362.0</WindowsTargetPlatformVersion>
     <ProjectName>SSEDisplayTweaks</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />

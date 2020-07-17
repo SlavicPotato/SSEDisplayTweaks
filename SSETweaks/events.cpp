@@ -154,7 +154,7 @@ namespace SDT
         return EventResult::kEvent_Continue;
     }
 
-    void MenuEventTrack::SetTracked(TrackMap& map)
+    void MenuEventTrack::SetTracked(const TrackMap& map)
     {
         m_tracked = map;
     };
