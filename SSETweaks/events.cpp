@@ -13,7 +13,7 @@ namespace SDT
             return false;
         }
 
-        m_Instance.Message("Installed event hooks");
+        m_Instance.Debug("Installed event hooks");
 
         ISKSE::g_messaging->RegisterListener(ISKSE::g_pluginHandle, "SKSE", MessageHandler);
 

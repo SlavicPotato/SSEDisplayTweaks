@@ -180,7 +180,8 @@ namespace SDT
         fps_limit(-1), present_flags(0),
         lslExtraTime(0), lslPostLoadExtraTime(0),
         oo_expire_time(0), oo_current_fps_max(0),
-        gameLoadState(0)
+        gameLoadState(0),
+        pFactory(nullptr)
     {
         swapchain.flags = 0;
         swapchain.width = 0;
@@ -577,24 +578,21 @@ namespace SDT
 
     void DRender::RegisterHooks()
     {
-        bool isHooked = false;
-
-        if (Hook::Call5(CreateDXGIFactory_C, reinterpret_cast<uintptr_t>(CreateDXGIFactory_Hook), CreateDXGIFactory_O)) {
-            if (Hook::Call5(D3D11CreateDeviceAndSwapChain_C, reinterpret_cast<uintptr_t>(D3D11CreateDeviceAndSwapChain_Hook), D3D11CreateDeviceAndSwapChain_O)) {
-                isHooked = true; 
-            }
-            else {
-                Error("D3D11CreateDeviceAndSwapChain hook failed");
-            }
-        }
-        else {
+        if (!Hook::Call5(CreateDXGIFactory_C,
+            reinterpret_cast<uintptr_t>(CreateDXGIFactory_Hook),
+            CreateDXGIFactory_O)) {
             Error("CreateDXGIFactory hook failed");
         }
 
-        if (!isHooked) {
+        if (!Hook::Call5(D3D11CreateDeviceAndSwapChain_C,
+            reinterpret_cast<uintptr_t>(D3D11CreateDeviceAndSwapChain_Hook),
+            D3D11CreateDeviceAndSwapChain_O))
+        {
+            Error("D3D11CreateDeviceAndSwapChain hook failed");
             SetOK(false);
             return;
         }
+
 
         if (HasLimits()) {
             RegisterHook(
@@ -703,9 +701,12 @@ namespace SDT
     bool DRender::OnMenuEvent(MenuEvent code, MenuOpenCloseEvent* evn, EventDispatcher<MenuOpenCloseEvent>*)
     {
         auto& fl = m_Instance.m_uifl;
-        MenuFramerateLimitDescriptor ld;
 
         auto mm = MenuManager::GetSingleton();
+        if (!mm)
+            return true;
+
+        MenuFramerateLimitDescriptor ld;
         if (mm->InPausedMenu())
         {
             fl.Track(code, evn->opening);
@@ -1046,45 +1047,91 @@ namespace SDT
         return hr;
     }
 
+    IDXGIFactory* DRender::DXGI_GetFactory()
+    {
+        HMODULE hModule = LoadLibraryA("dxgi.dll");
+        if (!hModule)
+            return nullptr;
+
+        auto func = reinterpret_cast<CreateDXGIFactory_T>(GetProcAddress(hModule, "CreateDXGIFactory"));
+        if (!func)
+            return nullptr;
+        
+        IDXGIFactory* pFactory;
+        if (!SUCCEEDED(func(IID_PPV_ARGS(&pFactory))))
+            return nullptr;
+
+        return pFactory;
+    }
+
     void DRender::DXGI_GetCapabilities()
     {
+        bool release;
+        IDXGIFactory* factory;
+
+        if (!pFactory) 
+        {
+            Warning("IDXGIFactory not set, attempting to create..");
+
+            factory = DXGI_GetFactory();
+            if (!factory) {
+                Error("Couldn't create IDXGIFactory, assuming DXGI_CAPS_ALL");
+                dxgi.caps = DXGI_CAPS_ALL;
+                return;
+            }
+
+            release = true;
+        }
+        else {
+            factory = pFactory;
+            release = false;
+        }
+
         dxgi.caps = 0;
 
+        do
         {
-            ComPtr<IDXGIFactory5> tmp;
-            if (SUCCEEDED(pFactory->QueryInterface(__uuidof(IDXGIFactory5), &tmp))) {
-                dxgi.caps = (
-                    DXGI_CAP_FLIP_SEQUENTIAL |
-                    DXGI_CAP_FLIP_DISCARD);
+            {
+                ComPtr<IDXGIFactory5> tmp;
+                if (SUCCEEDED(factory->QueryInterface(IID_PPV_ARGS(&tmp)))) {
+                    dxgi.caps = (
+                        DXGI_CAP_FLIP_SEQUENTIAL |
+                        DXGI_CAP_FLIP_DISCARD);
 
-                BOOL allowTearing;
-                HRESULT hr = tmp->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &allowTearing, sizeof(allowTearing));
+                    BOOL allowTearing;
+                    HRESULT hr = tmp->CheckFeatureSupport(
+                        DXGI_FEATURE_PRESENT_ALLOW_TEARING, 
+                        &allowTearing, sizeof(allowTearing));
 
-                if (SUCCEEDED(hr) && allowTearing) {
-                    dxgi.caps |= DXGI_CAP_TEARING;
+                    if (SUCCEEDED(hr) && allowTearing) {
+                        dxgi.caps |= DXGI_CAP_TEARING;
+                    }
+
+                    break;
                 }
-
-                return;
             }
-        }
 
-        {
-            ComPtr<IDXGIFactory4> tmp;
-            if (SUCCEEDED(pFactory->QueryInterface(__uuidof(IDXGIFactory4), &tmp))) {
-                dxgi.caps = (
-                    DXGI_CAP_FLIP_SEQUENTIAL |
-                    DXGI_CAP_FLIP_DISCARD);
+            {
+                ComPtr<IDXGIFactory4> tmp;
+                if (SUCCEEDED(factory->QueryInterface(IID_PPV_ARGS(&tmp)))) {
+                    dxgi.caps = (
+                        DXGI_CAP_FLIP_SEQUENTIAL |
+                        DXGI_CAP_FLIP_DISCARD);
 
-                return;
+                    break;
+                }
             }
-        }
 
-        {
-            ComPtr<IDXGIFactory3> tmp;
-            if (SUCCEEDED(pFactory->QueryInterface(__uuidof(IDXGIFactory3), &tmp))) {
-                dxgi.caps = DXGI_CAP_FLIP_SEQUENTIAL;
+            {
+                ComPtr<IDXGIFactory3> tmp;
+                if (SUCCEEDED(factory->QueryInterface(IID_PPV_ARGS(&tmp)))) {
+                    dxgi.caps = DXGI_CAP_FLIP_SEQUENTIAL;
+                }
             }
-        }
+        } while (0);
+
+        if (release)
+            factory->Release();
     }
 
     bool DRender::HasWindowedHWCompositionSupport(IDXGIAdapter* adapter) const

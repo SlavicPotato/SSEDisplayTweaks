@@ -6,6 +6,8 @@ namespace SDT
     constexpr uint32_t DXGI_CAP_FLIP_SEQUENTIAL = 0x00000002U;
     constexpr uint32_t DXGI_CAP_TEARING = 0x00000004U;
 
+    constexpr uint32_t DXGI_CAPS_ALL = 0xFFFFFFFFU;
+
     class MenuFramerateLimitDescriptor
     {
     public:
@@ -191,6 +193,7 @@ namespace SDT
 
         static HRESULT WINAPI CreateDXGIFactory_Hook(REFIID riid, _COM_Outptr_ void** ppFactory);
 
+        IDXGIFactory *DXGI_GetFactory();
         void DXGI_GetCapabilities();
         bool HasWindowedHWCompositionSupport(IDXGIAdapter* adapter) const;
 
