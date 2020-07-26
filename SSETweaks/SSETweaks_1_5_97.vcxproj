@@ -261,6 +261,7 @@
       <DebugInformationFormat>None</DebugInformationFormat>
       <UseFullPaths>false</UseFullPaths>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <IntelJCCErratum>true</IntelJCCErratum>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -305,6 +306,7 @@
       <DebugInformationFormat>None</DebugInformationFormat>
       <UseFullPaths>false</UseFullPaths>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <IntelJCCErratum>true</IntelJCCErratum>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -349,6 +351,7 @@
       <DebugInformationFormat>None</DebugInformationFormat>
       <UseFullPaths>false</UseFullPaths>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <IntelJCCErratum>true</IntelJCCErratum>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -483,6 +486,7 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="skse.h" />
     <ClInclude Include="stats.h" />
+    <ClInclude Include="tasks.h" />
     <ClInclude Include="version.h" />
     <ClInclude Include="window.h" />
   </ItemGroup>
@@ -523,7 +527,7 @@
     <ResourceCompile Include="SSETweaks.rc" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\DirectXTK\DirectXTK_Desktop_2017_Win10.vcxproj">
+    <ProjectReference Include="..\..\DirectXTK\DirectXTK_Desktop_2019_Win10_x.vcxproj">
       <Project>{e0b52ae7-e160-4d32-bf3f-910b785e5a8e}</Project>
     </ProjectReference>
     <ProjectReference Include="..\..\sse-build-resources\skse64\common\common_vc14.vcxproj">

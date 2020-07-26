@@ -130,15 +130,6 @@ namespace SDT
         static void ConfigGetFlags(const std::string& in, uint32_t& out);
         static uint32_t ConfigGetComboKey(int32_t param);
 
-        typedef std::unordered_map<Font, int> FontToResource_T;
-        static FontToResource_T FontToResource;
-
-        typedef std::unordered_map<int32_t, StatsRenderer::Align> IntToFontRendererAlignment_T;
-        static IntToFontRendererAlignment_T IntToStatsRendererAlignment;
-
-        typedef std::unordered_map<int32_t, uint32_t> IntToDIKey_T;
-        static IntToDIKey_T IntToComboKey;
-
         typedef std::unordered_map<std::string, uint32_t> ItemToFlag_T;
         static ItemToFlag_T ItemToFlag;
 

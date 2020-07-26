@@ -50,6 +50,39 @@ namespace SDT
         static MCLDMap menuCodeToLimitDesc;
 
         typedef HRESULT(WINAPI* CreateDXGIFactory_T)(REFIID riid, _COM_Outptr_ void** ppFactory);
+
+        class AssignFramerateLimitTask :
+            public TaskDelegate
+        {
+        public:
+            enum FLTaskType : uint8_t
+            {
+                kLimitSet,
+                kLimitReset,
+                kLimitPost
+            };
+
+            AssignFramerateLimitTask();
+
+            AssignFramerateLimitTask(
+                long long a_max,
+                bool a_vsync);
+
+            AssignFramerateLimitTask(
+                long long a_max,
+                long long a_expire);
+
+            virtual void Run();
+            virtual void Dispose() {
+                delete this;
+            }
+        private:
+            FLTaskType m_type;
+            long long m_max;
+            long long m_expire;
+            bool m_vsync;
+        };
+
     public:
         typedef void(*RTProcR) (void);
         typedef void(*PhysCalcR) (void*, int32_t);
@@ -233,6 +266,8 @@ namespace SDT
         {
             uint32_t caps;
         } dxgi;
+
+        ISafeTasks m_afTasks;
 
         static DRender m_Instance;
     };

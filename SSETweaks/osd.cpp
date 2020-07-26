@@ -36,28 +36,6 @@ namespace SDT
 
     DOSD DOSD::m_Instance;
 
-    DOSD::FontToResource_T DOSD::FontToResource = {
-        {Font::DroidSans, IDR_DROIDSANS}
-    };
-
-    DOSD::IntToFontRendererAlignment_T DOSD::IntToStatsRendererAlignment = {
-        {1, StatsRenderer::Align::TOP_LEFT},
-        {2, StatsRenderer::Align::TOP_RIGHT},
-        {3, StatsRenderer::Align::BOTTOM_LEFT},
-        {4, StatsRenderer::Align::BOTTOM_RIGHT}
-    };
-
-    DOSD::IntToDIKey_T DOSD::IntToComboKey = {
-        {1, DIK_LSHIFT},
-        {2, DIK_RSHIFT},
-        {3, DIK_LCONTROL},
-        {4, DIK_RCONTROL},
-        {5, DIK_LALT},
-        {6, DIK_RALT},
-        {7, DIK_LWIN},
-        {8, DIK_RWIN}
-    };
-
     DOSD::ItemToFlag_T DOSD::ItemToFlag = {
         {"fps", F_SHOW_FPS},
         {"bare_fps", F_SHOW_FPS_SIMPLE},
@@ -174,23 +152,48 @@ namespace SDT
 
     int DOSD::ConfigGetFontResource(Font param)
     {
-        auto it = FontToResource.find(param);
-        if (it != FontToResource.end()) {
-            return it->second;
-        }
-        else {
-            return IDR_DROIDSANS;
-        }
+        return IDR_DROIDSANS;
     }
 
     StatsRenderer::Align DOSD::ConfigGetStatsRendererAlignment(int32_t param)
     {
-        auto it = IntToStatsRendererAlignment.find(param);
-        if (it != IntToStatsRendererAlignment.end()) {
-            return it->second;
-        }
-        else {
+        switch (param)
+        {
+        case 1:
             return StatsRenderer::Align::TOP_LEFT;
+        case 2:
+            return StatsRenderer::Align::TOP_RIGHT;
+        case 3:
+            return StatsRenderer::Align::BOTTOM_LEFT;
+        case 4:
+            return StatsRenderer::Align::BOTTOM_RIGHT;
+        default:
+            return StatsRenderer::Align::TOP_LEFT;
+        }
+    }
+
+    uint32_t DOSD::ConfigGetComboKey(int32_t param)
+    {
+        switch (param)
+        {
+        case 1:
+            return DIK_LSHIFT;
+        case 2:
+            return DIK_RSHIFT;
+        case 3:
+            return DIK_LCONTROL;
+        case 4:
+            return DIK_RCONTROL;
+        case 5:
+            return DIK_LALT;
+        case 6:
+            return DIK_RALT;
+        case 7:
+            return DIK_LWIN;
+        case 8:
+            return DIK_RWIN;
+        default:
+            return DIK_LSHIFT;
         }
     }
 
@@ -260,17 +263,6 @@ namespace SDT
             if (it != ItemToFlag.end()) {
                 out |= it->second;
             }
-        }
-    }
-
-    uint32_t DOSD::ConfigGetComboKey(int32_t param)
-    {
-        auto it = IntToComboKey.find(param);
-        if (it != IntToComboKey.end()) {
-            return it->second;
-        }
-        else {
-            return DIK_LSHIFT;
         }
     }
 
@@ -521,6 +513,7 @@ namespace SDT
                 combo_down = false;
             }
         }
+        break;
         }
     }
 

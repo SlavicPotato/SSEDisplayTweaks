@@ -711,16 +711,23 @@ namespace SDT
             fl.Track(code, evn->opening);
 
             if (fl.GetCurrentLimit(ld)) {
-                m_Instance.SetFPSLimitOverride(ld.limit, ld.disable_vsync);
+                m_Instance.m_afTasks.AddTask(
+                    new AssignFramerateLimitTask(
+                        ld.limit,
+                        ld.disable_vsync
+                    )
+                );
             }
             else {
-                m_Instance.ResetFPSLimitOverride();
+                m_Instance.m_afTasks.AddTask(
+                    new AssignFramerateLimitTask());
             }
         }
         else
         {
             fl.ClearTracked();
-            m_Instance.ResetFPSLimitOverride();
+            m_Instance.m_afTasks.AddTask(
+                new AssignFramerateLimitTask());
         }
 
         if (m_Instance.lslExtraTime > 0 || m_Instance.lslPostLoadExtraTime > 0) {
@@ -728,12 +735,20 @@ namespace SDT
                 if (fl.GetLimit(MenuEvent::OnLoadingMenu, ld)) {
                     if (m_Instance.lslPostLoadExtraTime > 0 && m_Instance.gameLoadState == 1) {
                         m_Instance.gameLoadState = 2;
-                        m_Instance.oo_expire_time = PerfCounter::Query() + m_Instance.lslPostLoadExtraTime;
-                        m_Instance.oo_current_fps_max = ld.limit;
+                        m_Instance.m_afTasks.AddTask(
+                            new AssignFramerateLimitTask(
+                                ld.limit,
+                                PerfCounter::Query() + m_Instance.lslPostLoadExtraTime
+                            )
+                        );
                     }
-                    else if (m_Instance.lslPostLoadExtraTime > 0) {
-                        m_Instance.oo_expire_time = PerfCounter::Query() + m_Instance.lslExtraTime;
-                        m_Instance.oo_current_fps_max = ld.limit;
+                    else if (m_Instance.lslExtraTime > 0) {
+                        m_Instance.m_afTasks.AddTask(
+                            new AssignFramerateLimitTask(
+                                ld.limit,
+                                PerfCounter::Query() + m_Instance.lslExtraTime
+                            )
+                        );
                     }
                 }
             }
@@ -744,6 +759,8 @@ namespace SDT
 
     void DRender::Throttle()
     {
+        m_Instance.m_afTasks.ProcessTasksUnsafe();
+
         auto e = PerfCounter::Query();
 
         long long limit;
@@ -1096,5 +1113,46 @@ namespace SDT
         }
 
         return false;
+    }
+
+    DRender::AssignFramerateLimitTask::AssignFramerateLimitTask() :
+        m_type(kLimitReset)
+    {
+    }
+
+    DRender::AssignFramerateLimitTask::AssignFramerateLimitTask(
+        long long a_max,
+        bool a_vsync)
+        :
+        m_type(kLimitSet),
+        m_max(a_max),
+        m_vsync(a_vsync)
+    {
+    }
+
+    DRender::AssignFramerateLimitTask::AssignFramerateLimitTask(
+        long long a_max,
+        long long a_expire)
+        :
+        m_type(kLimitPost),
+        m_max(a_max),
+        m_expire(a_expire)
+    {
+    }
+
+    void DRender::AssignFramerateLimitTask::Run()
+    {
+        switch (m_type) {
+        case kLimitSet:
+            m_Instance.SetFPSLimitOverride(m_max, m_vsync);
+            break;
+        case kLimitReset:
+            m_Instance.ResetFPSLimitOverride();
+            break;
+        case kLimitPost:
+            m_Instance.oo_expire_time = m_expire;
+            m_Instance.oo_current_fps_max = m_max;
+            break;
+        }
     }
 }
