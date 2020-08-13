@@ -11,21 +11,31 @@ namespace SDT
     public:
         typedef std::vector<UINT> MsgList;
 
-        void Add(UINT msg, MsgProcFunc f)
+        void Add(UINT msg, const MsgProcFunc& f)
         {
             m_map[msg].push_back(f);
         }
 
-        void Add(const MsgList& l, MsgProcFunc f)
+        void Add(UINT msg, MsgProcFunc&& f)
         {
-            for (const auto msg : l) {
-                Add(msg, f);
-            }
+            m_map[msg].emplace_back(std::forward<MsgProcFunc>(f));
         }
 
-        bool HasProcessors()
+        void Add(const MsgList& l, const MsgProcFunc& f)
         {
-            return m_map.size() > 0;
+            for (const auto msg : l)
+                Add(msg, f);
+        }
+
+        void Add(const MsgList& l, MsgProcFunc&& f)
+        {
+            for (const auto msg : l)
+                Add(msg, std::forward<MsgProcFunc>(f));
+        }
+
+        inline bool HasProcessors() const noexcept
+        {
+            return m_map.size() != 0;
         }
 
         void Process(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)

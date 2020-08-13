@@ -187,33 +187,32 @@ namespace SDT
         swapchain.width = 0;
         swapchain.height = 0;
 
-        m_uifl.SetTracked(
-            MenuEventTrack::TrackMap({
-                {OnJournalMenu, true},
-                {OnMainMenu, true},
-                {OnMapMenu, true},
-                {OnConsoleMenu, true},
-                {OnCustomMenu, true},
-                {OnRaceSexMenu, true},
-                {OnInventoryMenu, true},
-                {OnContainerMenu, true},
-                {OnMagicMenu, true},
-                {OnTweenMenu, true},
-                {OnLoadingMenu, true},
-                {OnMessageBoxMenu, true},
-                {OnLockpickingMenu, true},
-                {OnGiftMenu, true},
-                {OnTrainingMenu, true},
-                {OnTutorialMenu, true},
-                {OnLevelUpMenu, true},
-                {OnBarterMenu, true},
-                {OnStatsMenu, true},
-                {OnFavoritesMenu, true},
-                {OnSleepWaitMenu, true},
-                {OnQuantityMenu, true},
-                {OnModManagerMenu, true},
-                {OnBookMenu, true},
-                }));
+        m_uifl.SetTracked({
+            OnJournalMenu,
+            OnMainMenu,
+            OnMapMenu,
+            OnConsoleMenu,
+            OnCustomMenu,
+            OnRaceSexMenu,
+            OnInventoryMenu,
+            OnContainerMenu,
+            OnMagicMenu,
+            OnTweenMenu,
+            OnLoadingMenu,
+            OnMessageBoxMenu,
+            OnLockpickingMenu,
+            OnGiftMenu,
+            OnTrainingMenu,
+            OnTutorialMenu,
+            OnLevelUpMenu,
+            OnBarterMenu,
+            OnStatsMenu,
+            OnFavoritesMenu,
+            OnSleepWaitMenu,
+            OnQuantityMenu,
+            OnModManagerMenu,
+            OnBookMenu
+        });
     }
 
     void DRender::LoadConfig()
@@ -735,7 +734,7 @@ namespace SDT
             if (code == MenuEvent::OnLoadingMenu && evn->opening == false) {
                 if (fl.GetLimit(MenuEvent::OnLoadingMenu, ld)) {
                     if (m_Instance.lslPostLoadExtraTime > 0 && m_Instance.gameLoadState == 1) {
-                        m_Instance.gameLoadState = 2;
+                        m_Instance.gameLoadState = 0;
                         m_Instance.m_afTasks.AddTask(
                             new AssignFramerateLimitTask(
                                 ld.limit,
@@ -1056,7 +1055,7 @@ namespace SDT
         auto func = reinterpret_cast<CreateDXGIFactory_T>(GetProcAddress(hModule, "CreateDXGIFactory"));
         if (!func)
             return nullptr;
-        
+
         IDXGIFactory* pFactory;
         if (!SUCCEEDED(func(IID_PPV_ARGS(&pFactory))))
             return nullptr;
@@ -1069,7 +1068,7 @@ namespace SDT
         bool release;
         IDXGIFactory* factory;
 
-        if (!pFactory) 
+        if (!pFactory)
         {
             Warning("IDXGIFactory not set, attempting to create..");
 
@@ -1100,7 +1099,7 @@ namespace SDT
 
                     BOOL allowTearing;
                     HRESULT hr = tmp->CheckFeatureSupport(
-                        DXGI_FEATURE_PRESENT_ALLOW_TEARING, 
+                        DXGI_FEATURE_PRESENT_ALLOW_TEARING,
                         &allowTearing, sizeof(allowTearing));
 
                     if (SUCCEEDED(hr) && allowTearing) {

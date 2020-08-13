@@ -4,24 +4,15 @@ namespace SDT {
     class HookDescriptor
     {
     public:
-        enum HookType {
-            //kDetours,
+        enum HookType : uint8_t {
             kWR5Call,
             kWR6Call
         };
-
-        /*HookDescriptor(PVOID *target, PVOID detour) :
-            target(target), detour(detour), type(HookType::kDetours)
-        {
-        }*/
 
         HookDescriptor(uintptr_t target, uintptr_t hook, HookType type) :
             wc_target(target), wc_hook(hook), type(type)
         {
         }
-
-        /*PVOID *target;
-        PVOID detour;*/
 
         uintptr_t wc_target;
         uintptr_t wc_hook;
@@ -34,15 +25,15 @@ namespace SDT {
     {
     protected:
         IHook() = default;
-        virtual ~IHook() = default;
+        virtual ~IHook() noexcept = default;
 
-        //void RegisterHook(PVOID *target, PVOID detour);
         void RegisterHook(uintptr_t target, uintptr_t hook);
         void RegisterHook(uintptr_t target, uintptr_t hook, HookDescriptor::HookType type);
-        void RegisterHook(HookDescriptor const& hdesc);
+        void RegisterHook(const HookDescriptor & hdesc);
+        void RegisterHook(HookDescriptor&& hdesc);
         bool InstallHooks();
     private:
-        std::vector<HookDescriptor> hooks;
+        std::vector<HookDescriptor> m_hooks;
     };
 
     class IDriver :
@@ -50,41 +41,36 @@ namespace SDT {
     {
         friend class IDDispatcher;
     public:
-        bool IsInitialized() { return b_Initialized; }
-        bool IsOK() { return b_IsOK; }
+        bool IsInitialized() { return m_Initialized; }
+        bool IsOK() { return m_IsOK; }
 
-        IDriver(IDriver&) = delete;
-        IDriver(const IDriver&&) = delete;
+        IDriver(const IDriver&) = delete;
+        IDriver(IDriver&&) = delete;
 
-        IDriver& operator=(IDriver&) = delete;
-        void operator=(const IDriver&&) = delete;
+        IDriver& operator=(const IDriver&) = delete;
+        void operator=(IDriver&&) = delete;
 
         FN_NAMEPROC("IDriver")
         FN_ESSENTIAL(false)
-        FN_PRIO(99)
+        FN_PRIO(-1)
         FN_DRVID(INVALID_DRIVER)
     protected:
         IDriver();
-        virtual ~IDriver() = default;
+        virtual ~IDriver() noexcept = default;
 
-        //void SetPapyrusFuncRegProc(SKSEPapyrusInterface::RegisterFunctions proc);
-
-        bool Initialize();
-        void SetOK(bool b) { b_IsOK = b; }
-        virtual bool Prepare() { return false; };
+        void SetOK(bool b) { m_IsOK = b; }
 
     private:
         virtual void LoadConfig() {};
         virtual void PostLoadConfig() {};
         virtual void Patch() {};
         virtual void RegisterHooks() {};
+        [[nodiscard]] virtual bool Prepare() { return false; };
 
-        //void RegisterPapyrusFunctions();
+        [[nodiscard]] bool Initialize();
 
-        //SKSEPapyrusInterface::RegisterFunctions papyrusFuncRegProc = nullptr;
-
-        bool b_Initialized = false;
-        bool b_IsOK = false;
+        bool m_Initialized;
+        bool m_IsOK;
     };
 
 }

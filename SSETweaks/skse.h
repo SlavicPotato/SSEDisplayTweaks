@@ -11,7 +11,7 @@ namespace SDT {
         static bool Initialize(const SKSEInterface* skse);
 
         template <typename T>
-        static T GetINISettingAddr(const char* name)
+        [[nodiscard]] static T GetINISettingAddr(const char* name)
         {
             Setting* setting = (*g_iniSettingCollection)->Get(name);
             if (setting) {
@@ -20,7 +20,17 @@ namespace SDT {
             return NULL;
         };
 
-        static Setting* GetINISetting(const char* name)
+        template <typename T>
+        [[nodiscard]] static T GetINIPrefSettingAddr(const char* name)
+        {
+            Setting* setting = (*g_iniPrefSettingCollection)->Get(name);
+            if (setting) {
+                return reinterpret_cast<T>(&setting->data);
+            }
+            return nullptr;
+        };
+
+        inline static Setting* GetINISetting(const char* name)
         {
             return (*g_iniSettingCollection)->Get(name);
         }

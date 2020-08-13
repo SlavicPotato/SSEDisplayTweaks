@@ -104,9 +104,10 @@ namespace SDT
     class MenuEventTrack
     {
     public:
-        typedef std::unordered_map<MenuEvent, bool> TrackMap;
+        typedef std::unordered_set<MenuEvent> trackSet_t;
 
-        void SetTracked(const TrackMap& map);
+        void SetTracked(const trackSet_t& map);
+        void SetTracked(trackSet_t&& map);
         void AddTracked(MenuEvent code);
         void RemoveTracked(MenuEvent code);
         void Track(MenuEvent code, bool opening);
@@ -116,7 +117,7 @@ namespace SDT
     protected:
 
         std::vector<MenuEvent> m_stack;
-        TrackMap m_tracked;
+        trackSet_t m_tracked;
     };
 
     class IEvents :
@@ -136,13 +137,17 @@ namespace SDT
         static bool Initialize();
         static void RegisterForEvent(Event m_code, EventCallback fn);
         static void RegisterForEvent(MenuEvent m_code, MenuEventCallback fn);
-        static void TriggerEvent(Event m_code, void* args);
+        static void TriggerEvent(Event m_code, void* args = nullptr);
         //static void TriggerMenuEvent(MenuEvent m_code, MenuOpenCloseEvent* evn, EDE_MenuOpenCloseEvent* dispatcher);
         static void TriggerMenuEventAny(MenuEvent m_code, MenuOpenCloseEvent* evn, EventDispatcher<MenuOpenCloseEvent>* dispatcher);
 
-        void _TriggerMenuEvent(MenuEvent triggercode, MenuEvent code, MenuOpenCloseEvent* evn, EventDispatcher<MenuOpenCloseEvent>* dispatcher);
+        void TriggerMenuEventImpl(MenuEvent triggercode, MenuEvent code, MenuOpenCloseEvent* evn, EventDispatcher<MenuOpenCloseEvent>* dispatcher);
 
-        __forceinline static MenuEvent GetMenuEventCode(const char* str) {
+        inline static MenuEvent GetMenuEventCode(const char* str) {
+            return m_Instance.m_mstc_map[str];
+        }
+        
+        inline static MenuEvent GetMenuEventCode(const std::string &str) {
             return m_Instance.m_mstc_map[str];
         }
 
@@ -159,8 +164,8 @@ namespace SDT
 
         void CreateMSTCMap();
 
-        std::map<Event, std::vector<_EventTriggerDescriptor>> m_events;
-        std::map<MenuEvent, std::vector<_MenuEventCallbackDescriptor>> m_menu_events;
+        std::unordered_map<Event, std::vector<_EventTriggerDescriptor>> m_events;
+        std::unordered_map<MenuEvent, std::vector<_MenuEventCallbackDescriptor>> m_menu_events;
 
         inline static auto phookLoadPluginINI = IAL::Addr<inihookproc>(AID::LoadPluginINI);
         inline static auto LoadPluginINI_C = IAL::Addr(AID::Init0, Offsets::LoadPluginINI_C);
@@ -169,8 +174,4 @@ namespace SDT
 
         static IEvents m_Instance;
     };
-
-
-
-
 }

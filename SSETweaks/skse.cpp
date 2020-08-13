@@ -63,18 +63,14 @@ namespace SDT
             return false;
         }
 
-        branchTrampolineSize = Hook::GetAlignedTrampolineSize(MAX_TRAMPOLINE_BRANCH);
-
-        if (!g_branchTrampoline.Create(branchTrampolineSize))
-        {
+        branchTrampolineSize = Hook::InitBranchTrampoline(skse, MAX_TRAMPOLINE_BRANCH);
+        if (!branchTrampolineSize) {
             _FATALERROR("Could not create branch trampoline.");
             return false;
         }
 
-        localTrampolineSize = Hook::GetAlignedTrampolineSize(MAX_TRAMPOLINE_CODEGEN);
-
-        if (!g_localTrampoline.Create(localTrampolineSize))
-        {
+        localTrampolineSize = Hook::InitLocalTrampoline(skse, MAX_TRAMPOLINE_CODEGEN);
+        if (!localTrampolineSize) {
             _FATALERROR("Could not create codegen trampoline.");
             return false;
         }

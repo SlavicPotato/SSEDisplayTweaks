@@ -37,8 +37,6 @@ namespace SDT
         constexpr unsigned long long PhysCalcFix = 35605;
         constexpr unsigned long long PhysFuncUnk0 = 66987;
 
-        constexpr unsigned long long FrameTime = 523660;
-
         constexpr unsigned long long D3DInit = 75595;
 
         constexpr unsigned long long PhysCalc = 76017;
@@ -59,6 +57,10 @@ namespace SDT
         constexpr unsigned long long IsComplex = 516932;
 
         constexpr unsigned long long RDCImpl = 102238;
+
+        constexpr unsigned long long FrameTimer = 523661;
+        constexpr unsigned long long UnkFloat0 = 509776;
+        constexpr unsigned long long UnkMM0 = 49805;
 
     }
 
@@ -130,6 +132,7 @@ namespace SDT
         constexpr uintptr_t ResizeTarget = 0x10A;
 
         constexpr uintptr_t MT_Inject = 0x300;
+        constexpr uintptr_t FMHS_Inject = 0xAD;
 
         constexpr uintptr_t ScriptUpdateBudgetGame = 0x90;
         constexpr uintptr_t ScriptUpdateBudgetUI = 0x90;

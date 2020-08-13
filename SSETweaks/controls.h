@@ -22,9 +22,19 @@ namespace SDT
         struct {
             bool damping_fix;
             float tcpf_threshold;
+            float fp_mount_horiz_sens;
         } conf;
 
+        static void MouseSens_Hook(PlayerControls* p1, FirstPersonState* p2);
+
+        float* fMouseHeadingXScale;
+        float* fMouseHeadingSensitivity;
+
         inline static auto MT_Inject = IAL::Addr(AID::UnkMovFunc0, Offsets::MT_Inject);
+
+        inline static auto FrameTimer = IAL::Addr<float*>(AID::FrameTimer);
+        inline static auto UnkFloat0 = IAL::Addr<float*>(AID::UnkFloat0);
+        inline static auto FMHS_Inject = IAL::Addr(AID::UnkMM0, Offsets::FMHS_Inject);
 
         static DControls m_Instance;
     };
