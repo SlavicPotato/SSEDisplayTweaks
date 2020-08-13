@@ -16,21 +16,10 @@ namespace SDT
             m_map[msg].push_back(f);
         }
 
-        void Add(UINT msg, MsgProcFunc&& f)
-        {
-            m_map[msg].emplace_back(std::forward<MsgProcFunc>(f));
-        }
-
         void Add(const MsgList& l, const MsgProcFunc& f)
         {
             for (const auto msg : l)
                 Add(msg, f);
-        }
-
-        void Add(const MsgList& l, MsgProcFunc&& f)
-        {
-            for (const auto msg : l)
-                Add(msg, std::forward<MsgProcFunc>(f));
         }
 
         inline bool HasProcessors() const noexcept
