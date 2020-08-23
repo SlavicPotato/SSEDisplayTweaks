@@ -11,7 +11,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "common_1_5_97_vc14", "..\ss
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "skse64_1_5_97_common", "..\sse-build-resources\skse64\skse64\skse64_common\skse64_common.vcxproj", "{5FD1C08D-DB80-480C-A1C6-F0920005CD13}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DirectXTK_Desktop_2019_Win10_x", "..\DirectXTK\DirectXTK_Desktop_2019_Win10_x.vcxproj", "{E0B52AE7-E160-4D32-BF3F-910B785E5A8E}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DirectXTK_Desktop_2019_Win10", "..\DirectXTK\DirectXTK_Desktop_2019_Win10_x.vcxproj", "{E0B52AE7-E160-4D32-BF3F-910B785E5A8E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -138,8 +138,8 @@ Global
 		{E0B52AE7-E160-4D32-BF3F-910B785E5A8E}.DeployRelease|x64.Build.0 = Release|x64
 		{E0B52AE7-E160-4D32-BF3F-910B785E5A8E}.DeployRelease|x86.ActiveCfg = Release|x64
 		{E0B52AE7-E160-4D32-BF3F-910B785E5A8E}.DeployRelease|x86.Build.0 = Release|x64
-		{E0B52AE7-E160-4D32-BF3F-910B785E5A8E}.PreRelease MT|x64.ActiveCfg = PreRelease|x64
-		{E0B52AE7-E160-4D32-BF3F-910B785E5A8E}.PreRelease MT|x64.Build.0 = PreRelease|x64
+		{E0B52AE7-E160-4D32-BF3F-910B785E5A8E}.PreRelease MT|x64.ActiveCfg = PreReleaseAVX2 MT|x64
+		{E0B52AE7-E160-4D32-BF3F-910B785E5A8E}.PreRelease MT|x64.Build.0 = PreReleaseAVX2 MT|x64
 		{E0B52AE7-E160-4D32-BF3F-910B785E5A8E}.PreRelease MT|x86.ActiveCfg = Release|x64
 		{E0B52AE7-E160-4D32-BF3F-910B785E5A8E}.PreRelease MT|x86.Build.0 = Release|x64
 		{E0B52AE7-E160-4D32-BF3F-910B785E5A8E}.PreRelease|x64.ActiveCfg = PreRelease|x64

@@ -105,7 +105,7 @@ namespace SDT
 
     void DControls::MouseSens_Hook(PlayerControls* p1, FirstPersonState* p2)
     {
-        if (*FrameTimer == 0.0f)
+        if (*FrameTimer < _EPSILON)
             return;
 
         auto f = *m_Instance.fMouseHeadingXScale * *m_Instance.fMouseHeadingSensitivity;
