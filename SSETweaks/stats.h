@@ -24,7 +24,7 @@ namespace SDT
 
             num++;
 
-            if (delta < m) {
+            if (delta < m || num == 0) {
                 return false;
             }
 
