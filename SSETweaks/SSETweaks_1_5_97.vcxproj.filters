@@ -36,9 +36,6 @@
     <ClInclude Include="window.h">
       <Filter>Header Files\Drivers</Filter>
     </ClInclude>
-    <ClInclude Include="logging.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="dispatcher.h">
       <Filter>Header Files\Drivers</Filter>
     </ClInclude>
@@ -121,9 +118,6 @@
     </ClCompile>
     <ClCompile Include="drv_base.cpp">
       <Filter>Source Files\Drivers</Filter>
-    </ClCompile>
-    <ClCompile Include="logging.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="dispatcher.cpp">
       <Filter>Source Files\Drivers</Filter>

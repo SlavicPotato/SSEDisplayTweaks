@@ -83,8 +83,8 @@ namespace SDT
         for (const auto drv : drivers) {
             int driver_id = drv->GetID();
 
-            ASSERT(driver_id > -1);
-            ASSERT(!drivermap.count(driver_id));
+            _assert(driver_id > -1);
+            _assert(!drivermap.count(driver_id));
 
             drivermap[driver_id] = drv;
         }

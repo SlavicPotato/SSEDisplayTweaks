@@ -92,7 +92,7 @@ namespace SDT
     {
         auto uiStrHolder = UIStringHolder::GetSingleton();
 
-        ASSERT(uiStrHolder != nullptr);
+        _assert(uiStrHolder != nullptr);
 
         m_mstc_map[uiStrHolder->loadingMenu.c_str()] = MenuEvent::OnLoadingMenu;
         m_mstc_map[uiStrHolder->mainMenu.c_str()] = MenuEvent::OnMainMenu;

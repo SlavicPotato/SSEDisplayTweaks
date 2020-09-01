@@ -8,12 +8,12 @@ namespace SDT {
     {
         int result = IConfig::Load();
         if (result != 0) {
-            _WARNING(
+            gLogger.Warning(
                 "WARNING: Unable to load the configuration file (%d)", result);
         }
         else {
             SDT::IConfig conf;
-            gLog.SetLogLevel(SDT::ILog::TranslateLogLevel(
+            gLogger.SetLogLevel(Logger::TranslateLogLevel(
                 conf.GetConfigValue(CONF_SECT_MAIN, CONF_MAIN_KEY_LOGGING, "debug")));
         }
 
@@ -29,7 +29,7 @@ namespace SDT {
             return false;
         }
 
-        _DMESSAGE("[Trampoline] branch: %zu/%zu, codegen: %zu/%u",
+        gLogger.Debug("[Trampoline] branch: %zu/%zu, codegen: %zu/%u",
             ISKSE::branchTrampolineSize - g_branchTrampoline.Remain(),
             ISKSE::branchTrampolineSize,
             ISKSE::localTrampolineSize - g_localTrampoline.Remain(),
@@ -48,7 +48,9 @@ extern "C"
 
     bool SKSEPlugin_Load(const SKSEInterface* skse)
     {
-        _MESSAGE("%s version %s (runtime %u.%u.%u.%u)",
+        _assert(SDT::ISKSE::g_moduleHandle != nullptr);
+
+        gLogger.Message("%s version %s (runtime %u.%u.%u.%u)",
             PLUGIN_NAME, PLUGIN_VERSION_VERSTRING,
             GET_EXE_VERSION_MAJOR(skse->runtimeVersion),
             GET_EXE_VERSION_MINOR(skse->runtimeVersion),
@@ -56,31 +58,31 @@ extern "C"
             GET_EXE_VERSION_SUB(skse->runtimeVersion));
 
         if (!IAL::IsLoaded()) {
-            _FATALERROR("Could not load the address library, check requirements on the nexus page");
+            gLogger.FatalError("Could not load the address library, check requirements on the nexus page");
             return false;
         }
 
         if (IAL::HasBadQuery()) {
-            _FATALERROR("One or more addresses could not be retrieved from the database");
+            gLogger.FatalError("One or more addresses could not be retrieved from the database");
             return false;
         }
 
-        auto tStart = PerfCounter::Query();
+        PerfTimer timer;
+
+        timer.Start();
 
         bool result = SDT::Initialize(skse);
 
-        auto tInit = PerfCounter::delta(
-            tStart, PerfCounter::Query());
+        auto tInit = timer.Stop();
 
-        tStart = PerfCounter::Query();
+        timer.Start();
 
         IAL::Release();
 
-        auto tUnload = PerfCounter::delta(
-            tStart, PerfCounter::Query());
+        auto tUnload = timer.Stop();
 
         if (result) {
-            _DMESSAGE("[%s] db load: %.3f ms, init: %.3f ms, db unload: %.3f ms", __FUNCTION__,
+            gLogger.Debug("[%s] db load: %.3f ms, init: %.3f ms, db unload: %.3f ms", __FUNCTION__,
                 IAL::GetLoadTime() * 1000.0f, tInit * 1000.0f, tUnload * 1000.0f);
         }
 

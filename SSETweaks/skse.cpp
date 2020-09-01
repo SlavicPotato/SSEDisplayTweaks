@@ -14,9 +14,8 @@ namespace SDT
 
     bool ISKSE::Query(const SKSEInterface* skse, PluginInfo* info)
     {
-        gLog.OpenRelative(CSIDL_MYDOCUMENTS, PLUGIN_LOG_PATH);
-        gLog.SetPrintLevel(IDebugLog::kLevel_Warning);
-        gLog.SetLogLevel(IDebugLog::kLevel_DebugMessage);
+        gLogger.OpenRelative(CSIDL_MYDOCUMENTS, PLUGIN_LOG_PATH);
+        gLogger.SetLogLevel(Logger::LogLevel::Warning);
 
         info->infoVersion = PluginInfo::kInfoVersion;
         info->name = PLUGIN_NAME;
@@ -26,13 +25,13 @@ namespace SDT
             PLUGIN_VERSION_REVISION);
 
         if (skse->isEditor) {
-            _FATALERROR("Loaded in editor, marking as incompatible");
+            gLogger.FatalError("Loaded in editor, marking as incompatible");
             return false;
         }
 
         if (skse->runtimeVersion < RUNTIME_VERSION_1_5_23)
         {
-            _FATALERROR("Unsupported runtime version %u.%u.%u.%u, expected >= %u.%u.%u.%u",
+            gLogger.FatalError("Unsupported runtime version %u.%u.%u.%u, expected >= %u.%u.%u.%u",
                 GET_EXE_VERSION_MAJOR(skse->runtimeVersion),
                 GET_EXE_VERSION_MINOR(skse->runtimeVersion),
                 GET_EXE_VERSION_BUILD(skse->runtimeVersion),
@@ -53,25 +52,25 @@ namespace SDT
     {
         g_messaging = reinterpret_cast<SKSEMessagingInterface*>(skse->QueryInterface(kInterface_Messaging));
         if (g_messaging == nullptr) {
-            _FATALERROR("Could not get messaging interface");
+            gLogger.FatalError("Could not get messaging interface");
             return false;
         }
 
         if (g_messaging->interfaceVersion < MIN_MESSAGING_INTERFACE_VER) {
-            _FATALERROR("Messaging interface too old (%u expected >= %u)",
+            gLogger.FatalError("Messaging interface too old (%u expected >= %u)",
                 g_messaging->interfaceVersion, MIN_MESSAGING_INTERFACE_VER);
             return false;
         }
 
         branchTrampolineSize = Hook::InitBranchTrampoline(skse, MAX_TRAMPOLINE_BRANCH);
         if (!branchTrampolineSize) {
-            _FATALERROR("Could not create branch trampoline.");
+            gLogger.FatalError("Could not create branch trampoline.");
             return false;
         }
 
         localTrampolineSize = Hook::InitLocalTrampoline(skse, MAX_TRAMPOLINE_CODEGEN);
         if (!localTrampolineSize) {
-            _FATALERROR("Could not create codegen trampoline.");
+            gLogger.FatalError("Could not create codegen trampoline.");
             return false;
         }
 

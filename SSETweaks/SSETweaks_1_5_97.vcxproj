@@ -476,7 +476,6 @@
     <ClInclude Include="os.h" />
     <ClInclude Include="osd.h" />
     <ClInclude Include="papyrus.h" />
-    <ClInclude Include="logging.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="plugin.h" />
     <ClInclude Include="render.h" />
@@ -496,7 +495,6 @@
     <ClCompile Include="havok.cpp" />
     <ClCompile Include="input.cpp" />
     <ClCompile Include="jitasm.cpp" />
-    <ClCompile Include="logging.cpp" />
     <ClCompile Include="misc.cpp" />
     <ClCompile Include="os.cpp" />
     <ClCompile Include="osd.cpp" />

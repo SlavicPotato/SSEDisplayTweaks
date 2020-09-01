@@ -59,7 +59,7 @@
 #define PLUGIN_BASE_PATH       "Data\\SKSE\\Plugins\\"
 #define PLUGIN_BASE_PATHW      L"Data\\SKSE\\Plugins\\"
 
-constexpr char* PLUGIN_LOG_PATH = "\\My Games\\Skyrim Special Edition\\SKSE\\" PLUGIN_NAME ".log";
+constexpr char* PLUGIN_LOG_PATH = "My Games\\Skyrim Special Edition\\SKSE\\" PLUGIN_NAME ".log";
 constexpr char* PLUGIN_INI_FILE = PLUGIN_BASE_PATH PLUGIN_NAME ".ini";
 constexpr wchar_t* OSD_FONT_PATH = PLUGIN_BASE_PATHW L"SDTFonts\\";
 
@@ -68,7 +68,6 @@ constexpr wchar_t* OSD_FONT_PATH = PLUGIN_BASE_PATHW L"SDTFonts\\";
 #include "INIReader.h"
 #include "stats.h"
 #include "tasks.h"
-#include "logging.h"
 #include "os.h"
 #include "skse.h"
 #include "config.h"
