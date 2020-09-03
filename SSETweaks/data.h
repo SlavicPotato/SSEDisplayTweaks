@@ -58,9 +58,11 @@ namespace SDT
 
         constexpr unsigned long long RDCImpl = 102238;
 
-        constexpr unsigned long long FrameTimer = 523661;
         constexpr unsigned long long UnkFloat0 = 509776;
         constexpr unsigned long long UnkMM0 = 49805;
+
+        constexpr unsigned long long FrameTimerNoSlow = 523661;
+        constexpr unsigned long long FrameTimerSlow = 523660;
 
     }
 

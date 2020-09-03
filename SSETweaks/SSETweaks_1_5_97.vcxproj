@@ -466,6 +466,7 @@
     <ClInclude Include="dispatcher.h" />
     <ClInclude Include="drv_base.h" />
     <ClInclude Include="events.h" />
+    <ClInclude Include="game.h" />
     <ClInclude Include="havok.h" />
     <ClInclude Include="helpers.h" />
     <ClInclude Include="INIReader.h" />
@@ -492,6 +493,7 @@
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="drv_base.cpp" />
     <ClCompile Include="events.cpp" />
+    <ClCompile Include="game.cpp" />
     <ClCompile Include="havok.cpp" />
     <ClCompile Include="input.cpp" />
     <ClCompile Include="jitasm.cpp" />

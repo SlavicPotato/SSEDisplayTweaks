@@ -121,19 +121,17 @@ namespace SDT
 
     void DHavok::CalculateHavokValues()
     {
-        long long fte = PerfCounter::Query();
-        float cft = PerfCounter::delta(fts, fte);
-        fts = fte;
+        float interval = *Game::frameTimer;
 
-        if (cft > fmt_max) {
-            cft = fmt_max;
+        if (interval > fmt_max) {
+            interval = fmt_max;
         }
-        else if (cft < fmt_min) {
-            cft = fmt_min;
+        else if (interval < fmt_min) {
+            interval = fmt_min;
         }
 
-        *fMaxTime = cft;
-        *fMaxTimeComplex = 1.0f / max(1.0f / cft - conf.fmtc_offset, HAVOK_MAXTIME_MIN);
+        *fMaxTime = interval;
+        *fMaxTimeComplex = 1.0f / max(1.0f / interval - conf.fmtc_offset, HAVOK_MAXTIME_MIN);
     }
 
     void DHavok::UpdateHavokStats()

@@ -133,21 +133,19 @@ namespace SDT
 
     float DPapyrus::CalculateUpdateBudget()
     {
-        long long fte = PerfCounter::Query();
-        float cft = PerfCounter::delta(m_Instance.fts, fte);
-        m_Instance.fts = fte;
+        float interval = *Game::frameTimer;
 
-        if (cft > m_Instance.t_max) {
-            cft = m_Instance.t_max;
+        if (interval > m_Instance.t_max) {
+            interval = m_Instance.t_max;
         }
-        else if (cft < m_Instance.t_min) {
-            cft = m_Instance.t_min;
+        else if (interval < m_Instance.t_min) {
+            interval = m_Instance.t_min;
         }
 
-        cft *= m_Instance.bmult;
-        *m_Instance.fUpdateBudgetMS = cft;
+        interval *= m_Instance.bmult;
+        *m_Instance.fUpdateBudgetMS = interval;
 
-        return cft;
+        return interval;
     }
 
     float DPapyrus::CalculateUpdateBudgetStats()
@@ -172,8 +170,6 @@ namespace SDT
 
     void DPapyrus::OnD3D11PostCreate_Papyrus(Event, void*)
     {
-        //auto info = reinterpret_cast<D3D11CreateEventPost*>(data);
-
         m_Instance.bufStats1[0] = 0x0;
         m_Instance.OSDDriver->AddStatsCallback(StatsRendererCallback);
     }

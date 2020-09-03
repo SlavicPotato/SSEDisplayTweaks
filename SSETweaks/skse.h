@@ -1,6 +1,7 @@
 #pragma once
 
-namespace SDT {
+namespace SDT 
+{
     constexpr size_t MAX_TRAMPOLINE_BRANCH = 256;
     constexpr size_t MAX_TRAMPOLINE_CODEGEN = 384;
 
