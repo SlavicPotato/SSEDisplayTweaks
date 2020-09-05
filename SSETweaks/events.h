@@ -138,7 +138,6 @@ namespace SDT
         static void RegisterForEvent(Event m_code, EventCallback fn);
         static void RegisterForEvent(MenuEvent m_code, MenuEventCallback fn);
         static void TriggerEvent(Event m_code, void* args = nullptr);
-        //static void TriggerMenuEvent(MenuEvent m_code, MenuOpenCloseEvent* evn, EDE_MenuOpenCloseEvent* dispatcher);
         static void TriggerMenuEventAny(MenuEvent m_code, MenuOpenCloseEvent* evn, EventDispatcher<MenuOpenCloseEvent>* dispatcher);
 
         void TriggerMenuEventImpl(MenuEvent triggercode, MenuEvent code, MenuOpenCloseEvent* evn, EventDispatcher<MenuOpenCloseEvent>* dispatcher);
@@ -157,7 +156,6 @@ namespace SDT
         FN_DRVID(DRIVER_EVENTS)
     private:
         IEvents() = default;
-        //void TriggerEvent(Event m_code, void* args);
 
         static void PostLoadPluginINI_Hook();
         static void MessageHandler(SKSEMessagingInterface::Message* message);

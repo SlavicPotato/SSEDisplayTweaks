@@ -469,12 +469,9 @@
     <ClInclude Include="game.h" />
     <ClInclude Include="havok.h" />
     <ClInclude Include="helpers.h" />
-    <ClInclude Include="INIReader.h" />
     <ClInclude Include="input.h" />
-    <ClInclude Include="jitasm.h" />
     <ClInclude Include="macro_helpers.h" />
     <ClInclude Include="misc.h" />
-    <ClInclude Include="os.h" />
     <ClInclude Include="osd.h" />
     <ClInclude Include="papyrus.h" />
     <ClInclude Include="pch.h" />
@@ -496,9 +493,7 @@
     <ClCompile Include="game.cpp" />
     <ClCompile Include="havok.cpp" />
     <ClCompile Include="input.cpp" />
-    <ClCompile Include="jitasm.cpp" />
     <ClCompile Include="misc.cpp" />
-    <ClCompile Include="os.cpp" />
     <ClCompile Include="osd.cpp" />
     <ClCompile Include="papyrus.cpp" />
     <ClCompile Include="render.cpp" />

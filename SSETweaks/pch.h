@@ -10,9 +10,11 @@
 #include "skse64/PluginAPI.h"
 #include "xbyak/xbyak.h"
 
+#include "ext/INIReader.h"
 #include "ext/ICommon.h"
 #include "ext/IHook.h"
 #include "ext/Patching.h"
+#include "ext/JITASM.h"
 #include "skse64/GameData.h"
 #include "skse64/GameEvents.h"
 #include "skse64/GameMenus.h"
@@ -56,25 +58,15 @@
 
 #include "plugin.h"
 
-#define PLUGIN_BASE_PATH       "Data\\SKSE\\Plugins\\"
-#define PLUGIN_BASE_PATHW      L"Data\\SKSE\\Plugins\\"
-
-constexpr char* PLUGIN_LOG_PATH = "My Games\\Skyrim Special Edition\\SKSE\\" PLUGIN_NAME ".log";
-constexpr char* PLUGIN_INI_FILE = PLUGIN_BASE_PATH PLUGIN_NAME ".ini";
-constexpr wchar_t* OSD_FONT_PATH = PLUGIN_BASE_PATHW L"SDTFonts\\";
-
 #include "helpers.h"
 #include "common.h"
-#include "INIReader.h"
 #include "stats.h"
 #include "tasks.h"
-#include "os.h"
 #include "skse.h"
 #include "game.h"
 #include "config.h"
 #include "drv_base.h"
 #include "dispatcher.h"
-#include "jitasm.h"
 #include "events.h"
 #include "input.h"
 #include "render.h"

@@ -72,14 +72,8 @@
     <ClInclude Include="havok.h">
       <Filter>Header Files\Drivers</Filter>
     </ClInclude>
-    <ClInclude Include="INIReader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="controls.h">
       <Filter>Header Files\Drivers</Filter>
-    </ClInclude>
-    <ClInclude Include="jitasm.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="input.h">
       <Filter>Header Files\Drivers</Filter>
@@ -91,9 +85,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="stats.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="os.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="tasks.h">
@@ -143,9 +134,6 @@
     <ClCompile Include="controls.cpp">
       <Filter>Source Files\Drivers</Filter>
     </ClCompile>
-    <ClCompile Include="jitasm.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="input.cpp">
       <Filter>Source Files\Drivers</Filter>
     </ClCompile>
@@ -153,9 +141,6 @@
       <Filter>Source Files\Drivers</Filter>
     </ClCompile>
     <ClCompile Include="stats.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="os.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="game.cpp">

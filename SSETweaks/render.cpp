@@ -464,7 +464,7 @@ namespace SDT
             }
         }
         else {
-            struct ResizeTargetInjectArgs : JITASM {
+            struct ResizeTargetInjectArgs : JITASM::JITASM {
                 ResizeTargetInjectArgs(uintptr_t retnAddr, uintptr_t mdescAddr
                 ) : JITASM()
                 {
@@ -498,7 +498,7 @@ namespace SDT
         if (conf.fullscreen == 0 && conf.enable_tearing
             && (!conf.vsync_on || limiter_installed))
         {
-            struct PresentFlagsInject : JITASM {
+            struct PresentFlagsInject : JITASM::JITASM {
                 PresentFlagsInject(uintptr_t retnAddr, uintptr_t flagsAddr)
                     : JITASM()
                 {
@@ -533,7 +533,7 @@ namespace SDT
         }
 
         {
-            struct ResizeBuffersInjectArgs : JITASM {
+            struct ResizeBuffersInjectArgs : JITASM::JITASM {
                 ResizeBuffersInjectArgs(uintptr_t retnAddr, uintptr_t swdAddr
                 ) : JITASM()
                 {

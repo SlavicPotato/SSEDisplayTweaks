@@ -27,6 +27,6 @@ namespace SDT
 
     std::string IConfig::GetConfigValue(const char* sect, const char* key, const char* default) const
     {
-        return m_confReader.Addr(sect, key, default);
+        return m_confReader.Get(sect, key, default);
     }
 }

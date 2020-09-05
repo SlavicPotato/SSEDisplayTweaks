@@ -114,7 +114,7 @@ namespace SDT
             IEvents::RegisterForEvent(Event::OnD3D11PostPostCreate, OnD3D11PostPostCreate_OSD);
             DInput::RegisterForKeyEvents(&inputEventHandler);
 
-            struct PresentHook : JITASM {
+            struct PresentHook : JITASM::JITASM {
                 PresentHook(uintptr_t targetAddr
                 ) : JITASM()
                 {

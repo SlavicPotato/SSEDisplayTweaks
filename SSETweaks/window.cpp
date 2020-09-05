@@ -209,8 +209,8 @@ namespace SDT
 
             if (::GetMonitorInfoA(hMonitor, &mi))
             {
-                int newX = mi.rcMonitor.left + offsetx;
-                int newY = mi.rcMonitor.top + offsety;
+                int newX = static_cast<int>(mi.rcMonitor.left) + offsetx;
+                int newY = static_cast<int>(mi.rcMonitor.top) + offsety;
 
                 int newWidth = static_cast<int>(mi.rcMonitor.right - mi.rcMonitor.left);
                 int newHeight = static_cast<int>(mi.rcMonitor.bottom - mi.rcMonitor.top);

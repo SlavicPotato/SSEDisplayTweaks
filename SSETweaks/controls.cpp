@@ -36,7 +36,7 @@ namespace SDT
     {
         if (conf.damping_fix)
         {
-            struct MovementThresholdInject : JITASM {
+            struct MovementThresholdInject : JITASM::JITASM {
                 MovementThresholdInject(uintptr_t retnAddr, float* maxvAddr)
                     : JITASM()
                 {
@@ -70,7 +70,7 @@ namespace SDT
         {
             if (fMouseHeadingXScale && fMouseHeadingSensitivity)
             {
-                struct FirstPersonSitHorizontal : JITASM {
+                struct FirstPersonSitHorizontal : JITASM::JITASM {
                     FirstPersonSitHorizontal(uintptr_t retnAddr, uintptr_t callAddr)
                         : JITASM()
                     {

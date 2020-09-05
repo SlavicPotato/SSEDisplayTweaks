@@ -70,7 +70,7 @@ namespace SDT
 
         if (conf.dynbudget_enabled)
         {
-            struct UpdateBudgetInject : JITASM {
+            struct UpdateBudgetInject : JITASM::JITASM {
                 UpdateBudgetInject(uintptr_t targetAddr, bool enable_stats)
                     : JITASM()
                 {
