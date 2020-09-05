@@ -72,20 +72,6 @@ namespace SDT
             _In_ HWND hWnd,
             _Out_ LPRECT lpRect);
 
-        /*typedef HWND(WINAPI* PFN_CreateWindowExA)
-            (	_In_ DWORD dwExStyle,
-                _In_opt_ LPCSTR lpClassName,
-                _In_opt_ LPCSTR lpWindowName,
-                _In_ DWORD dwStyle,
-                _In_ int X,
-                _In_ int Y,
-                _In_ int nWidth,
-                _In_ int nHeight,
-                _In_opt_ HWND hWndParent,
-                _In_opt_ HMENU hMenu,
-                _In_opt_ HINSTANCE hInstance,
-                _In_opt_ LPVOID lpParam);
-                */
         static HWND WINAPI CreateWindowExA_Hook(
             _In_ DWORD dwExStyle,
             _In_opt_ LPCSTR lpClassName,
@@ -143,6 +129,9 @@ namespace SDT
 
         inline static uintptr_t CreateWindowEx_C = IAL::Addr(AID::WindowCreate, Offsets::WindowCreate);
         inline static uintptr_t GetClientRect1 = IAL::Addr(AID::WinFunc0, Offsets::GetClientRect1);
+
+        int* iLocationX;
+        int* iLocationY;
 
         static DWindow m_Instance;
     };

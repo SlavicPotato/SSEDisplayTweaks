@@ -14,7 +14,9 @@ namespace SDT
 
     DWindow DWindow::m_Instance;
 
-    DWindow::DWindow()
+    DWindow::DWindow() :
+        iLocationX(nullptr),
+        iLocationY(nullptr)
     {
         upscaling.hWnd = NULL;
     }
@@ -44,6 +46,11 @@ namespace SDT
         if (conf.force_minimize) {
             SetupForceMinimizeMP();
             Message("Forcing minimize on focus loss");
+        }
+
+        if (conf.upscale) {
+            iLocationX = ISKSE::GetINISettingAddr<int*>("iLocation X:Display");
+            iLocationY = ISKSE::GetINISettingAddr<int*>("iLocation Y:Display");
         }
     }
 
@@ -185,6 +192,15 @@ namespace SDT
 
         if (m_Instance.conf.upscale)
         {
+            int offsetx = 0;
+            int offsety = 0;
+
+            if (m_Instance.iLocationX)
+                offsetx = *m_Instance.iLocationX;
+            
+            if (m_Instance.iLocationY)
+                offsety = *m_Instance.iLocationY;
+            
             HMONITOR hMonitor = ::MonitorFromWindow(
                 hWnd, MONITOR_DEFAULTTOPRIMARY);
 
@@ -193,20 +209,23 @@ namespace SDT
 
             if (::GetMonitorInfoA(hMonitor, &mi))
             {
+                int newX = mi.rcMonitor.left + offsetx;
+                int newY = mi.rcMonitor.top + offsety;
+
                 int newWidth = static_cast<int>(mi.rcMonitor.right - mi.rcMonitor.left);
                 int newHeight = static_cast<int>(mi.rcMonitor.bottom - mi.rcMonitor.top);
 
                 if (::SetWindowPos(
                     hWnd,
                     HWND_TOP,
-                    mi.rcMonitor.left,
-                    mi.rcMonitor.top,
+                    newX,
+                    newY,
                     newWidth,
                     newHeight,
                     SWP_NOSENDCHANGING | SWP_ASYNCWINDOWPOS))
                 {
-                    X = mi.rcMonitor.left;
-                    Y = mi.rcMonitor.top;
+                    X = newX;
+                    Y = newY;
                     nWidth = newWidth;
                     nHeight = newHeight;
                     m_Instance.Message(
