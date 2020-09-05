@@ -48,7 +48,7 @@ namespace SDT
         std::unique_ptr<DirectX::SpriteBatch> m_spriteBatch;
         std::unique_ptr<DirectX::SpriteFont> m_font;
 
-        std::exception e_last;
+        except::descriptor e_last;
 
         std::vector<Callback> callbacks;
         std::wostringstream ss;
