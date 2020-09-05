@@ -26,8 +26,8 @@ namespace SDT
 
     bool DControls::Prepare()
     {
-        fMouseHeadingXScale = ISKSE::GetINISettingAddr<float*>("fMouseHeadingXScale:Controls");
-        fMouseHeadingSensitivity = ISKSE::GetINIPrefSettingAddr<float*>("fMouseHeadingSensitivity:Controls");
+        fMouseHeadingXScale = ISKSE::GetINISettingAddr<float>("fMouseHeadingXScale:Controls");
+        fMouseHeadingSensitivity = ISKSE::GetINIPrefSettingAddr<float>("fMouseHeadingSensitivity:Controls");
 
         return true;
     }

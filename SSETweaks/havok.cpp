@@ -96,22 +96,22 @@ namespace SDT
 
     bool DHavok::Prepare()
     {
-        fMaxTime = ISKSE::GetINISettingAddr<float*>("fMaxTime:HAVOK");
+        fMaxTime = ISKSE::GetINISettingAddr<float>("fMaxTime:HAVOK");
         if (!fMaxTime) {
             return false;
         }
 
-        fMaxTimeComplex = ISKSE::GetINISettingAddr<float*>("fMaxTimeComplex:HAVOK");
+        fMaxTimeComplex = ISKSE::GetINISettingAddr<float>("fMaxTimeComplex:HAVOK");
         if (!fMaxTimeComplex) {
             return false;
         }
 
-        uMaxNumPhysicsStepsPerUpdate = ISKSE::GetINISettingAddr<uint32_t*>("uMaxNumPhysicsStepsPerUpdate:HAVOK");
+        uMaxNumPhysicsStepsPerUpdate = ISKSE::GetINISettingAddr<uint32_t>("uMaxNumPhysicsStepsPerUpdate:HAVOK");
         if (!uMaxNumPhysicsStepsPerUpdate) {
             return false;
         }
 
-        uMaxNumPhysicsStepsPerUpdateComplex = ISKSE::GetINISettingAddr<uint32_t*>("uMaxNumPhysicsStepsPerUpdateComplex:HAVOK");
+        uMaxNumPhysicsStepsPerUpdateComplex = ISKSE::GetINISettingAddr<uint32_t>("uMaxNumPhysicsStepsPerUpdateComplex:HAVOK");
         if (!uMaxNumPhysicsStepsPerUpdateComplex) {
             return false;
         }

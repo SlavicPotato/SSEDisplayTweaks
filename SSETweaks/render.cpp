@@ -613,12 +613,12 @@ namespace SDT
 
     bool DRender::Prepare()
     {
-        bLockFramerate = ISKSE::GetINISettingAddr<uint8_t*>("bLockFramerate:Display");
+        bLockFramerate = ISKSE::GetINISettingAddr<uint8_t>("bLockFramerate:Display");
         if (!bLockFramerate) {
             return false;
         }
 
-        iFPSClamp = ISKSE::GetINISettingAddr<int32_t*>("iFPSClamp:General");
+        iFPSClamp = ISKSE::GetINISettingAddr<int32_t>("iFPSClamp:General");
         if (!iFPSClamp) {
             return false;
         }

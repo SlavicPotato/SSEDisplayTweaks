@@ -49,8 +49,8 @@ namespace SDT
         }
 
         if (conf.upscale) {
-            iLocationX = ISKSE::GetINISettingAddr<int*>("iLocation X:Display");
-            iLocationY = ISKSE::GetINISettingAddr<int*>("iLocation Y:Display");
+            iLocationX = ISKSE::GetINISettingAddr<int>("iLocation X:Display");
+            iLocationY = ISKSE::GetINISettingAddr<int>("iLocation Y:Display");
         }
     }
 
@@ -197,10 +197,10 @@ namespace SDT
 
             if (m_Instance.iLocationX)
                 offsetx = *m_Instance.iLocationX;
-            
+
             if (m_Instance.iLocationY)
                 offsety = *m_Instance.iLocationY;
-            
+
             HMONITOR hMonitor = ::MonitorFromWindow(
                 hWnd, MONITOR_DEFAULTTOPRIMARY);
 

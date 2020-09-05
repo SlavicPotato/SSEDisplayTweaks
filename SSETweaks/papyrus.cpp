@@ -123,7 +123,7 @@ namespace SDT
 
     bool DPapyrus::Prepare()
     {
-        fUpdateBudgetMS = ISKSE::GetINISettingAddr<float*>("fUpdateBudgetMS:Papyrus");
+        fUpdateBudgetMS = ISKSE::GetINISettingAddr<float>("fUpdateBudgetMS:Papyrus");
         if (!fUpdateBudgetMS) {
             return false;
         }
