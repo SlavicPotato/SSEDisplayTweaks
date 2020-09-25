@@ -18,8 +18,7 @@ namespace SDT
 
     DHavok::DHavok()
     {
-        m_Instance.bufStats1[0] = 0x0;
-        m_Instance.bufStats2[0] = 0x0;
+        m_Instance.bufStats[0] = 0x0;
     }
 
     void DHavok::LoadConfig()
@@ -35,7 +34,7 @@ namespace SDT
 
     void DHavok::PostLoadConfig()
     {
-        if (conf.havok_enabled) 
+        if (conf.havok_enabled)
         {
             fts = PerfCounter::Query();
 
@@ -78,18 +77,30 @@ namespace SDT
 
                 OSDDriver = IDDispatcher::GetDriver<DOSD>(DRIVER_OSD);
 
+                bool regOSDEvent;
+
                 uintptr_t hf;
                 if (OSDDriver && OSDDriver->IsOK() && OSDDriver->conf.enabled && conf.stats_enabled)
                 {
-                    IEvents::RegisterForEvent(Event::OnD3D11PostCreate, OnD3D11PostCreate_Havok);
+                    regOSDEvent = true;
                     hf = reinterpret_cast<uintptr_t>(hookRTHStats);
                 }
                 else {
+                    regOSDEvent = false;
                     hf = reinterpret_cast<uintptr_t>(hookRTH);
                 }
 
-                RegisterHook(RTUnk0_UI_C, hf);
-                RegisterHook(RTUnk0_GM_C, hf);
+                if (!Hook::Call5(PhysCalcMaxTime, hf, PhysCalcMaxTime_O))
+                {
+                    conf.havok_on = false;
+                    Error("Couldn't hook physics calc function");
+                    return;
+                }
+
+
+                if (regOSDEvent) {
+                    IEvents::RegisterForEvent(Event::OnD3D11PostCreate, OnD3D11PostCreate_Havok);
+                }
             }
         }
     }
@@ -121,14 +132,7 @@ namespace SDT
 
     void DHavok::CalculateHavokValues()
     {
-        float interval = *Game::frameTimer;
-
-        if (interval > fmt_max) {
-            interval = fmt_max;
-        }
-        else if (interval < fmt_min) {
-            interval = fmt_min;
-        }
+        float interval = std::clamp(*Game::frameTimer, fmt_min, fmt_max);
 
         *fMaxTime = interval;
         *fMaxTimeComplex = 1.0f / max(1.0f / interval - conf.fmtc_offset, HAVOK_MAXTIME_MIN);
@@ -136,8 +140,8 @@ namespace SDT
 
     void DHavok::UpdateHavokStats()
     {
-        IStats::Accum(10, *fMaxTime);
-        IStats::Accum(11, *fMaxTimeComplex);
+        IStats::Accum(10, double(*fMaxTime));
+        IStats::Accum(11, double(*fMaxTimeComplex));
     }
 
     float DHavok::AutoGetMaxTime(const DXGI_SWAP_CHAIN_DESC* pSwapChainDesc, float def)
@@ -238,40 +242,39 @@ namespace SDT
         }
     }
 
-    void DHavok::hookRTH()
+    void DHavok::hookRTH(float a_time, bool a_isComplex, uint8_t a_unk0)
     {
         m_Instance.CalculateHavokValues();
-        PhysFuncUnk0_O();
+        m_Instance.PhysCalcMaxTime_O(a_time, a_isComplex, a_unk0);
     }
 
-    void DHavok::hookRTHStats()
+    void DHavok::hookRTHStats(float a_time, bool a_isComplex, uint8_t a_unk0)
     {
         m_Instance.CalculateHavokValues();
         m_Instance.UpdateHavokStats();
-        PhysFuncUnk0_O();
+        m_Instance.PhysCalcMaxTime_O(a_time, a_isComplex, a_unk0);
     }
 
-    const wchar_t* DHavok::StatsRendererCallback1()
+    const wchar_t* DHavok::StatsRendererCallback()
     {
         double val;
-        if (IStats::Addr(10, val)) {
-            ::_snwprintf_s(m_Instance.bufStats1, _TRUNCATE,
-                *m_Instance.isComplex ? L"fMaxTime: %.4g" : L"fMaxTime:> %.4g", val);
+
+        if (!*m_Instance.isComplex)
+        {
+            if (IStats::Get(10, val)) {
+                _snwprintf_s(m_Instance.bufStats, _TRUNCATE,
+                    L"fMaxTime: %.4g", val);
+            }
+        }
+        else
+        {
+            if (IStats::Get(11, val)) {
+                _snwprintf_s(m_Instance.bufStats, _TRUNCATE,
+                    L"fMaxTimeComplex: %.4g", val);
+            }
         }
 
-        return m_Instance.bufStats1;
-    }
-
-    const wchar_t* DHavok::StatsRendererCallback2()
-    {
-        double val;
-        if (IStats::Addr(11, val)) {
-            ::_snwprintf_s(m_Instance.bufStats2, _TRUNCATE,
-                *m_Instance.isComplex ? L"fMaxTimeComplex:> %.4g" : L"fMaxTimeComplex: %.4g",
-                val);
-        }
-
-        return m_Instance.bufStats2;
+        return m_Instance.bufStats;
     }
 
     void DHavok::OnD3D11PreCreate_Havok(Event code, void* data)
@@ -283,7 +286,6 @@ namespace SDT
 
     void DHavok::OnD3D11PostCreate_Havok(Event code, void* data)
     {
-        m_Instance.OSDDriver->AddStatsCallback(StatsRendererCallback1);
-        m_Instance.OSDDriver->AddStatsCallback(StatsRendererCallback2);
+        m_Instance.OSDDriver->AddStatsCallback(StatsRendererCallback);
     }
 }

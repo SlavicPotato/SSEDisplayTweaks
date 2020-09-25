@@ -79,7 +79,7 @@ namespace SDT
         }
 
         __forceinline static
-            bool Addr(uint8_t id, double& out)
+            bool Get(uint8_t id, double& out)
         {
             return data[id].get(out);
         }

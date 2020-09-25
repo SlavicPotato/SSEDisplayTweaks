@@ -63,7 +63,6 @@ namespace SDT
 
         constexpr unsigned long long FrameTimerNoSlow = 523661;
         constexpr unsigned long long FrameTimerSlow = 523660;
-
     }
 
     namespace Offsets
@@ -121,7 +120,7 @@ namespace SDT
         constexpr uintptr_t PhysCalcFix = 0xE;
 
         // (35574)
-        constexpr uintptr_t PhysCalcHT = 0x69;
+        constexpr uintptr_t PhysCalcHT = 0x9F;
 
         constexpr uintptr_t MaxFrameLatency = 0x91;
 

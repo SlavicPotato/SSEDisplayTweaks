@@ -8,7 +8,7 @@ namespace SDT
         public IDriver,
         IConfig
     {
-        typedef void(*RTProcR) (void);
+        typedef void(*RTProcR) (float a_time, bool a_isComplex, uint8_t a_unk0);
     public:
         FN_NAMEPROC("HAVOK")
         FN_ESSENTIAL(false)
@@ -29,11 +29,10 @@ namespace SDT
         void __forceinline CalculateHavokValues();
         void __forceinline UpdateHavokStats();
 
-        static void hookRTH();
-        static void hookRTHStats();
+        static void hookRTH(float a_time, bool a_isComplex, uint8_t a_unk0);
+        static void hookRTHStats(float a_time, bool a_isComplex, uint8_t a_unk0);
 
-        static const wchar_t* StatsRendererCallback1();
-        static const wchar_t* StatsRendererCallback2();
+        static const wchar_t* StatsRendererCallback();
 
         static void OnD3D11PreCreate_Havok(Event code, void* data);
         static void OnD3D11PostCreate_Havok(Event code, void* data);
@@ -58,15 +57,16 @@ namespace SDT
         uint32_t* uMaxNumPhysicsStepsPerUpdate;
         uint32_t* uMaxNumPhysicsStepsPerUpdateComplex;
 
+        RTProcR PhysCalcMaxTime_O;
+
         inline static auto RTUnk0_GM_C = IAL::Addr(AID::RT0, Offsets::RTUnk0_GM_C);
         inline static auto RTUnk0_UI_C = IAL::Addr(AID::RT0, Offsets::RTUnk0_UI_C);
-        inline static auto PhysFuncUnk0_O = IAL::Addr<RTProcR>(AID::FMTProc);
+        inline static auto PhysCalcMaxTime = IAL::Addr(AID::FMTProc, Offsets::PhysCalcHT);
         inline static auto isComplex = IAL::Addr<uint32_t*>(AID::IsComplex);
 
         DOSD* OSDDriver;
 
-        wchar_t bufStats1[128];
-        wchar_t bufStats2[128];
+        wchar_t bufStats[128];
 
         static DHavok m_Instance;
     };

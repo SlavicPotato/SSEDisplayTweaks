@@ -133,14 +133,7 @@ namespace SDT
 
     float DPapyrus::CalculateUpdateBudget()
     {
-        float interval = *Game::frameTimer;
-
-        if (interval > m_Instance.t_max) {
-            interval = m_Instance.t_max;
-        }
-        else if (interval < m_Instance.t_min) {
-            interval = m_Instance.t_min;
-        }
+        float interval = std::clamp(*Game::frameTimer, m_Instance.t_min, m_Instance.t_max);
 
         interval *= m_Instance.bmult;
         *m_Instance.fUpdateBudgetMS = interval;
@@ -160,7 +153,7 @@ namespace SDT
     const wchar_t* DPapyrus::StatsRendererCallback()
     {
         double val;
-        if (IStats::Addr(3, val)) {
+        if (IStats::Get(3, val)) {
             _snwprintf_s(m_Instance.bufStats1,
                 _TRUNCATE, L"fUpdateBudgetMS: %.4g", val);
         }

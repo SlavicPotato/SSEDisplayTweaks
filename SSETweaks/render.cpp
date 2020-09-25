@@ -1,9 +1,8 @@
 #include "pch.h"
 
 using namespace std;
-using namespace std::chrono;
 using namespace Microsoft::WRL;
-
+ 
 namespace SDT
 {
     constexpr char* SECTION_GENERAL = "General";
