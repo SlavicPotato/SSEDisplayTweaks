@@ -32,9 +32,8 @@ namespace SDT
                 Warning("dynbudget_fps_max == dynbudget_fps_min, disabling..");
                 conf.dynbudget_enabled = false;
             }
-            else {
-                fts = PerfCounter::Query();
-
+            else
+            {
                 OSDDriver = IDDispatcher::GetDriver<DOSD>(DRIVER_OSD);
 
                 enable_stats = OSDDriver && OSDDriver->IsOK() &&

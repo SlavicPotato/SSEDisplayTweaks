@@ -36,8 +36,6 @@ namespace SDT
     {
         if (conf.havok_enabled)
         {
-            fts = PerfCounter::Query();
-
             auto rd = IDDispatcher::GetDriver<DRender>(DRIVER_RENDER);
 
             if (conf.havok_on && !rd || !rd->IsOK()) {
@@ -96,7 +94,6 @@ namespace SDT
                     Error("Couldn't hook physics calc function");
                     return;
                 }
-
 
                 if (regOSDEvent) {
                     IEvents::RegisterForEvent(Event::OnD3D11PostCreate, OnD3D11PostCreate_Havok);

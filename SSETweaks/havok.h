@@ -11,9 +11,9 @@ namespace SDT
         typedef void(*RTProcR) (float a_time, bool a_isComplex, uint8_t a_unk0);
     public:
         FN_NAMEPROC("HAVOK")
-        FN_ESSENTIAL(false)
-        FN_PRIO(4)
-        FN_DRVID(DRIVER_HAVOK)
+            FN_ESSENTIAL(false)
+            FN_PRIO(4)
+            FN_DRVID(DRIVER_HAVOK)
     private:
         DHavok();
 
@@ -46,8 +46,6 @@ namespace SDT
             bool stats_enabled;
             bool adjust_ini;
         } conf;
-
-        long long fts;
 
         float fmt_max;
         float fmt_min;

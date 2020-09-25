@@ -15,7 +15,7 @@ namespace SDT
     bool ISKSE::Query(const SKSEInterface* skse, PluginInfo* info)
     {
         gLogger.OpenRelative(CSIDL_MYDOCUMENTS, PLUGIN_LOG_PATH);
-        gLogger.SetLogLevel(Logger::LogLevel::Warning);
+        gLogger.SetLogLevel(Logger::LogLevel::Message);
 
         info->infoVersion = PluginInfo::kInfoVersion;
         info->name = PLUGIN_NAME;

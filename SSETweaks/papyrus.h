@@ -43,7 +43,6 @@ namespace SDT
 
         float* fUpdateBudgetMS;
 
-        long long fts;
         float bmult;
         float t_max;
         float t_min;
