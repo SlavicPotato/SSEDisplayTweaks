@@ -6,9 +6,12 @@ namespace SDT
 
     bool IEvents::Initialize()
     {
-        m_Instance.RegisterHook(LoadPluginINI_C, reinterpret_cast<uintptr_t>(PostLoadPluginINI_Hook));
-
-        if (!m_Instance.InstallHooks()) {
+        if (!Hook::Call5(
+            LoadPluginINI_C,
+            reinterpret_cast<uintptr_t>(PostLoadPluginINI_Hook),
+            m_Instance.LoadPluginINI_O
+        ))
+        {
             m_Instance.FatalError("Could not install event hooks");
             return false;
         }
@@ -22,16 +25,12 @@ namespace SDT
 
     void IEvents::RegisterForEvent(Event code, EventCallback a_fn)
     {
-        m_Instance.m_events[code].emplace_back(
-            _EventTriggerDescriptor(code, a_fn)
-        );
+        m_Instance.m_events[code].emplace_back(code, a_fn);
     }
 
     void IEvents::RegisterForEvent(MenuEvent code, MenuEventCallback a_fn)
     {
-        m_Instance.m_menu_events[code].emplace_back(
-            _MenuEventCallbackDescriptor(code, a_fn)
-        );
+        m_Instance.m_menu_events[code].emplace_back(code, a_fn);
     }
 
     void IEvents::TriggerEvent(Event a_code, void* a_args)
@@ -66,7 +65,7 @@ namespace SDT
 
     void IEvents::PostLoadPluginINI_Hook()
     {
-        m_Instance.phookLoadPluginINI();
+        m_Instance.LoadPluginINI_O();
         m_Instance.TriggerEvent(OnConfigLoad);
     }
 
@@ -144,8 +143,6 @@ namespace SDT
         if (evn) {
             MenuEvent code = IEvents::GetMenuEventCode(evn->menuName.c_str());
 
-            //_DMESSAGE(">>>>>>>>>>>> %d   [%s]  opening:%d | %d  ", code, evn->menuName.c_str(), evn->opening, MenuManager::GetSingleton()->InPausedMenu());
-
             IEvents::TriggerMenuEventAny(code, evn, dispatcher);
         }
 
@@ -200,16 +197,14 @@ namespace SDT
 
     void MenuEventTrack::ClearTracked()
     {
-        if (m_stack.size()) {
+        if (!m_stack.empty()) {
             m_stack.clear();
         }
     }
 
     bool MenuEventTrack::IsTracking()
     {
-        return m_stack.size() != 0;
+        return !m_stack.empty();
     }
-
-
 }
 

@@ -23,6 +23,8 @@ Global
 		PreRelease MT|x86 = PreRelease MT|x86
 		PreRelease|x64 = PreRelease|x64
 		PreRelease|x86 = PreRelease|x86
+		Release MT W7|x64 = Release MT W7|x64
+		Release MT W7|x86 = Release MT W7|x86
 		Release MT|x64 = Release MT|x64
 		Release MT|x86 = Release MT|x86
 		Release|x64 = Release|x64
@@ -46,6 +48,9 @@ Global
 		{AD6B6406-5132-4EB0-B8C7-3882681FBE5E}.PreRelease|x64.ActiveCfg = PreRelease|x64
 		{AD6B6406-5132-4EB0-B8C7-3882681FBE5E}.PreRelease|x64.Build.0 = PreRelease|x64
 		{AD6B6406-5132-4EB0-B8C7-3882681FBE5E}.PreRelease|x86.ActiveCfg = PreRelease|x64
+		{AD6B6406-5132-4EB0-B8C7-3882681FBE5E}.Release MT W7|x64.ActiveCfg = Release MT|x64
+		{AD6B6406-5132-4EB0-B8C7-3882681FBE5E}.Release MT W7|x64.Build.0 = Release MT|x64
+		{AD6B6406-5132-4EB0-B8C7-3882681FBE5E}.Release MT W7|x86.ActiveCfg = Release MT|x64
 		{AD6B6406-5132-4EB0-B8C7-3882681FBE5E}.Release MT|x64.ActiveCfg = Release MT|x64
 		{AD6B6406-5132-4EB0-B8C7-3882681FBE5E}.Release MT|x64.Build.0 = Release MT|x64
 		{AD6B6406-5132-4EB0-B8C7-3882681FBE5E}.Release MT|x86.ActiveCfg = Release MT|x64
@@ -71,6 +76,9 @@ Global
 		{C59E5569-E3F3-4DA5-8313-12D90229B8C0}.PreRelease|x64.ActiveCfg = PreRelease|x64
 		{C59E5569-E3F3-4DA5-8313-12D90229B8C0}.PreRelease|x64.Build.0 = PreRelease|x64
 		{C59E5569-E3F3-4DA5-8313-12D90229B8C0}.PreRelease|x86.ActiveCfg = PreRelease|x64
+		{C59E5569-E3F3-4DA5-8313-12D90229B8C0}.Release MT W7|x64.ActiveCfg = Release MT|x64
+		{C59E5569-E3F3-4DA5-8313-12D90229B8C0}.Release MT W7|x64.Build.0 = Release MT|x64
+		{C59E5569-E3F3-4DA5-8313-12D90229B8C0}.Release MT W7|x86.ActiveCfg = Release MT|x64
 		{C59E5569-E3F3-4DA5-8313-12D90229B8C0}.Release MT|x64.ActiveCfg = Release MT|x64
 		{C59E5569-E3F3-4DA5-8313-12D90229B8C0}.Release MT|x64.Build.0 = Release MT|x64
 		{C59E5569-E3F3-4DA5-8313-12D90229B8C0}.Release MT|x86.ActiveCfg = Release MT|x64
@@ -95,6 +103,9 @@ Global
 		{472E19AB-DEF0-42DF-819B-18722E8DC822}.PreRelease|x64.ActiveCfg = PreRelease|x64
 		{472E19AB-DEF0-42DF-819B-18722E8DC822}.PreRelease|x64.Build.0 = PreRelease|x64
 		{472E19AB-DEF0-42DF-819B-18722E8DC822}.PreRelease|x86.ActiveCfg = PreRelease|x64
+		{472E19AB-DEF0-42DF-819B-18722E8DC822}.Release MT W7|x64.ActiveCfg = Release MT|x64
+		{472E19AB-DEF0-42DF-819B-18722E8DC822}.Release MT W7|x64.Build.0 = Release MT|x64
+		{472E19AB-DEF0-42DF-819B-18722E8DC822}.Release MT W7|x86.ActiveCfg = Release MT|x64
 		{472E19AB-DEF0-42DF-819B-18722E8DC822}.Release MT|x64.ActiveCfg = Release MT|x64
 		{472E19AB-DEF0-42DF-819B-18722E8DC822}.Release MT|x64.Build.0 = Release MT|x64
 		{472E19AB-DEF0-42DF-819B-18722E8DC822}.Release MT|x86.ActiveCfg = Release MT|x64
@@ -119,6 +130,9 @@ Global
 		{5FD1C08D-DB80-480C-A1C6-F0920005CD13}.PreRelease|x64.ActiveCfg = PreRelease|x64
 		{5FD1C08D-DB80-480C-A1C6-F0920005CD13}.PreRelease|x64.Build.0 = PreRelease|x64
 		{5FD1C08D-DB80-480C-A1C6-F0920005CD13}.PreRelease|x86.ActiveCfg = PreRelease|x64
+		{5FD1C08D-DB80-480C-A1C6-F0920005CD13}.Release MT W7|x64.ActiveCfg = Release MT|x64
+		{5FD1C08D-DB80-480C-A1C6-F0920005CD13}.Release MT W7|x64.Build.0 = Release MT|x64
+		{5FD1C08D-DB80-480C-A1C6-F0920005CD13}.Release MT W7|x86.ActiveCfg = Release MT|x64
 		{5FD1C08D-DB80-480C-A1C6-F0920005CD13}.Release MT|x64.ActiveCfg = Release MT|x64
 		{5FD1C08D-DB80-480C-A1C6-F0920005CD13}.Release MT|x64.Build.0 = Release MT|x64
 		{5FD1C08D-DB80-480C-A1C6-F0920005CD13}.Release MT|x86.ActiveCfg = Release MT|x64
@@ -145,6 +159,10 @@ Global
 		{E0B52AE7-E160-4D32-BF3F-910B785E5A8E}.PreRelease|x64.ActiveCfg = PreRelease|x64
 		{E0B52AE7-E160-4D32-BF3F-910B785E5A8E}.PreRelease|x64.Build.0 = PreRelease|x64
 		{E0B52AE7-E160-4D32-BF3F-910B785E5A8E}.PreRelease|x86.ActiveCfg = PreRelease|x64
+		{E0B52AE7-E160-4D32-BF3F-910B785E5A8E}.Release MT W7|x64.ActiveCfg = Release|x64
+		{E0B52AE7-E160-4D32-BF3F-910B785E5A8E}.Release MT W7|x64.Build.0 = Release|x64
+		{E0B52AE7-E160-4D32-BF3F-910B785E5A8E}.Release MT W7|x86.ActiveCfg = Release|x64
+		{E0B52AE7-E160-4D32-BF3F-910B785E5A8E}.Release MT W7|x86.Build.0 = Release|x64
 		{E0B52AE7-E160-4D32-BF3F-910B785E5A8E}.Release MT|x64.ActiveCfg = Release MT|x64
 		{E0B52AE7-E160-4D32-BF3F-910B785E5A8E}.Release MT|x64.Build.0 = Release MT|x64
 		{E0B52AE7-E160-4D32-BF3F-910B785E5A8E}.Release MT|x86.ActiveCfg = Release|x64

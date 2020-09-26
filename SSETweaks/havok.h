@@ -26,7 +26,7 @@ namespace SDT
         void ApplyHavokSettings(DXGI_SWAP_CHAIN_DESC* pSwapChainDesc);
         float AutoGetMaxTime(const DXGI_SWAP_CHAIN_DESC* pSwapChainDesc, float def);
 
-        void __forceinline CalculateHavokValues();
+        void __forceinline CalculateHavokValues(bool a_isComplex);
         void __forceinline UpdateHavokStats();
 
         static void hookRTH(float a_time, bool a_isComplex, uint8_t a_unk0);

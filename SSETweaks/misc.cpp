@@ -33,7 +33,8 @@ namespace SDT
 
     void DMisc::Patch()
     {
-        if (conf.skipmissingini) {
+        if (conf.skipmissingini) 
+        {
             Patching::safe_write(
                 SkipNoINI,
                 reinterpret_cast<const void*>(Payloads::SkipNoINI),
@@ -43,7 +44,8 @@ namespace SDT
 
     void DMisc::RegisterHooks()
     {
-        if (conf.skipmissingini) {
+        if (conf.skipmissingini) 
+        {
             RegisterHook(
                 SkipNoINI + 0x3,
                 GetFnAddr(&Structures::_SettingCollectionList::LoadIni_Hook),

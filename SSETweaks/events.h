@@ -165,7 +165,8 @@ namespace SDT
         std::unordered_map<Event, std::vector<_EventTriggerDescriptor>> m_events;
         std::unordered_map<MenuEvent, std::vector<_MenuEventCallbackDescriptor>> m_menu_events;
 
-        inline static auto phookLoadPluginINI = IAL::Addr<inihookproc>(AID::LoadPluginINI);
+        inihookproc LoadPluginINI_O;
+
         inline static auto LoadPluginINI_C = IAL::Addr(AID::Init0, Offsets::LoadPluginINI_C);
 
         MenuNameToCodeMap m_mstc_map;

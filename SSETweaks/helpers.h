@@ -48,17 +48,17 @@ namespace StrHelpers
         return &strconverter;
     }
 
-    __inline string ToString(const wstring& wstr)
+    __forceinline string ToString(const wstring& wstr)
     {
         return GetConverter()->to_bytes(wstr);
     }
 
-    __inline wstring ToWString(const string& str)
+    __forceinline wstring ToWString(const string& str)
     {
         return GetConverter()->from_bytes(str);
     }
 
-    __inline void
+    __forceinline void
         SplitString(const wstring& s, wchar_t delim, vector<wstring>& elems)
     {
         wistringstream ss(s);
@@ -70,7 +70,7 @@ namespace StrHelpers
     }
 
     template <typename T>
-    __inline void
+    __forceinline void
         SplitString(const wstring& s, wchar_t delim, vector<T>& elems)
     {
         vector<wstring> tmp;
@@ -89,7 +89,7 @@ namespace StrHelpers
         }
     }
 
-    __inline void
+    __forceinline void
         SplitString(const string& s, char delim, vector<string>& elems)
     {
         istringstream ss(s);
@@ -101,7 +101,7 @@ namespace StrHelpers
     }
 
     template <typename T>
-    __inline void
+    __forceinline void
         SplitString(const string& s, char delim, vector<T>& elems)
     {
         vector<string> tmp;
@@ -121,33 +121,33 @@ namespace StrHelpers
     }
 
 #ifdef UNICODE
-    __inline wstring ToNative(const string& str)
+    __forceinline wstring ToNative(const string& str)
     {
         return GetConverter()->from_bytes(str);
     }
 
-    __inline const wstring& ToNative(const wstring& str)
+    __forceinline const wstring& ToNative(const wstring& str)
     {
         return str;
     }
 
-    __inline string StrToStr(const wstring& str)
+    __forceinline string StrToStr(const wstring& str)
     {
         return GetConverter()->to_bytes(str);
     }
 
 #else
-    __inline string ToNative(const wstring& wstr)
+    __forceinline string ToNative(const wstring& wstr)
     {
         return GetConverter()->to_bytes(wstr);
     }
 
-    __inline const string& ToNative(string& str)
+    __forceinline const string& ToNative(string& str)
     {
         return str;
     }
 
-    __inline const string& StrToStr(const string& str)
+    __forceinline const string& StrToStr(const string& str)
     {
         return str;
     }
@@ -161,7 +161,7 @@ namespace FileHelpers
 {
     using namespace std;
 
-    __inline string GetPathFileNameA(const string& in)
+    __forceinline string GetPathFileNameA(const string& in)
     {
         string s(in);
 
@@ -178,7 +178,7 @@ namespace FileHelpers
         return s;
     }
 
-    __inline wstring GetPathFileNameW(const wstring& in)
+    __forceinline wstring GetPathFileNameW(const wstring& in)
     {
         wstring s(in);
 

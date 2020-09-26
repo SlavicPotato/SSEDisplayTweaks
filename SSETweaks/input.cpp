@@ -64,22 +64,22 @@ namespace SDT
             {
                 auto t = DYNAMIC_CAST(e, InputEvent, ButtonEvent);
 
-                UInt32	deviceType = t->deviceType;
+                UInt32 deviceType = t->deviceType;
 
                 if (deviceType != kDeviceType_Keyboard) {
                     continue;
                 }
 
-                UInt32	keyCode = t->keyMask;
+                UInt32 keyCode = t->keyMask;
 
                 if (keyCode >= InputMap::kMaxMacros)
                     continue;
 
-                if (t->flags != 0 && t->timer == 0.0)
+                if (t->flags != 0 && t->timer == 0.0f)
                 {
                     m_Instance.DispatchKeyEvent(KeyEvent::KeyDown, keyCode);
                 }
-                else if (t->flags == 0 && t->timer != 0)
+                else if (t->flags == 0)
                 {
                     m_Instance.DispatchKeyEvent(KeyEvent::KeyUp, keyCode);
                 }

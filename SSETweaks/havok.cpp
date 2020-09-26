@@ -127,12 +127,14 @@ namespace SDT
         return true;
     }
 
-    void DHavok::CalculateHavokValues()
+    void DHavok::CalculateHavokValues(bool a_isComplex)
     {
         float interval = std::clamp(*Game::frameTimer, fmt_min, fmt_max);
 
         *fMaxTime = interval;
-        *fMaxTimeComplex = 1.0f / max(1.0f / interval - conf.fmtc_offset, HAVOK_MAXTIME_MIN);
+
+        if (a_isComplex)
+            *fMaxTimeComplex = 1.0f / max(1.0f / interval - conf.fmtc_offset, HAVOK_MAXTIME_MIN);
     }
 
     void DHavok::UpdateHavokStats()
@@ -241,13 +243,13 @@ namespace SDT
 
     void DHavok::hookRTH(float a_time, bool a_isComplex, uint8_t a_unk0)
     {
-        m_Instance.CalculateHavokValues();
+        m_Instance.CalculateHavokValues(a_isComplex);
         m_Instance.PhysCalcMaxTime_O(a_time, a_isComplex, a_unk0);
     }
 
     void DHavok::hookRTHStats(float a_time, bool a_isComplex, uint8_t a_unk0)
     {
-        m_Instance.CalculateHavokValues();
+        m_Instance.CalculateHavokValues(a_isComplex);
         m_Instance.UpdateHavokStats();
         m_Instance.PhysCalcMaxTime_O(a_time, a_isComplex, a_unk0);
     }

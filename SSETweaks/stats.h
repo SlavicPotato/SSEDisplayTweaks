@@ -10,7 +10,7 @@ namespace SDT
             reset();
         }
 
-        void reset()
+        __forceinline void reset()
         {
             num = 0;
             fval = 0.0;
