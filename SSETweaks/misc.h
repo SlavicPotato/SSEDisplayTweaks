@@ -7,10 +7,11 @@ namespace SDT
         IConfig
     {
     public:
+        static inline constexpr auto ID = DRIVER_ID::MISC;
+
         FN_NAMEPROC("Miscellaneous")
         FN_ESSENTIAL(false)
-        FN_PRIO(6)
-        FN_DRVID(DRIVER_MISC)
+        FN_DRVDEF(6)
     private:
         DMisc() = default;
 
@@ -22,7 +23,7 @@ namespace SDT
 
         struct {
             bool skipmissingini;
-        }conf;
+        }m_conf;
 
         inline static auto SkipNoINI = IAL::Addr(AID::INIProc0, Offsets::SkipNoINI);
 

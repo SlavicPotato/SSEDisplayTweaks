@@ -7,10 +7,11 @@ namespace SDT
         IConfig
     {
     public:
+        static inline constexpr auto ID = DRIVER_ID::PAPYRUS;
+
         FN_NAMEPROC("Papyrus")
         FN_ESSENTIAL(false)
-        FN_PRIO(6)
-        FN_DRVID(DRIVER_PAPYRUS)
+        FN_DRVDEF(6)
     private:
         DPapyrus() = default;
 
@@ -34,7 +35,7 @@ namespace SDT
             float dynbudget_fps_max;
             float dynbudget_base;
             bool stats_enabled;
-        }conf;
+        }m_conf;
 
         inline static auto SetExpressionOverride_lea = IAL::Addr(AID::SetExpressionOverride, Offsets::SetExpressionOverride_lea);
         inline static auto SetExpressionOverride_cmp = IAL::Addr(AID::SetExpressionOverride, Offsets::SetExpressionOverride_cmp);
@@ -49,9 +50,11 @@ namespace SDT
 
         wchar_t bufStats1[128];
 
-        DOSD* OSDDriver;
+        DOSD* m_OSDDriver;
 
         bool enable_stats;
+
+        StatsCounter m_stats_counter;
 
         static DPapyrus m_Instance;
     };

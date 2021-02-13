@@ -50,7 +50,7 @@ namespace SDT
 
         except::descriptor e_last;
 
-        std::vector<Callback> callbacks;
+        stl::vector<Callback> callbacks;
         std::wostringstream ss;
         std::wstring s;
 
@@ -84,6 +84,7 @@ namespace SDT
             bool combo_down = false;
         };
     public:
+        static inline constexpr auto ID = DRIVER_ID::OSD;
 
         void AddStatsCallback(StatsRenderer::Callback cb)
         {
@@ -108,12 +109,11 @@ namespace SDT
             uint32_t combo_key;
             uint32_t key;
             StatsRenderer::Align align;
-        } conf;
+        } m_conf;
 
         FN_NAMEPROC("OSD")
         FN_ESSENTIAL(false)
-        FN_PRIO(3)
-        FN_DRVID(DRIVER_OSD)
+        FN_DRVDEF(3)
     private:
         DOSD();
 
@@ -130,7 +130,7 @@ namespace SDT
         static void ConfigGetFlags(const std::string& in, uint32_t& out);
         static uint32_t ConfigGetComboKey(int32_t param);
 
-        typedef std::unordered_map<std::string, uint32_t> ItemToFlag_T;
+        typedef stl::iunordered_map<std::string, uint32_t> ItemToFlag_T;
         static ItemToFlag_T ItemToFlag;
 
         static const wchar_t* StatsRendererCallback_FPS();
@@ -138,6 +138,7 @@ namespace SDT
         static const wchar_t* StatsRendererCallback_Frametime();
         static const wchar_t* StatsRendererCallback_SimpleFrametime();
         static const wchar_t* StatsRendererCallback_Counter();
+        static const wchar_t* StatsRendererCallback_VRAM();
 
         static void OnD3D11PostCreate_OSD(Event code, void* data);
         static void OnD3D11PostPostCreate_OSD(Event code, void* data);
@@ -158,7 +159,8 @@ namespace SDT
         {
             long long lastUpdate;
             uint64_t lastFrameCount, frameCounter;
-            bool draw;
+            volatile bool draw;
+            volatile uint32_t warmup;
             uint32_t flags;
             long long interval;
             struct {
@@ -175,11 +177,16 @@ namespace SDT
 
         KeyPressHandler inputEventHandler;
 
-        wchar_t bufStats1[128];
-        wchar_t bufStats2[128];
-        wchar_t bufStats3[128];
+        wchar_t bufStats1[64];
+        wchar_t bufStats2[64];
+        wchar_t bufStats3[64];
+        wchar_t bufStats4[64];
 
         std::unique_ptr<StatsRenderer> statsRenderer;
+
+        DRender* m_dRender;
+
+        Microsoft::WRL::ComPtr<IDXGIAdapter3> m_adapter;
 
         inline static auto presentAddr = IAL::Addr(AID::Present, Offsets::Present);
 

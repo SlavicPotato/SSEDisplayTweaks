@@ -10,10 +10,11 @@ namespace SDT
     {
         typedef void(*RTProcR) (float a_time, bool a_isComplex, uint8_t a_unk0);
     public:
+        static inline constexpr auto ID = DRIVER_ID::HAVOK;
+
         FN_NAMEPROC("HAVOK")
-            FN_ESSENTIAL(false)
-            FN_PRIO(4)
-            FN_DRVID(DRIVER_HAVOK)
+        FN_ESSENTIAL(false)
+        FN_DRVDEF(4)
     private:
         DHavok();
 
@@ -22,12 +23,12 @@ namespace SDT
         virtual void RegisterHooks() override;
         virtual bool Prepare() override;
 
-        bool HavokHasPossibleIssues(const DXGI_SWAP_CHAIN_DESC* pSwapChainDesc, float t);
-        void ApplyHavokSettings(DXGI_SWAP_CHAIN_DESC* pSwapChainDesc);
-        float AutoGetMaxTime(const DXGI_SWAP_CHAIN_DESC* pSwapChainDesc, float def);
+        bool HavokHasPossibleIssues(const DXGI_SWAP_CHAIN_DESC* pSwapChainDesc, float t) const;
+        void ApplyHavokSettings(const DXGI_SWAP_CHAIN_DESC* pSwapChainDesc);
+        float AutoGetMaxTime(const DXGI_SWAP_CHAIN_DESC* pSwapChainDesc, float def) const;
 
-        void __forceinline CalculateHavokValues(bool a_isComplex);
-        void __forceinline UpdateHavokStats();
+        SKMP_FORCEINLINE void CalculateHavokValues(bool a_isComplex) const;
+        SKMP_FORCEINLINE void UpdateHavokStats() const;
 
         static void hookRTH(float a_time, bool a_isComplex, uint8_t a_unk0);
         static void hookRTHStats(float a_time, bool a_isComplex, uint8_t a_unk0);
@@ -45,7 +46,7 @@ namespace SDT
             float fmtc_offset;
             bool stats_enabled;
             bool adjust_ini;
-        } conf;
+        } m_conf;
 
         float fmt_max;
         float fmt_min;
@@ -62,9 +63,11 @@ namespace SDT
         inline static auto PhysCalcMaxTime = IAL::Addr(AID::FMTProc, Offsets::PhysCalcHT);
         inline static auto isComplex = IAL::Addr<uint32_t*>(AID::IsComplex);
 
-        DOSD* OSDDriver;
+        DOSD* m_OSDDriver;
 
         wchar_t bufStats[128];
+
+        StatsCounter m_stats_counters[2];
 
         static DHavok m_Instance;
     };

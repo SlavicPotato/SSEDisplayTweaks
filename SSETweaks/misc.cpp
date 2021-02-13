@@ -2,15 +2,13 @@
 
 namespace SDT
 {
-    constexpr char* SECTION_MISC = "Miscellaneous";
-
-    constexpr char* CKEY_SKIPMISSINGINI = "SkipMissingPluginINI";
+    static constexpr const char* CKEY_SKIPMISSINGINI = "SkipMissingPluginINI";
 
     DMisc DMisc::m_Instance;
 
     void DMisc::LoadConfig()
     {
-        conf.skipmissingini = GetConfigValue(SECTION_MISC, CKEY_SKIPMISSINGINI, false);
+        m_conf.skipmissingini = GetConfigValue(CKEY_SKIPMISSINGINI, false);
     }
 
     void Structures::_SettingCollectionList::LoadIni_Hook()
@@ -26,14 +24,14 @@ namespace SDT
 
     void DMisc::PostLoadConfig()
     {
-        if (conf.skipmissingini) {
+        if (m_conf.skipmissingini) {
             Message("Disabling processing of missing plugin INIs");
         }
     }
 
     void DMisc::Patch()
     {
-        if (conf.skipmissingini) 
+        if (m_conf.skipmissingini) 
         {
             Patching::safe_write(
                 SkipNoINI,
@@ -44,12 +42,12 @@ namespace SDT
 
     void DMisc::RegisterHooks()
     {
-        if (conf.skipmissingini) 
+        if (m_conf.skipmissingini) 
         {
             RegisterHook(
                 SkipNoINI + 0x3,
                 GetFnAddr(&Structures::_SettingCollectionList::LoadIni_Hook),
-                HookDescriptor::kWR6Call
+                HookDescriptor::HookType::kWR6Call
             );
         }
     }

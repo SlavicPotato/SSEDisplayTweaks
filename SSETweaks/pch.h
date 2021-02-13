@@ -15,11 +15,12 @@
 #include "ext/IHook.h"
 #include "ext/Patching.h"
 #include "ext/JITASM.h"
+#include "ext/ITasks.h"
+#include "ext/StrHelpers.h"
 #include "skse64/GameData.h"
 #include "skse64/GameEvents.h"
 #include "skse64/GameMenus.h"
 #include "skse64/GameSettings.h"
-#include "skse64/GameRTTI.h"
 
 #include <string>
 #include <vector>
@@ -42,29 +43,15 @@
 
 #include "data.h"
 
-#define INVALID_DRIVER	-1
-#define DRIVER_EVENTS	1
-#define DRIVER_TASKS	2
-#define DRIVER_RENDER	3
-#define DRIVER_WINDOW	4
-#define DRIVER_PAPYRUS	5
-#define DRIVER_MISC		6
-#define DRIVER_ANIM		7
-#define DRIVER_MFG		8
-#define DRIVER_HAVOK	9
-#define DRIVER_CONTROLS	10
-#define DRIVER_INPUT	11
-#define DRIVER_OSD  	12
-
 #include "plugin.h"
 
 #include "helpers.h"
 #include "common.h"
 #include "stats.h"
-#include "tasks.h"
 #include "skse.h"
 #include "game.h"
 #include "config.h"
+#include "drv_ids.h"
 #include "drv_base.h"
 #include "dispatcher.h"
 #include "events.h"

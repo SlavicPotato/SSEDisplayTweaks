@@ -8,84 +8,57 @@ namespace SDT
 
     constexpr uint32_t DXGI_CAPS_ALL = 0xFFFFFFFFU;
 
-    class MenuFramerateLimitDescriptor
+    struct MenuFramerateLimitDescriptor
     {
-    public:
-        MenuFramerateLimitDescriptor() = default;
-        MenuFramerateLimitDescriptor(long long limit, bool disable_vsync) :
-            limit(limit), disable_vsync(disable_vsync)
-        {}
+        MenuFramerateLimitDescriptor() : enabled(false) {};
+        MenuFramerateLimitDescriptor(
+            bool a_disable_vsync,
+            long long a_limit)
+            :
+            enabled(true),
+            disable_vsync(a_disable_vsync),
+            limit(a_limit)
+        {};
 
-        long long limit;
+        bool enabled;
         bool disable_vsync;
+        long long limit;
     };
 
     class MenuFramerateLimit :
         public MenuEventTrack
     {
-        typedef std::unordered_map<MenuEvent, MenuFramerateLimitDescriptor> DescriptorMap;
+        //using data_t = stl::unordered_map<MenuEvent, MenuFramerateLimitDescriptor>;
     public:
+
+        using MenuEventTrack::MenuEventTrack;
+
         void SetLimit(MenuEvent code, float limit, bool disable_vsync);
-        bool GetLimit(MenuEvent code, MenuFramerateLimitDescriptor& limit);
-        bool HasLimits();
-        bool HasLimit(MenuEvent code);
-        bool GetCurrentLimit(MenuFramerateLimitDescriptor& limit);
+        bool GetLimit(MenuEvent code, MenuFramerateLimitDescriptor& limit) const;
+        bool HasLimits() const;
+        bool HasLimit(MenuEvent code) const;
+        bool GetCurrentLimit(MenuFramerateLimitDescriptor& limit) const;
     private:
-        DescriptorMap m_limits;
+
+        MenuFramerateLimitDescriptor m_limits[Enum::Underlying(MenuEvent::Max)];
+        bool m_hasLimits;
     };
 
     class DRender :
         public IDriver,
         IConfig
     {
-        typedef std::unordered_map<std::string, int> SEMap;
-        typedef std::unordered_map<int, DXGI_SWAP_EFFECT> SE2Map;
-        typedef std::unordered_map<DXGI_SWAP_EFFECT, std::string> SEMapR;
+        typedef stl::iunordered_map<std::string, int> SEMap;
         static SEMap cfgSwapEffectMap;
-        static SE2Map cfgSEtoSEMap;
-        static SEMapR cfgSwapEffectMapR;
 
-        typedef std::unordered_map<std::string, DXGI_MODE_SCALING> SMMap;
+        typedef stl::iunordered_map<std::string, DXGI_MODE_SCALING> SMMap;
         static SMMap cfgScalingModeMap;
-
-        typedef std::unordered_map<MenuEvent, std::string> MCLDMap;
-        static MCLDMap menuCodeToLimitDesc;
 
         typedef HRESULT(WINAPI* CreateDXGIFactory_T)(REFIID riid, _COM_Outptr_ void** ppFactory);
 
-        class AssignFramerateLimitTask :
-            public TaskDelegate
-        {
-        public:
-            enum FLTaskType : uint8_t
-            {
-                kLimitSet,
-                kLimitReset,
-                kLimitPost
-            };
-
-            AssignFramerateLimitTask();
-
-            AssignFramerateLimitTask(
-                long long a_max,
-                bool a_vsync);
-
-            AssignFramerateLimitTask(
-                long long a_max,
-                long long a_expire);
-
-            virtual void Run();
-            virtual void Dispose() {
-                delete this;
-            }
-        private:
-            FLTaskType m_type;
-            long long m_max;
-            long long m_expire;
-            bool m_vsync;
-        };
-
     public:
+        static inline constexpr auto ID = DRIVER_ID::RENDER;
+
         typedef void(*RTProcR) (void);
         typedef void(*PhysCalcR) (void*, int32_t);
 
@@ -142,15 +115,18 @@ namespace SDT
             } limits;
 
             bool adjust_ini;
-        } conf;
+        } m_conf;
 
-        float GetMaxFramerate(const DXGI_SWAP_CHAIN_DESC* pSwapChainDesc) const;
-        bool IsLimiterInstalled() { return limiter_installed; }
+        [[nodiscard]] float GetMaxFramerate(const DXGI_SWAP_CHAIN_DESC* pSwapChainDesc) const;
+        [[nodiscard]] bool IsLimiterInstalled() { return limiter_installed; }
+
+        [[nodiscard]] bool QueryVideoMemoryInfo(
+            IDXGISwapChain* a_swapChain,
+            DXGI_QUERY_VIDEO_MEMORY_INFO& a_out) const;
 
         FN_NAMEPROC("Render")
         FN_ESSENTIAL(false)
-        FN_PRIO(2)
-        FN_DRVID(DRIVER_RENDER)
+        FN_DRVDEF(2)
     private:
         DRender();
 
@@ -160,12 +136,14 @@ namespace SDT
         virtual void RegisterHooks() override;
         virtual bool Prepare() override;
 
+        static DXGI_SWAP_EFFECT GetSwapEffect(int a_code);
+        static const char* GetMenuDescription(MenuEvent a_event);
+        static const char* GetSwapEffectOption(DXGI_SWAP_EFFECT a_swapEffect);
+
         void UISetLimit(MenuEvent code, float limit, bool disable_vsync);
 
-        bool ConfigTranslateSwapEffect(const std::string& param, int& out);
-        bool ConfigTranslateScalingMode(const std::string& param, DXGI_MODE_SCALING& out);
-
-        std::string SwapEffectToConfigKey(DXGI_SWAP_EFFECT param);
+        bool ConfigTranslateSwapEffect(const std::string& param, int& out) const;
+        bool ConfigTranslateScalingMode(const std::string& param, DXGI_MODE_SCALING& out) const;
 
         bool ValidateDisplayMode(const DXGI_SWAP_CHAIN_DESC* pSwapChainDesc) const;
         UINT GetRefreshRate(const DXGI_SWAP_CHAIN_DESC* pSwapChainDesc) const;
@@ -193,16 +171,24 @@ namespace SDT
 
         static HRESULT WINAPI CreateDXGIFactory_Hook(REFIID riid, _COM_Outptr_ void** ppFactory);
 
-        IDXGIFactory *DXGI_GetFactory();
+        IDXGIFactory *DXGI_GetFactory() const;
         void DXGI_GetCapabilities();
         bool HasWindowedHWCompositionSupport(IDXGIAdapter* adapter) const;
 
+
         static void MessageHandler(Event m_code, void* args);
         static void OnConfigLoad(Event m_code, void* args);
+
+        bool HandleMenuEvent(MenuEvent a_code, MenuOpenCloseEvent* a_evn);
         static bool OnMenuEvent(MenuEvent m_code, MenuOpenCloseEvent* evn, EventDispatcher<MenuOpenCloseEvent>* dispatcher);
 
         void SetFPSLimitOverride(long long max, bool disable_vsync);
+        void SetFPSLimitPost(long long a_max, long long a_expire);
         void ResetFPSLimitOverride();
+
+        void QueueFPSLimitOverride(long long max, bool disable_vsync);
+        void QueueFPSLimitPost(long long a_max, long long a_expire);
+        void QueueFPSLimitOverrideReset();
 
         long long tts;
         int fps_limit;
@@ -219,13 +205,13 @@ namespace SDT
         bool has_fl_override;
         bool limiter_installed;
 
-        MenuFramerateLimit m_uifl;
+        MenuFramerateLimit m_fl;
 
-        __forceinline bool HasLimits() {
-            return fps_limit == 1 || m_uifl.HasLimits();
+        SKMP_FORCEINLINE bool HasLimits() {
+            return fps_limit == 1 || m_fl.HasLimits();
         }
 
-        __forceinline bool IsFlipOn(const DXGI_SWAP_CHAIN_DESC* pSwapChainDesc) {
+        SKMP_FORCEINLINE bool IsFlipOn(const DXGI_SWAP_CHAIN_DESC* pSwapChainDesc) {
             return pSwapChainDesc->SwapEffect == DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL ||
                 pSwapChainDesc->SwapEffect == DXGI_SWAP_EFFECT_FLIP_DISCARD;
         }
@@ -235,10 +221,10 @@ namespace SDT
         uint8_t* bLockFramerate;
         int32_t* iFPSClamp;
 
-        IDXGIFactory* pFactory;
+        IDXGIFactory* m_dxgiFactory;
 
-        static PFN_D3D11_CREATE_DEVICE_AND_SWAP_CHAIN D3D11CreateDeviceAndSwapChain_O;
-        static CreateDXGIFactory_T CreateDXGIFactory_O;
+        PFN_D3D11_CREATE_DEVICE_AND_SWAP_CHAIN D3D11CreateDeviceAndSwapChain_O;
+        CreateDXGIFactory_T CreateDXGIFactory_O;
 
         inline static auto CreateDXGIFactory_C = IAL::Addr(AID::D3D11Create, Offsets::CreateDXGIFactory_C);
         inline static auto D3D11CreateDeviceAndSwapChain_C = IAL::Addr(AID::D3D11Create, Offsets::D3D11CreateDeviceAndSwapChain_C);
@@ -270,7 +256,7 @@ namespace SDT
             uint32_t caps;
         } dxgi;
 
-        ISafeTasks m_afTasks;
+        TaskQueue m_afTasks;
 
         static DRender m_Instance;
     };
@@ -296,16 +282,20 @@ namespace SDT
             CONST DXGI_SWAP_CHAIN_DESC* pSwapChainDesc,
             ID3D11Device* pDevice,
             ID3D11DeviceContext* pImmediateContext,
-            IDXGISwapChain* pSwapChain
+            IDXGISwapChain* pSwapChain,
+            IDXGIAdapter* pAdapter
         ) :
             D3D11CreateEvent(pSwapChainDesc),
             m_pDevice(pDevice),
             m_pImmediateContext(pImmediateContext),
-            m_pSwapChain(pSwapChain)
+            m_pSwapChain(pSwapChain),
+            m_pAdapter(pAdapter)
         {}
 
         ID3D11Device* const m_pDevice;
         ID3D11DeviceContext* const m_pImmediateContext;
         IDXGISwapChain* const m_pSwapChain;
+        IDXGIAdapter* const m_pAdapter;
     };
+
 }

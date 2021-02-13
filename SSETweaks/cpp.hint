@@ -1,0 +1,16 @@
+// Hint files help the Visual Studio IDE interpret Visual C++ identifiers
+// such as names of functions and macros.
+// For more information see https://go.microsoft.com/fwlink/?linkid=865984
+#define SKMP_FORCEINLINE __forceinline
+// Hint files help the Visual Studio IDE interpret Visual C++ identifiers
+// such as names of functions and macros.
+// For more information see https://go.microsoft.com/fwlink/?linkid=865984
+#define FN_NAMEPROC(x) virtual const char *ModuleName() const { return x; };
+#define FN_DRVID(x) virtual int GetID() const { return x; };
+#define FN_PRIO(x) virtual int GetPriority() const { return x; };
+#define FN_ESSENTIAL(x) virtual bool IsEssential() const { return x; };
+#define FN_DRVDEF(x) virtual int GetPriority() const { return x; }; virtual DRIVER_ID GetID() const noexcept { return std::remove_reference_t<decltype(*this)>::ID; }
+// Hint files help the Visual Studio IDE interpret Visual C++ identifiers
+// such as names of functions and macros.
+// For more information see https://go.microsoft.com/fwlink/?linkid=865984
+

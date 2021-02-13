@@ -13,7 +13,7 @@ namespace SDT
     class KeyEventHandler
     {
     public:
-        virtual void ReceiveEvent(KeyEvent, UInt32) {};
+        virtual void ReceiveEvent(KeyEvent, UInt32) = 0;
     };
 
     class DInput :
@@ -32,12 +32,13 @@ namespace SDT
         };
 
     public:
+        static inline constexpr auto ID = DRIVER_ID::INPUT;
+
         static void RegisterForKeyEvents(KeyEventHandler* const handler);
 
         FN_NAMEPROC("Input")
         FN_ESSENTIAL(false)
-        FN_PRIO(1)
-        FN_DRVID(DRIVER_INPUT)
+        FN_DRVDEF(1)
     private:
         DInput() = default;
 
@@ -48,7 +49,7 @@ namespace SDT
 
         void DispatchKeyEvent(KeyEvent ev, UInt32 key);
 
-        std::vector<KeyEventHandler*> callbacks;
+        stl::vector<KeyEventHandler*> callbacks;
 
         static DInput m_Instance;
     };

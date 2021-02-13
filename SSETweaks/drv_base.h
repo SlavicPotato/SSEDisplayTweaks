@@ -1,10 +1,11 @@
 #pragma once
 
-namespace SDT {
+namespace SDT 
+{
     class HookDescriptor
     {
     public:
-        enum HookType : uint8_t {
+        enum class HookType : uint8_t {
             kWR5Call,
             kWR6Call
         };
@@ -33,7 +34,7 @@ namespace SDT {
         void RegisterHook(HookDescriptor&& hdesc);
         bool InstallHooks();
     private:
-        std::vector<HookDescriptor> m_hooks;
+        stl::vector<HookDescriptor> m_hooks;
     };
 
     class IDriver :
@@ -41,24 +42,24 @@ namespace SDT {
     {
         friend class IDDispatcher;
     public:
-        bool IsInitialized() { return m_Initialized; }
-        bool IsOK() { return m_IsOK; }
+        static inline constexpr auto ID = DRIVER_ID::INVALID;
+
+        SKMP_FORCEINLINE bool IsInitialized() const { return m_Initialized; }
+        SKMP_FORCEINLINE bool IsOK() const { return m_IsOK; }
 
         IDriver(const IDriver&) = delete;
         IDriver(IDriver&&) = delete;
-
         IDriver& operator=(const IDriver&) = delete;
         void operator=(IDriver&&) = delete;
 
         FN_NAMEPROC("IDriver")
         FN_ESSENTIAL(false)
-        FN_PRIO(-1)
-        FN_DRVID(INVALID_DRIVER)
+        FN_DRVDEF(-1)
     protected:
         IDriver();
         virtual ~IDriver() noexcept = default;
 
-        void SetOK(bool b) { m_IsOK = b; }
+        SKMP_FORCEINLINE void SetOK(bool b) { m_IsOK = b; }
 
     private:
         virtual void LoadConfig() {};

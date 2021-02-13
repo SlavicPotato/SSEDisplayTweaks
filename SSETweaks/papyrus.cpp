@@ -2,13 +2,11 @@
 
 namespace SDT
 {
-    constexpr char* SECTION_PAPYRUS = "Papyrus";
-
-    constexpr char* CKEY_SEOFIX = "SetExpressionOverridePatch";
-    constexpr char* CKEY_DYNBUDGETENABLED = "DynamicUpdateBudget";
-    constexpr char* CKEY_UPDATEBUDGET = "UpdateBudgetBase";
-    constexpr char* CKEY_MAXTIME = "BudgetMaxFPS";
-    constexpr char* CKEY_STATSON = "OSDStatsEnabled";
+    static constexpr const char* CKEY_SEOFIX = "SetExpressionOverridePatch";
+    static constexpr const char* CKEY_DYNBUDGETENABLED = "DynamicUpdateBudget";
+    static constexpr const char* CKEY_UPDATEBUDGET = "UpdateBudgetBase";
+    static constexpr const char* CKEY_MAXTIME = "BudgetMaxFPS";
+    static constexpr const char* CKEY_STATSON = "OSDStatsEnabled";
 
     using namespace Patching;
 
@@ -16,35 +14,35 @@ namespace SDT
 
     void DPapyrus::LoadConfig()
     {
-        conf.seo_fix = GetConfigValue(SECTION_PAPYRUS, CKEY_SEOFIX, false);
-        conf.dynbudget_enabled = GetConfigValue(SECTION_PAPYRUS, CKEY_DYNBUDGETENABLED, false);
-        conf.dynbudget_fps_min = 60.0f;
-        conf.dynbudget_fps_max = std::clamp(GetConfigValue(SECTION_PAPYRUS, CKEY_MAXTIME, 144.0f), conf.dynbudget_fps_min, 300.0f);
-        conf.dynbudget_base = std::clamp(GetConfigValue(SECTION_PAPYRUS, CKEY_UPDATEBUDGET, 1.2f), 0.1f, 4.0f);
-        conf.stats_enabled = GetConfigValue(SECTION_PAPYRUS, CKEY_STATSON, false);
+        m_conf.seo_fix = GetConfigValue(CKEY_SEOFIX, false);
+        m_conf.dynbudget_enabled = GetConfigValue(CKEY_DYNBUDGETENABLED, false);
+        m_conf.dynbudget_fps_min = 60.0f;
+        m_conf.dynbudget_fps_max = std::clamp(GetConfigValue(CKEY_MAXTIME, 144.0f), m_conf.dynbudget_fps_min, 300.0f);
+        m_conf.dynbudget_base = std::clamp(GetConfigValue(CKEY_UPDATEBUDGET, 1.2f), 0.1f, 4.0f);
+        m_conf.stats_enabled = GetConfigValue(CKEY_STATSON, false);
     }
 
     void DPapyrus::PostLoadConfig()
     {
-        if (conf.dynbudget_enabled)
+        if (m_conf.dynbudget_enabled)
         {
-            if (conf.dynbudget_fps_max == conf.dynbudget_fps_min) {
+            if (m_conf.dynbudget_fps_max == m_conf.dynbudget_fps_min) {
                 Warning("dynbudget_fps_max == dynbudget_fps_min, disabling..");
-                conf.dynbudget_enabled = false;
+                m_conf.dynbudget_enabled = false;
             }
             else
             {
-                OSDDriver = IDDispatcher::GetDriver<DOSD>(DRIVER_OSD);
+                m_OSDDriver = IDDispatcher::GetDriver<DOSD>();
 
-                enable_stats = OSDDriver && OSDDriver->IsOK() &&
-                    OSDDriver->conf.enabled && conf.stats_enabled;
+                enable_stats = m_OSDDriver && m_OSDDriver->IsOK() &&
+                    m_OSDDriver->m_conf.enabled && m_conf.stats_enabled;
 
-                bmult = conf.dynbudget_base / (1.0f / 60.0f * 1000.0f) * 1000.0f;
-                t_max = 1.0f / conf.dynbudget_fps_min;
-                t_min = 1.0f / conf.dynbudget_fps_max;
+                bmult = m_conf.dynbudget_base / (1.0f / 60.0f * 1000.0f) * 1000.0f;
+                t_max = 1.0f / m_conf.dynbudget_fps_min;
+                t_min = 1.0f / m_conf.dynbudget_fps_max;
 
                 Message("UpdateBudgetBase: %.6g ms (%.6g - %.6g)",
-                    conf.dynbudget_base, t_min * bmult, t_max * bmult);
+                    m_conf.dynbudget_base, t_min * bmult, t_max * bmult);
 
             }
         }
@@ -52,7 +50,7 @@ namespace SDT
 
     void DPapyrus::Patch()
     {
-        if (conf.seo_fix)
+        if (m_conf.seo_fix)
         {
             safe_write(
                 SetExpressionOverride_lea,
@@ -67,7 +65,7 @@ namespace SDT
             Message("Actor.SetExpressionOverride patch applied");
         }
 
-        if (conf.dynbudget_enabled)
+        if (m_conf.dynbudget_enabled)
         {
             struct UpdateBudgetInject : JITASM::JITASM {
                 UpdateBudgetInject(uintptr_t targetAddr, bool enable_stats)
@@ -115,7 +113,7 @@ namespace SDT
 
     void DPapyrus::RegisterHooks()
     {
-        if (conf.dynbudget_enabled && enable_stats) {
+        if (m_conf.dynbudget_enabled && enable_stats) {
             IEvents::RegisterForEvent(Event::OnD3D11PostCreate, OnD3D11PostCreate_Papyrus);
         }
     }
@@ -144,7 +142,7 @@ namespace SDT
     {
         float cft = CalculateUpdateBudget();
 
-        IStats::Accum(3, cft);
+        m_Instance.m_stats_counter.accum(cft);
 
         return cft;
     }
@@ -152,8 +150,8 @@ namespace SDT
     const wchar_t* DPapyrus::StatsRendererCallback()
     {
         double val;
-        if (IStats::Get(3, val)) {
-            _snwprintf_s(m_Instance.bufStats1,
+        if (m_Instance.m_stats_counter.get(val)) {
+            ::_snwprintf_s(m_Instance.bufStats1,
                 _TRUNCATE, L"fUpdateBudgetMS: %.4g", val);
         }
 
@@ -163,7 +161,7 @@ namespace SDT
     void DPapyrus::OnD3D11PostCreate_Papyrus(Event, void*)
     {
         m_Instance.bufStats1[0] = 0x0;
-        m_Instance.OSDDriver->AddStatsCallback(StatsRendererCallback);
+        m_Instance.m_OSDDriver->AddStatsCallback(StatsRendererCallback);
     }
 
 }

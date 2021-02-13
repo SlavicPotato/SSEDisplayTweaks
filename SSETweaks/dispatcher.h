@@ -8,13 +8,14 @@ namespace SDT
     public:
         static void RegisterDriver(IDriver* const);
         static bool InitializeDrivers();
-        static bool DriverOK(uint32_t id);
-        static IDriver* GetDriver(uint32_t id);
+        static bool DriverOK(DRIVER_ID const id);
+        static IDriver* GetDriver(DRIVER_ID const id);
 
         template <typename T>
-        static T* GetDriver(int id)
+        [[nodiscard]] static T* GetDriver()
         {
-            return reinterpret_cast<T*>(GetDriver(id));
+            static_assert(std::is_base_of_v<IDriver, T>);
+            return static_cast<T*>(GetDriver(T::ID));
         }
 
         FN_NAMEPROC("Dispatcher")
@@ -24,8 +25,8 @@ namespace SDT
         void PostProcessDrivers();
         bool InitializeDrivers_Impl();
 
-        std::vector<IDriver*> drivers;
-        std::unordered_map<uint32_t, IDriver*> drivermap;
+        stl::vector<IDriver*> m_drivers;
+        stl::unordered_map<DRIVER_ID, IDriver*> m_drivermap;
 
         static IDDispatcher m_Instance;
     };

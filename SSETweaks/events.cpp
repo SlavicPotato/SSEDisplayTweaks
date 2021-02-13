@@ -4,6 +4,51 @@ namespace SDT
 {
     IEvents IEvents::m_Instance;
 
+    static IEvents::uistr_desc_t s_mstc_map_desc[] =
+    {
+        { UIStringHolder::STRING_INDICES::kloadingMenu, MenuEvent::OnLoadingMenu},
+        { UIStringHolder::STRING_INDICES::kmainMenu, MenuEvent::OnMainMenu},
+        { UIStringHolder::STRING_INDICES::kconsole, MenuEvent::OnConsoleMenu},
+        { UIStringHolder::STRING_INDICES::kmapMenu, MenuEvent::OnMapMenu},
+        { UIStringHolder::STRING_INDICES::kinventoryMenu, MenuEvent::OnInventoryMenu},
+        { UIStringHolder::STRING_INDICES::kcloseMenu, MenuEvent::OnCloseMenu},
+        { UIStringHolder::STRING_INDICES::kfavoritesMenu, MenuEvent::OnFavoritesMenu},
+        { UIStringHolder::STRING_INDICES::kbarterMenu, MenuEvent::OnBarterMenu},
+        { UIStringHolder::STRING_INDICES::kbookMenu, MenuEvent::OnBookMenu},
+        { UIStringHolder::STRING_INDICES::kcraftingMenu, MenuEvent::OnCraftingMenu},
+        { UIStringHolder::STRING_INDICES::kcreditsMenu, MenuEvent::OnCreditsMenu},
+        { UIStringHolder::STRING_INDICES::kdialogueMenu, MenuEvent::OnDialogueMenu},
+        { UIStringHolder::STRING_INDICES::klockpickingMenu, MenuEvent::OnLockpickingMenu},
+        { UIStringHolder::STRING_INDICES::ktrainingMenu, MenuEvent::OnTrainingMenu},
+        { UIStringHolder::STRING_INDICES::ktutorialMenu, MenuEvent::OnTutorialMenu},
+        { UIStringHolder::STRING_INDICES::kgiftMenu, MenuEvent::OnGiftMenu},
+        { UIStringHolder::STRING_INDICES::kstatsMenu, MenuEvent::OnStatsMenu},
+        { UIStringHolder::STRING_INDICES::ktopMenu, MenuEvent::OnTopMenu},
+        { UIStringHolder::STRING_INDICES::khudMenu, MenuEvent::OnHUDMenu},
+        { UIStringHolder::STRING_INDICES::kjournalMenu, MenuEvent::OnJournalMenu},
+        { UIStringHolder::STRING_INDICES::kcursorMenu, MenuEvent::OnCursorMenu},
+        { UIStringHolder::STRING_INDICES::kkinectMenu, MenuEvent::OnKinectMenu},
+        { UIStringHolder::STRING_INDICES::klevelUpMenu, MenuEvent::OnLevelUpMenu},
+        { UIStringHolder::STRING_INDICES::kmagicMenu, MenuEvent::OnMagicMenu},
+        { UIStringHolder::STRING_INDICES::kmistMenu, MenuEvent::OnMistMenu},
+        { UIStringHolder::STRING_INDICES::kraceSexMenu, MenuEvent::OnRaceSexMenu},
+        { UIStringHolder::STRING_INDICES::ksleepWaitMenu, MenuEvent::OnSleepWaitMenu},
+        { UIStringHolder::STRING_INDICES::kmodManagerMenu, MenuEvent::OnModManagerMenu},
+        { UIStringHolder::STRING_INDICES::kquantityMenu, MenuEvent::OnQuantityMenu},
+        { UIStringHolder::STRING_INDICES::krefreshMenu, MenuEvent::OnRefreshMenu},
+        { UIStringHolder::STRING_INDICES::kfaderMenu, MenuEvent::OnFaderMenu},
+        { UIStringHolder::STRING_INDICES::kloadWaitSpinner, MenuEvent::OnLoadWaitSpinner},
+        { UIStringHolder::STRING_INDICES::kstreamingInstallMenu, MenuEvent::OnStreamingInstallMenu},
+        { UIStringHolder::STRING_INDICES::kdebugTextMenu, MenuEvent::OnDebugTextMenu},
+        { UIStringHolder::STRING_INDICES::ktweenMenu, MenuEvent::OnTweenMenu},
+        { UIStringHolder::STRING_INDICES::koverlayMenu, MenuEvent::OnOverlayMenu},
+        { UIStringHolder::STRING_INDICES::koverlayInteractionMenu, MenuEvent::OnOverlayInteractionMenu},
+        { UIStringHolder::STRING_INDICES::ktitleSequenceMenu, MenuEvent::OnTitleSequenceMenu},
+        { UIStringHolder::STRING_INDICES::kconsoleNativeUIMenu, MenuEvent::OnConsoleNativeUIMenu},
+        { UIStringHolder::STRING_INDICES::kcontainerMenu, MenuEvent::OnContainerMenu},
+        { UIStringHolder::STRING_INDICES::kmessageBoxMenu, MenuEvent::OnMessageBoxMenu}
+    };
+
     bool IEvents::Initialize()
     {
         if (!Hook::Call5(
@@ -23,38 +68,41 @@ namespace SDT
         return true;
     }
 
-    void IEvents::RegisterForEvent(Event code, EventCallback a_fn)
+    void IEvents::RegisterForEvent(Event a_code, EventCallback a_fn)
     {
-        m_Instance.m_events[code].emplace_back(code, a_fn);
+        m_Instance.m_events.try_emplace(a_code).first->second.emplace_back(a_code, a_fn);
     }
 
-    void IEvents::RegisterForEvent(MenuEvent code, MenuEventCallback a_fn)
+    void IEvents::RegisterForEvent(MenuEvent a_code, MenuEventCallback a_fn)
     {
-        m_Instance.m_menu_events[code].emplace_back(code, a_fn);
+        m_Instance.m_menu_events.try_emplace(a_code).first->second.emplace_back(a_code, a_fn);
     }
 
     void IEvents::TriggerEvent(Event a_code, void* a_args)
     {
-        for (const auto & evtd : m_Instance.m_events[a_code]) {
+        const auto it = m_Instance.m_events.find(a_code);
+        if (it == m_Instance.m_events.end())
+            return;
+
+        for (const auto& evtd : it->second)
             evtd.m_callback(a_code, a_args);
-        }
     }
 
-    void IEvents::TriggerMenuEventAny(MenuEvent a_code, MenuOpenCloseEvent* evn, EventDispatcher<MenuOpenCloseEvent>* dispatcher)
+    void IEvents::TriggerMenuEventAny(MenuEvent a_code, MenuOpenCloseEvent* a_evn, EventDispatcher<MenuOpenCloseEvent>* a_dispatcher)
     {
-        m_Instance.TriggerMenuEventImpl(MenuEvent::OnAnyMenu, a_code, evn, dispatcher);
+        m_Instance.TriggerMenuEventImpl(MenuEvent::OnAnyMenu, a_code, a_evn, a_dispatcher);
     }
 
-    void IEvents::TriggerMenuEventImpl(MenuEvent triggercode, MenuEvent code, MenuOpenCloseEvent* evn, EventDispatcher<MenuOpenCloseEvent>* dispatcher)
+    void IEvents::TriggerMenuEventImpl(MenuEvent a_triggercode, MenuEvent a_code, MenuOpenCloseEvent* a_evn, EventDispatcher<MenuOpenCloseEvent>* a_dispatcher)
     {
-        auto it = m_menu_events.find(triggercode);
+        auto it = m_menu_events.find(a_triggercode);
         if (it == m_menu_events.end()) {
             return;
         }
 
         auto it2 = it->second.begin();
         while (it2 != it->second.end()) {
-            if (it2->m_callback(code, evn, dispatcher)) {
+            if (it2->m_callback(a_code, a_evn, a_dispatcher)) {
                 ++it2;
             }
             else {
@@ -63,17 +111,27 @@ namespace SDT
         }
     }
 
+    MenuEvent IEvents::GetMenuEventCode(const BSFixedString& a_str)
+    {
+        auto it = m_Instance.m_mstc_map.find(a_str.data);
+        if (it != m_Instance.m_mstc_map.end())
+            return it->second;
+
+        return MenuEvent::OnUnknownMenu;
+    }
+
     void IEvents::PostLoadPluginINI_Hook()
     {
         m_Instance.LoadPluginINI_O();
-        m_Instance.TriggerEvent(OnConfigLoad);
+        m_Instance.TriggerEvent(Event::OnConfigLoad);
     }
 
-    void IEvents::MessageHandler(SKSEMessagingInterface::Message* message)
+    void IEvents::MessageHandler(SKSEMessagingInterface::Message* a_message)
     {
-        if (message->type == SKSEMessagingInterface::kMessage_InputLoaded) {
+        if (a_message->type == SKSEMessagingInterface::kMessage_InputLoaded) {
             auto mm = MenuManager::GetSingleton();
-            if (mm) {
+            if (mm) 
+            {
                 auto dispatcher = mm->MenuOpenCloseEventDispatcher();
                 dispatcher->AddEventSink(MenuOpenCloseEventInitializer::GetSingleton());
                 dispatcher->AddEventSink(MenuOpenCloseEventHandler::GetSingleton());
@@ -84,127 +142,83 @@ namespace SDT
             }
         }
 
-        m_Instance.TriggerEvent(OnMessage, static_cast<void*>(message));
+        m_Instance.TriggerEvent(Event::OnMessage, static_cast<void*>(a_message));
     }
 
     void IEvents::CreateMSTCMap()
     {
         auto uiStrHolder = UIStringHolder::GetSingleton();
 
-        _assert(uiStrHolder != nullptr);
+        if (!uiStrHolder) {
+            m_Instance.Error("UIStringHolder not found, menu events won't fire");
+            return;
+        }
 
-        m_mstc_map[uiStrHolder->loadingMenu.c_str()] = MenuEvent::OnLoadingMenu;
-        m_mstc_map[uiStrHolder->mainMenu.c_str()] = MenuEvent::OnMainMenu;
-        m_mstc_map[uiStrHolder->console.c_str()] = MenuEvent::OnConsoleMenu;
-        m_mstc_map[uiStrHolder->mapMenu.c_str()] = MenuEvent::OnMapMenu;
-        m_mstc_map[uiStrHolder->inventoryMenu.c_str()] = MenuEvent::OnInventoryMenu;
-        m_mstc_map[uiStrHolder->closeMenu.c_str()] = MenuEvent::OnCloseMenu;
-        m_mstc_map[uiStrHolder->favoritesMenu.c_str()] = MenuEvent::OnFavoritesMenu;
-        m_mstc_map[uiStrHolder->barterMenu.c_str()] = MenuEvent::OnBarterMenu;
-        m_mstc_map[uiStrHolder->bookMenu.c_str()] = MenuEvent::OnBookMenu;
-        m_mstc_map[uiStrHolder->craftingMenu.c_str()] = MenuEvent::OnCraftingMenu;
-        m_mstc_map[uiStrHolder->creditsMenu.c_str()] = MenuEvent::OnCreditsMenu;
-        m_mstc_map[uiStrHolder->dialogueMenu.c_str()] = MenuEvent::OnDialogueMenu;
-        m_mstc_map[uiStrHolder->lockpickingMenu.c_str()] = MenuEvent::OnLockpickingMenu;
-        m_mstc_map[uiStrHolder->trainingMenu.c_str()] = MenuEvent::OnTrainingMenu;
-        m_mstc_map[uiStrHolder->tutorialMenu.c_str()] = MenuEvent::OnTutorialMenu;
-        m_mstc_map[uiStrHolder->giftMenu.c_str()] = MenuEvent::OnGiftMenu;
-        m_mstc_map[uiStrHolder->statsMenu.c_str()] = MenuEvent::OnStatsMenu;
-        m_mstc_map[uiStrHolder->topMenu.c_str()] = MenuEvent::OnTopMenu;
-        m_mstc_map[uiStrHolder->hudMenu.c_str()] = MenuEvent::OnHUDMenu;
-        m_mstc_map[uiStrHolder->journalMenu.c_str()] = MenuEvent::OnJournalMenu;
-        m_mstc_map[uiStrHolder->cursorMenu.c_str()] = MenuEvent::OnCursorMenu;
-        m_mstc_map[uiStrHolder->kinectMenu.c_str()] = MenuEvent::OnKinectMenu;
-        m_mstc_map[uiStrHolder->levelUpMenu.c_str()] = MenuEvent::OnLevelUpMenu;
-        m_mstc_map[uiStrHolder->magicMenu.c_str()] = MenuEvent::OnMagicMenu;
-        m_mstc_map[uiStrHolder->mistMenu.c_str()] = MenuEvent::OnMistMenu;
-        m_mstc_map[uiStrHolder->raceSexMenu.c_str()] = MenuEvent::OnRaceSexMenu;
-        m_mstc_map[uiStrHolder->sleepWaitMenu.c_str()] = MenuEvent::OnSleepWaitMenu;
-        m_mstc_map[uiStrHolder->modManagerMenu.c_str()] = MenuEvent::OnModManagerMenu;
-        m_mstc_map[uiStrHolder->quantityMenu.c_str()] = MenuEvent::OnQuantityMenu;
-        m_mstc_map[uiStrHolder->refreshMenu.c_str()] = MenuEvent::OnRefreshMenu;
-        m_mstc_map[uiStrHolder->faderMenu.c_str()] = MenuEvent::OnFaderMenu;
-        m_mstc_map[uiStrHolder->loadWaitSpinner.c_str()] = MenuEvent::OnLoadWaitSpinner;
-        m_mstc_map[uiStrHolder->streamingInstallMenu.c_str()] = MenuEvent::OnStreamingInstallMenu;
-        m_mstc_map[uiStrHolder->debugTextMenu.c_str()] = MenuEvent::OnDebugTextMenu;
-        m_mstc_map[uiStrHolder->tweenMenu.c_str()] = MenuEvent::OnTweenMenu;
-        m_mstc_map[uiStrHolder->overlayMenu.c_str()] = MenuEvent::OnOverlayMenu;
-        m_mstc_map[uiStrHolder->overlayInteractionMenu.c_str()] = MenuEvent::OnOverlayInteractionMenu;
-        m_mstc_map[uiStrHolder->titleSequenceMenu.c_str()] = MenuEvent::OnTitleSequenceMenu;
-        m_mstc_map[uiStrHolder->consoleNativeUIMenu.c_str()] = MenuEvent::OnConsoleNativeUIMenu;
-        m_mstc_map[uiStrHolder->containerMenu.c_str()] = MenuEvent::OnContainerMenu;
-        m_mstc_map[uiStrHolder->messageBoxMenu.c_str()] = MenuEvent::OnMessageBoxMenu;
-        m_mstc_map["CustomMenu"] = MenuEvent::OnCustomMenu;
+        for (size_t i = 0; i < std::size(s_mstc_map_desc); i++)
+        {
+            auto& str = uiStrHolder->GetString(s_mstc_map_desc[i].index);
+            m_mstc_map.emplace(str.data, s_mstc_map_desc[i].event);
+        }
+
+        m_mstc_map[BSFixedString("CustomMenu").data] = MenuEvent::OnCustomMenu;
     }
 
-    auto MenuOpenCloseEventHandler::ReceiveEvent(MenuOpenCloseEvent* evn, EventDispatcher<MenuOpenCloseEvent>* dispatcher)
+    auto MenuOpenCloseEventHandler::ReceiveEvent(MenuOpenCloseEvent* a_evn, EventDispatcher<MenuOpenCloseEvent>* a_dispatcher)
         -> EventResult
     {
-        if (evn) {
-            MenuEvent code = IEvents::GetMenuEventCode(evn->menuName.c_str());
-
-            IEvents::TriggerMenuEventAny(code, evn, dispatcher);
+        if (a_evn) {
+            auto code = IEvents::GetMenuEventCode(a_evn->menuName);
+            IEvents::TriggerMenuEventAny(code, a_evn, a_dispatcher);
         }
 
         return EventResult::kEvent_Continue;
     }
 
-    auto MenuOpenCloseEventInitializer::ReceiveEvent(MenuOpenCloseEvent* evn, EventDispatcher<MenuOpenCloseEvent>* dispatcher)
+    auto MenuOpenCloseEventInitializer::ReceiveEvent(MenuOpenCloseEvent* evn, EventDispatcher<MenuOpenCloseEvent>* a_dispatcher)
         -> EventResult
     {
         IEvents::m_Instance.CreateMSTCMap();
-        dispatcher->RemoveEventSink(this);
+        a_dispatcher->RemoveEventSink(this);
         return EventResult::kEvent_Continue;
     }
 
-    void MenuEventTrack::SetTracked(const trackSet_t& map)
+    MenuEventTrack::MenuEventTrack(const trackSet_t& a_set)
     {
-        m_tracked = map;
-    };
-    
-    void MenuEventTrack::SetTracked(trackSet_t&& map)
-    {
-        m_tracked = std::forward<trackSet_t>(map);
-    };
-
-    void MenuEventTrack::AddTracked(MenuEvent code)
-    {
-        m_tracked.insert(code);
+        SetTracked(a_set);
     }
 
-    void MenuEventTrack::RemoveTracked(MenuEvent code)
+    void MenuEventTrack::SetTracked(const trackSet_t& a_set)
     {
-        m_tracked.erase(code);
-    }
+        for (uint32_t i = 0; i < Enum::Underlying(MenuEvent::Max); i++)
+            m_tracked[i] = false;
 
-    void MenuEventTrack::Track(MenuEvent code, bool opening)
+        for (auto& e : a_set)
+        {
+            m_tracked[Enum::Underlying(e)] = true;
+        }
+    };
+
+    void MenuEventTrack::Track(MenuEvent a_code, bool a_opening)
     {
-        if (!m_tracked.contains(code))
+        if (!m_tracked[Enum::Underlying(a_code)])
             return;
 
-        if (opening) {
-            if (std::find(m_stack.begin(), m_stack.end(), code) == m_stack.end()) {
-                m_stack.push_back(code);
-            }
+        if (a_opening) {
+            if (std::find(m_stack.begin(), m_stack.end(), a_code) == m_stack.end())
+                m_stack.emplace_back(a_code);
         }
         else {
-            auto it = std::find(m_stack.begin(), m_stack.end(), code);
-            if (it != m_stack.end()) {
+            auto it = std::find(m_stack.begin(), m_stack.end(), a_code);
+            if (it != m_stack.end())
                 m_stack.erase(it);
-            }
         }
     }
 
-    void MenuEventTrack::ClearTracked()
+    void MenuEventTrack::ClearStack()
     {
-        if (!m_stack.empty()) {
+        if (!m_stack.empty())
             m_stack.clear();
-        }
     }
 
-    bool MenuEventTrack::IsTracking()
-    {
-        return !m_stack.empty();
-    }
 }
 

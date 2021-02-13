@@ -36,132 +36,11 @@
 #define FPUTS           fputs
 #endif
 
-namespace StrHelpers
-{
-    using namespace std;
-
-    typedef wstring_convert<codecvt_utf8<wchar_t>, wchar_t> wsconv_t;
-
-    static wsconv_t* GetConverter()
-    {
-        static wsconv_t strconverter;
-        return &strconverter;
-    }
-
-    __forceinline string ToString(const wstring& wstr)
-    {
-        return GetConverter()->to_bytes(wstr);
-    }
-
-    __forceinline wstring ToWString(const string& str)
-    {
-        return GetConverter()->from_bytes(str);
-    }
-
-    __forceinline void
-        SplitString(const wstring& s, wchar_t delim, vector<wstring>& elems)
-    {
-        wistringstream ss(s);
-        wstring item;
-
-        while (std::getline(ss, item, delim)) {
-            elems.push_back(item);
-        }
-    }
-
-    template <typename T>
-    __forceinline void
-        SplitString(const wstring& s, wchar_t delim, vector<T>& elems)
-    {
-        vector<wstring> tmp;
-        SplitString(s, delim, tmp);
-
-        if (tmp.size())
-        {
-            T iv;
-            wstringstream oss;
-            for (const auto& e : tmp) {
-                oss << e;
-                oss >> iv;
-                oss.clear();
-                elems.push_back(iv);
-            }
-        }
-    }
-
-    __forceinline void
-        SplitString(const string& s, char delim, vector<string>& elems)
-    {
-        istringstream ss(s);
-        string item;
-
-        while (std::getline(ss, item, delim)) {
-            elems.push_back(item);
-        }
-    }
-
-    template <typename T>
-    __forceinline void
-        SplitString(const string& s, char delim, vector<T>& elems)
-    {
-        vector<string> tmp;
-        SplitString(s, delim, tmp);
-
-        if (tmp.size())
-        {
-            T iv;
-            stringstream oss;
-            for (const auto& e : tmp) {
-                oss << e;
-                oss >> iv;
-                oss.clear();
-                elems.push_back(iv);
-            }
-        }
-    }
-
-#ifdef UNICODE
-    __forceinline wstring ToNative(const string& str)
-    {
-        return GetConverter()->from_bytes(str);
-    }
-
-    __forceinline const wstring& ToNative(const wstring& str)
-    {
-        return str;
-    }
-
-    __forceinline string StrToStr(const wstring& str)
-    {
-        return GetConverter()->to_bytes(str);
-    }
-
-#else
-    __forceinline string ToNative(const wstring& wstr)
-    {
-        return GetConverter()->to_bytes(wstr);
-    }
-
-    __forceinline const string& ToNative(string& str)
-    {
-        return str;
-    }
-
-    __forceinline const string& StrToStr(const string& str)
-    {
-        return str;
-    }
-
-
-#endif
-
-}
-
 namespace FileHelpers
 {
     using namespace std;
 
-    __forceinline string GetPathFileNameA(const string& in)
+    SKMP_FORCEINLINE string GetPathFileNameA(const string& in)
     {
         string s(in);
 
@@ -178,7 +57,7 @@ namespace FileHelpers
         return s;
     }
 
-    __forceinline wstring GetPathFileNameW(const wstring& in)
+    SKMP_FORCEINLINE wstring GetPathFileNameW(const wstring& in)
     {
         wstring s(in);
 
@@ -193,13 +72,5 @@ namespace FileHelpers
         }
 
         return s;
-    }
-}
-
-namespace Misc
-{
-    template <typename T>
-    constexpr typename std::underlying_type<T>::type Underlying(T e) noexcept {
-        return static_cast<typename std::underlying_type<T>::type>(e);
     }
 }

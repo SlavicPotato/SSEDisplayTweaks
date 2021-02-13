@@ -9,18 +9,25 @@ namespace SDT
 
     void IDDispatcher::RegisterDriver(IDriver* const drv)
     {
-        m_Instance.drivers.push_back(drv);
+        m_Instance.m_drivers.emplace_back(drv);
     }
 
-    bool IDDispatcher::DriverOK(uint32_t id)
+    bool IDDispatcher::DriverOK(DRIVER_ID const id)
     {
-        return m_Instance.drivermap[id]->IsOK();
+        auto it = m_Instance.m_drivermap.find(id);
+        if (it != m_Instance.m_drivermap.end()) {
+            return it->second->IsOK();
+        }
+        else {
+            return false;
+        }
     }
 
-    IDriver* IDDispatcher::GetDriver(uint32_t id)
+    IDriver* IDDispatcher::GetDriver(DRIVER_ID const id)
     {
-        if (m_Instance.drivermap.count(id)) {
-            return m_Instance.drivermap[id];
+        auto it = m_Instance.m_drivermap.find(id);
+        if (it != m_Instance.m_drivermap.end()) {
+            return it->second;
         }
         else {
             return nullptr;
@@ -36,13 +43,13 @@ namespace SDT
     {
         PostProcessDrivers();
 
-        std::sort(drivers.begin(), drivers.end(),
-            [](const auto a, const auto b) -> bool
+        std::sort(m_drivers.begin(), m_drivers.end(),
+            [](const auto &a, const auto &b) -> bool
             {
                 return a->GetPriority() < b->GetPriority();
             });
 
-        for (const auto drv : drivers)
+        for (const auto &drv : m_drivers)
         {
             drv->SetOK(drv->Prepare());
             if (drv->IsOK()) {
@@ -58,8 +65,9 @@ namespace SDT
             }
         }
 
-        size_t count = 0;
-        for (const auto drv : drivers)
+        decltype(m_drivers)::size_type count = 0;
+
+        for (const auto &drv : m_drivers)
         {
             if (!drv->IsOK()) {
                 continue;
@@ -75,18 +83,22 @@ namespace SDT
 
         Message("%zu drivers initialized", count);
 
+        m_drivers.swap(decltype(m_drivers)());
+
         return true;
     }
 
     void IDDispatcher::PostProcessDrivers()
     {
-        for (const auto drv : drivers) {
-            int driver_id = drv->GetID();
+        for (const auto &drv : m_drivers) 
+        {
+            auto driver_id = drv->GetID();
 
-            _assert(driver_id > -1);
-            _assert(!drivermap.count(driver_id));
+            ASSERT(drv->GetPriority() > -1);
 
-            drivermap[driver_id] = drv;
+            auto& e = m_drivermap.emplace(driver_id, drv);
+
+            ASSERT(e.second == true);
         }
     }
 }

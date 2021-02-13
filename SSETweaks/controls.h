@@ -7,10 +7,11 @@ namespace SDT
         IConfig
     {
     public:
+        static inline constexpr auto ID = DRIVER_ID::CONTROLS;
+
         FN_NAMEPROC("Controls")
         FN_ESSENTIAL(false)
-        FN_PRIO(6)
-        FN_DRVID(DRIVER_CONTROLS)
+        FN_DRVDEF(6)
     private:
         DControls() = default;
 
@@ -23,9 +24,9 @@ namespace SDT
             bool damping_fix;
             float tcpf_threshold;
             float fp_mount_horiz_sens;
-        } conf;
+        } m_conf;
 
-        static void MouseSens_Hook(PlayerControls* p1, FirstPersonState* p2);
+        static void MouseSens_Hook(PlayerControls* a_controls, FirstPersonState* a_fpState);
 
         float* fMouseHeadingXScale;
         float* fMouseHeadingSensitivity;

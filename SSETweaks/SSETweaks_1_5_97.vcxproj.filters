@@ -87,11 +87,11 @@
     <ClInclude Include="stats.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="tasks.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="game.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="drv_ids.h">
+      <Filter>Header Files\Drivers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -140,9 +140,6 @@
     <ClCompile Include="osd.cpp">
       <Filter>Source Files\Drivers</Filter>
     </ClCompile>
-    <ClCompile Include="stats.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="game.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -150,6 +147,7 @@
   <ItemGroup>
     <None Include="exports.def" />
     <None Include="SSEDisplayTweaks.ini" />
+    <None Include="cpp.hint" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="SSETweaks.rc">

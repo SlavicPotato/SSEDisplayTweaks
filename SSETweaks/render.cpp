@@ -1,68 +1,65 @@
 #include "pch.h"
 
-using namespace std;
+#include <Src/PlatformHelpers.h>
+
 using namespace Microsoft::WRL;
- 
+
 namespace SDT
 {
-    constexpr char* SECTION_GENERAL = "General";
-    constexpr char* SECTION_RENDER = "Render";
+    static constexpr const char* SECTION_GENERAL = "General";
 
-    constexpr char* CKEY_FULLSCREEN = "Fullscreen";
-    constexpr char* CKEY_BORDERLESS = "Borderless";
-    constexpr char* CKEY_UPSCALE = "BorderlessUpscale";
-    constexpr char* CKEY_DISABLEBUFFERRESIZE = "DisableBufferResizing";
-    constexpr char* CKEY_DISABLETARGETRESIZE = "DisableTargetResizing";
-    constexpr char* CKEY_VSYNC = "EnableVSync";
-    constexpr char* CKEY_VSYNCPRESENTINT = "VSyncPresentInterval";
-    constexpr char* CKEY_MAXRR = "MaximumRefreshRate";
-    constexpr char* CKEY_BUFFERCOUNT = "SwapBufferCount";
-    constexpr char* CKEY_SWAPEFFECT = "SwapEffect";
-    constexpr char* CKEY_SCALINGMODE = "ScalingMode";
-    constexpr char* CKEY_MAXFRAMELAT = "MaxFrameLatency";
-    constexpr char* CKEY_ENABLETEARING = "EnableTearing";
+    static constexpr const char* CKEY_FULLSCREEN = "Fullscreen";
+    static constexpr const char* CKEY_BORDERLESS = "Borderless";
+    static constexpr const char* CKEY_UPSCALE = "BorderlessUpscale";
+    static constexpr const char* CKEY_DISABLEBUFFERRESIZE = "DisableBufferResizing";
+    static constexpr const char* CKEY_DISABLETARGETRESIZE = "DisableTargetResizing";
+    static constexpr const char* CKEY_VSYNC = "EnableVSync";
+    static constexpr const char* CKEY_VSYNCPRESENTINT = "VSyncPresentInterval";
+    static constexpr const char* CKEY_MAXRR = "MaximumRefreshRate";
+    static constexpr const char* CKEY_BUFFERCOUNT = "SwapBufferCount";
+    static constexpr const char* CKEY_SWAPEFFECT = "SwapEffect";
+    static constexpr const char* CKEY_SCALINGMODE = "ScalingMode";
+    static constexpr const char* CKEY_MAXFRAMELAT = "MaxFrameLatency";
+    static constexpr const char* CKEY_ENABLETEARING = "EnableTearing";
 
-    constexpr char* CKEY_FPSLIMIT = "FramerateLimit";
+    static constexpr const char* CKEY_FPSLIMIT = "FramerateLimit";
 
-    constexpr char* CKEY_LOADSCRFPSLIMIT = "LoadingScreenFramerateLimit";
-    constexpr char* CKEY_LOADSCRFPSLIMITEX = "LoadingScreenLimitExtraTime";
-    constexpr char* CKEY_INITIALLOADLIMITEX = "LoadingScreenLimitExtraTimePostLoad";
-    constexpr char* CKEY_UIFPSLIMIT = "UIFramerateLimit";
-    constexpr char* CKEY_UIMAPFPSLIMIT = "UIFramerateLimitMap";
-    constexpr char* CKEY_UIINVFPSLIMIT = "UIFramerateLimitInventory";
-    constexpr char* CKEY_UIJOURFPSLIMIT = "UIFramerateLimitJournal";
-    constexpr char* CKEY_UICUSTOMFPSLIMIT = "UIFramerateLimitCustom";
-    constexpr char* CKEY_UIMAINFPSLIMIT = "UIFramerateLimitMain";
-    constexpr char* CKEY_UIRACEFPSLIMIT = "UIFramerateLimitRace";
-    constexpr char* CKEY_UIPERKFPSLIMIT = "UIFramerateLimitPerk";
-    constexpr char* CKEY_UIBOOKFPSLIMIT = "UIFramerateLimitBook";
-    constexpr char* CKEY_UILOCKFPSLIMIT = "UIFramerateLimitLockpick";
-    constexpr char* CKEY_UICONSOLEFPSLIMIT = "UIFramerateLimitConsole";
-    constexpr char* CKEY_UITWEENFPSLIMIT = "UIFramerateLimitTween";
-    constexpr char* CKEY_UISWFPSLIMIT = "UIFramerateLimitSleepWait";
+    static constexpr const char* CKEY_LOADSCRFPSLIMIT = "LoadingScreenFramerateLimit";
+    static constexpr const char* CKEY_LOADSCRFPSLIMITEX = "LoadingScreenLimitExtraTime";
+    static constexpr const char* CKEY_INITIALLOADLIMITEX = "LoadingScreenLimitExtraTimePostLoad";
+    static constexpr const char* CKEY_UIFPSLIMIT = "UIFramerateLimit";
+    static constexpr const char* CKEY_UIMAPFPSLIMIT = "UIFramerateLimitMap";
+    static constexpr const char* CKEY_UIINVFPSLIMIT = "UIFramerateLimitInventory";
+    static constexpr const char* CKEY_UIJOURFPSLIMIT = "UIFramerateLimitJournal";
+    static constexpr const char* CKEY_UICUSTOMFPSLIMIT = "UIFramerateLimitCustom";
+    static constexpr const char* CKEY_UIMAINFPSLIMIT = "UIFramerateLimitMain";
+    static constexpr const char* CKEY_UIRACEFPSLIMIT = "UIFramerateLimitRace";
+    static constexpr const char* CKEY_UIPERKFPSLIMIT = "UIFramerateLimitPerk";
+    static constexpr const char* CKEY_UIBOOKFPSLIMIT = "UIFramerateLimitBook";
+    static constexpr const char* CKEY_UILOCKFPSLIMIT = "UIFramerateLimitLockpick";
+    static constexpr const char* CKEY_UICONSOLEFPSLIMIT = "UIFramerateLimitConsole";
+    static constexpr const char* CKEY_UITWEENFPSLIMIT = "UIFramerateLimitTween";
+    static constexpr const char* CKEY_UISWFPSLIMIT = "UIFramerateLimitSleepWait";
 
-    constexpr char* CKEY_LOADSCRFPSLIMIT_DV = "LoadingScreenFramerateLimitVSyncOff";
-    constexpr char* CKEY_UIFPSLIMIT_DV = "UIFramerateLimitVSyncOff";
-    constexpr char* CKEY_UIMAPFPSLIMIT_DV = "UIFramerateLimitMapVSyncOff";
-    constexpr char* CKEY_UIINVFPSLIMIT_DV = "UIFramerateLimitInventoryVSyncOff";
-    constexpr char* CKEY_UIJOURFPSLIMIT_DV = "UIFramerateLimitJournalVSyncOff";
-    constexpr char* CKEY_UICUSTOMFPSLIMIT_DV = "UIFramerateLimitCustomVSyncOff";
-    constexpr char* CKEY_UIMAINFPSLIMIT_DV = "UIFramerateLimitMainVSyncOff";
-    constexpr char* CKEY_UIRACEFPSLIMIT_DV = "UIFramerateLimitRaceVSyncOff";
-    constexpr char* CKEY_UIPERKFPSLIMIT_DV = "UIFramerateLimitPerkVSyncOff";
-    constexpr char* CKEY_UIBOOKFPSLIMIT_DV = "UIFramerateLimitBookVSyncOff";
-    constexpr char* CKEY_UILOCKFPSLIMIT_DV = "UIFramerateLimitLockpickVSyncOff";
-    constexpr char* CKEY_UICONSOLEFPSLIMIT_DV = "UIFramerateLimitConsoleVSyncOff";
-    constexpr char* CKEY_UITWEENFPSLIMIT_DV = "UIFramerateLimitTweenVSyncOff";
-    constexpr char* CKEY_UISWFPSLIMIT_DV = "UIFramerateLimitSleepWaitVSyncOff";
+    static constexpr const char* CKEY_LOADSCRFPSLIMIT_DV = "LoadingScreenFramerateLimitVSyncOff";
+    static constexpr const char* CKEY_UIFPSLIMIT_DV = "UIFramerateLimitVSyncOff";
+    static constexpr const char* CKEY_UIMAPFPSLIMIT_DV = "UIFramerateLimitMapVSyncOff";
+    static constexpr const char* CKEY_UIINVFPSLIMIT_DV = "UIFramerateLimitInventoryVSyncOff";
+    static constexpr const char* CKEY_UIJOURFPSLIMIT_DV = "UIFramerateLimitJournalVSyncOff";
+    static constexpr const char* CKEY_UICUSTOMFPSLIMIT_DV = "UIFramerateLimitCustomVSyncOff";
+    static constexpr const char* CKEY_UIMAINFPSLIMIT_DV = "UIFramerateLimitMainVSyncOff";
+    static constexpr const char* CKEY_UIRACEFPSLIMIT_DV = "UIFramerateLimitRaceVSyncOff";
+    static constexpr const char* CKEY_UIPERKFPSLIMIT_DV = "UIFramerateLimitPerkVSyncOff";
+    static constexpr const char* CKEY_UIBOOKFPSLIMIT_DV = "UIFramerateLimitBookVSyncOff";
+    static constexpr const char* CKEY_UILOCKFPSLIMIT_DV = "UIFramerateLimitLockpickVSyncOff";
+    static constexpr const char* CKEY_UICONSOLEFPSLIMIT_DV = "UIFramerateLimitConsoleVSyncOff";
+    static constexpr const char* CKEY_UITWEENFPSLIMIT_DV = "UIFramerateLimitTweenVSyncOff";
+    static constexpr const char* CKEY_UISWFPSLIMIT_DV = "UIFramerateLimitSleepWaitVSyncOff";
 
-    constexpr char* CKEY_ADJUSTINICFG = "AdjustGameSettings";
+    static constexpr const char* CKEY_ADJUSTINICFG = "AdjustGameSettings";
 
     using namespace Structures;
     using namespace Patching;
-
-    PFN_D3D11_CREATE_DEVICE_AND_SWAP_CHAIN DRender::D3D11CreateDeviceAndSwapChain_O;
-    DRender::CreateDXGIFactory_T DRender::CreateDXGIFactory_O;
 
     DRender DRender::m_Instance;
 
@@ -74,98 +71,153 @@ namespace SDT
         {"flip_discard", 3}
     };
 
-    DRender::SE2Map DRender::cfgSEtoSEMap = {
-        {0, DXGI_SWAP_EFFECT_DISCARD},
-        {1, DXGI_SWAP_EFFECT_SEQUENTIAL},
-        {2, DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL},
-        {3, DXGI_SWAP_EFFECT_FLIP_DISCARD}
-    };
-
     DRender::SMMap DRender::cfgScalingModeMap = {
         {"unspecified", DXGI_MODE_SCALING_UNSPECIFIED},
         {"centered", DXGI_MODE_SCALING_CENTERED},
         {"stretched", DXGI_MODE_SCALING_STRETCHED}
     };
 
-    DRender::SEMapR DRender::cfgSwapEffectMapR = {
-        { DXGI_SWAP_EFFECT_DISCARD, "discard"},
-        { DXGI_SWAP_EFFECT_SEQUENTIAL, "sequential"},
-        { DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL, "flip_sequential"},
-        { DXGI_SWAP_EFFECT_FLIP_DISCARD, "flip_discard"}
-    };
+    DXGI_SWAP_EFFECT DRender::GetSwapEffect(int a_code)
+    {
+        switch (a_code)
+        {
+        case 0:
+            return DXGI_SWAP_EFFECT::DXGI_SWAP_EFFECT_DISCARD;
+        case 1:
+            return DXGI_SWAP_EFFECT::DXGI_SWAP_EFFECT_SEQUENTIAL;
+        case 2:
+            return DXGI_SWAP_EFFECT::DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
+        case 3:
+            return DXGI_SWAP_EFFECT::DXGI_SWAP_EFFECT_FLIP_DISCARD;
+        default:
+            return DXGI_SWAP_EFFECT::DXGI_SWAP_EFFECT_DISCARD;
+        }
+    }
 
-    DRender::MCLDMap DRender::menuCodeToLimitDesc = {
-        {OnAnyMenu, "UI"},
-        {OnLoadingMenu, "Loading screen"},
-        {OnInventoryMenu, "Inventory"},
-        {OnMagicMenu, "Magic"},
-        {OnGiftMenu, "Gift"},
-        {OnBarterMenu, "Barter"},
-        {OnContainerMenu, "Container"},
-        {OnJournalMenu, "Journal"},
-        {OnMapMenu, "Map"},
-        {OnCustomMenu, "Custom"},
-        {OnMainMenu, "Main"},
-        {OnRaceSexMenu, "Race"},
-        {OnStatsMenu, "Perk"},
-        {OnBookMenu, "Book"},
-        {OnLockpickingMenu, "Lockpicking"},
-        {OnConsoleMenu, "Console"},
-        {OnTweenMenu, "Tween"},
-        {OnSleepWaitMenu, "Sleep/Wait"},
-        {OnFavoritesMenu, "Favorites"},
-    };
+    const char* DRender::GetMenuDescription(MenuEvent a_event)
+    {
+        switch (a_event)
+        {
+        case MenuEvent::OnAnyMenu:
+            return "UI";
+        case MenuEvent::OnLoadingMenu:
+            return "Loading screen";
+        case MenuEvent::OnInventoryMenu:
+            return "Inventory";
+        case MenuEvent::OnMagicMenu:
+            return "Magic";
+        case MenuEvent::OnGiftMenu:
+            return "Gift";
+        case MenuEvent::OnBarterMenu:
+            return "Barter";
+        case MenuEvent::OnContainerMenu:
+            return "Container";
+        case MenuEvent::OnJournalMenu:
+            return "Journal";
+        case MenuEvent::OnMapMenu:
+            return "Map";
+        case MenuEvent::OnCustomMenu:
+            return "Custom";
+        case MenuEvent::OnMainMenu:
+            return "Main";
+        case MenuEvent::OnRaceSexMenu:
+            return "Race";
+        case MenuEvent::OnStatsMenu:
+            return "Perk";
+        case MenuEvent::OnBookMenu:
+            return "Book";
+        case MenuEvent::OnLockpickingMenu:
+            return "Lockpicking";
+        case MenuEvent::OnConsoleMenu:
+            return "Console";
+        case MenuEvent::OnTweenMenu:
+            return "Tween";
+        case MenuEvent::OnSleepWaitMenu:
+            return "Sleep/Wait";
+        case MenuEvent::OnFavoritesMenu:
+            return "Favorites";
+        default:
+            return "Unknown";
+        }
+    }
+
+    const char* DRender::GetSwapEffectOption(DXGI_SWAP_EFFECT a_swapEffect)
+    {
+        switch (a_swapEffect)
+        {
+        case DXGI_SWAP_EFFECT_DISCARD:
+            return "discard";
+        case DXGI_SWAP_EFFECT_SEQUENTIAL:
+            return "sequential";
+        case DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL:
+            return "flip_sequential";
+        case DXGI_SWAP_EFFECT_FLIP_DISCARD:
+            return "flip_discard";
+        default:
+            return "unknown";
+        }
+    }
 
     void MenuFramerateLimit::SetLimit(MenuEvent code, float limit, bool disable_vsync)
     {
         if (limit <= 0.0f) {
-            m_limits[code] = MenuFramerateLimitDescriptor(0, disable_vsync);
+            m_limits[Enum::Underlying(code)] = MenuFramerateLimitDescriptor(disable_vsync, 0LL);
         }
         else {
-            m_limits[code] = MenuFramerateLimitDescriptor(
-                static_cast<long long>((1.0 / static_cast<double>(limit)) * 1000000.0),
-                disable_vsync
+            m_limits[Enum::Underlying(code)] = MenuFramerateLimitDescriptor(
+                disable_vsync,
+                static_cast<long long>((1.0 / static_cast<double>(limit)) * 1000000.0)
             );
         }
+
+        m_hasLimits = true;
     }
 
-    bool MenuFramerateLimit::GetLimit(MenuEvent code, MenuFramerateLimitDescriptor& limit)
+    bool MenuFramerateLimit::GetLimit(MenuEvent code, MenuFramerateLimitDescriptor& limit) const
     {
-        auto it = m_limits.find(code);
-        if (it != m_limits.end()) {
-            limit = it->second;
+        auto& v = m_limits[Enum::Underlying(code)];
+
+        if (v.enabled)
+        {
+            limit = v;
             return true;
         }
+
         return false;
     }
 
-    bool MenuFramerateLimit::HasLimits()
+    bool MenuFramerateLimit::HasLimits() const
     {
-        return m_limits.size() > 0;
+        return m_hasLimits;
     }
 
-    bool MenuFramerateLimit::HasLimit(MenuEvent code)
+    bool MenuFramerateLimit::HasLimit(MenuEvent code) const
     {
-        return m_limits.find(code) != m_limits.end();
+        return m_limits[Enum::Underlying(code)].enabled;
     }
 
-    bool MenuFramerateLimit::GetCurrentLimit(MenuFramerateLimitDescriptor& limit)
+    bool MenuFramerateLimit::GetCurrentLimit(MenuFramerateLimitDescriptor& limit) const
     {
-        if (!m_limits.size()) {
+        if (!HasLimits())
             return false;
-        }
 
-        if (m_stack.size()) {
-            auto it = m_limits.find(m_stack.back());
-            if (it != m_limits.end()) {
-                limit = it->second;
-                return true;
+        if (!m_stack.empty()) {
+
+            for (auto it = m_stack.rbegin(); it != m_stack.rend(); ++it)
+            {
+                auto& v = m_limits[Enum::Underlying(*it)];
+                if (v.enabled)
+                {
+                    limit = v;
+                    return true;
+                }
             }
         }
 
-        auto it = m_limits.find(OnAnyMenu);
-        if (it != m_limits.end()) {
-            limit = it->second;
+        auto& v = m_limits[Enum::Underlying(MenuEvent::OnAnyMenu)];
+        if (v.enabled)
+        {
+            limit = v;
             return true;
         }
 
@@ -173,115 +225,121 @@ namespace SDT
     }
 
     DRender::DRender() :
-        fps_max(0), current_fps_max(0),
-        has_swap_effect(false), limiter_installed(false),
-        tearing_enabled(false), has_fl_override(false),
-        fps_limit(-1), present_flags(0),
-        lslExtraTime(0), lslPostLoadExtraTime(0),
-        oo_expire_time(0), oo_current_fps_max(0),
+        fps_max(0),
+        current_fps_max(0),
+        has_swap_effect(false),
+        limiter_installed(false),
+        tearing_enabled(false),
+        has_fl_override(false),
+        fps_limit(-1),
+        present_flags(0),
+        lslExtraTime(0),
+        lslPostLoadExtraTime(0),
+        oo_expire_time(0),
+        oo_current_fps_max(0),
         gameLoadState(0),
-        pFactory(nullptr)
+        m_dxgiFactory(nullptr),
+        swapchain{ 0, 0, 0 },
+        m_fl({
+            MenuEvent::OnJournalMenu,
+            MenuEvent::OnMainMenu,
+            MenuEvent::OnMapMenu,
+            MenuEvent::OnConsoleMenu,
+            MenuEvent::OnCustomMenu,
+            MenuEvent::OnRaceSexMenu,
+            MenuEvent::OnInventoryMenu,
+            MenuEvent::OnContainerMenu,
+            MenuEvent::OnMagicMenu,
+            MenuEvent::OnTweenMenu,
+            MenuEvent::OnLoadingMenu,
+            MenuEvent::OnMessageBoxMenu,
+            MenuEvent::OnLockpickingMenu,
+            MenuEvent::OnGiftMenu,
+            MenuEvent::OnTrainingMenu,
+            MenuEvent::OnTutorialMenu,
+            MenuEvent::OnLevelUpMenu,
+            MenuEvent::OnBarterMenu,
+            MenuEvent::OnStatsMenu,
+            MenuEvent::OnFavoritesMenu,
+            MenuEvent::OnSleepWaitMenu,
+            MenuEvent::OnQuantityMenu,
+            MenuEvent::OnModManagerMenu,
+            MenuEvent::OnBookMenu
+            })
     {
         swapchain.flags = 0;
         swapchain.width = 0;
         swapchain.height = 0;
-
-        m_uifl.SetTracked({
-            OnJournalMenu,
-            OnMainMenu,
-            OnMapMenu,
-            OnConsoleMenu,
-            OnCustomMenu,
-            OnRaceSexMenu,
-            OnInventoryMenu,
-            OnContainerMenu,
-            OnMagicMenu,
-            OnTweenMenu,
-            OnLoadingMenu,
-            OnMessageBoxMenu,
-            OnLockpickingMenu,
-            OnGiftMenu,
-            OnTrainingMenu,
-            OnTutorialMenu,
-            OnLevelUpMenu,
-            OnBarterMenu,
-            OnStatsMenu,
-            OnFavoritesMenu,
-            OnSleepWaitMenu,
-            OnQuantityMenu,
-            OnModManagerMenu,
-            OnBookMenu
-        });
     }
 
     void DRender::LoadConfig()
     {
-        conf.fullscreen = static_cast<uint8_t>(GetConfigValue(SECTION_RENDER, CKEY_FULLSCREEN, false));
-        conf.borderless = static_cast<uint8_t>(GetConfigValue(SECTION_RENDER, CKEY_BORDERLESS, true));
-        conf.upscale = GetConfigValue(SECTION_RENDER, CKEY_UPSCALE, false);
-        conf.disablebufferresize = GetConfigValue(SECTION_RENDER, CKEY_DISABLEBUFFERRESIZE, false);
-        conf.disabletargetresize = GetConfigValue(SECTION_RENDER, CKEY_DISABLETARGETRESIZE, false);
+        m_conf.fullscreen = static_cast<uint8_t>(GetConfigValue(CKEY_FULLSCREEN, false));
+        m_conf.borderless = static_cast<uint8_t>(GetConfigValue(CKEY_BORDERLESS, true));
+        m_conf.upscale = GetConfigValue(CKEY_UPSCALE, false);
+        m_conf.disablebufferresize = GetConfigValue(CKEY_DISABLEBUFFERRESIZE, false);
+        m_conf.disabletargetresize = GetConfigValue(CKEY_DISABLETARGETRESIZE, false);
 
-        conf.vsync_on = GetConfigValue(SECTION_RENDER, CKEY_VSYNC, true);
-        conf.vsync_present_interval = clamp<uint32_t>(GetConfigValue<uint32_t>(SECTION_RENDER, CKEY_VSYNCPRESENTINT, 1), 1, 4);
-        conf.max_rr = GetConfigValue(SECTION_RENDER, CKEY_MAXRR, 0);
+        m_conf.vsync_on = GetConfigValue(CKEY_VSYNC, true);
+        m_conf.vsync_present_interval = std::clamp<uint32_t>(GetConfigValue<uint32_t>(CKEY_VSYNCPRESENTINT, 1), 1, 4);
+        m_conf.max_rr = GetConfigValue(CKEY_MAXRR, 0);
         has_swap_effect = ConfigTranslateSwapEffect(
-            GetConfigValue(SECTION_RENDER, CKEY_SWAPEFFECT, "auto"),
-            conf.swap_effect
+            GetConfigValue(CKEY_SWAPEFFECT, "auto"),
+            m_conf.swap_effect
         );
         has_scaling_mode = ConfigTranslateScalingMode(
-            GetConfigValue(SECTION_RENDER, CKEY_SCALINGMODE, "default"),
-            conf.scaling_mode
+            GetConfigValue(CKEY_SCALINGMODE, "default"),
+            m_conf.scaling_mode
         );
-        conf.buffer_count = GetConfigValue(SECTION_RENDER, CKEY_BUFFERCOUNT, 0);
-        if (conf.buffer_count > -1) {
-            conf.buffer_count = clamp<uint32_t>(conf.buffer_count, 0, 8);
+        m_conf.buffer_count = GetConfigValue(CKEY_BUFFERCOUNT, 0);
+        if (m_conf.buffer_count > -1) {
+            m_conf.buffer_count = std::clamp<uint32_t>(m_conf.buffer_count, 0, 8);
         }
-        conf.max_frame_latency = GetConfigValue(SECTION_RENDER, CKEY_MAXFRAMELAT, 0);
-        if (conf.max_frame_latency > 0) {
-            conf.max_frame_latency = min(conf.max_frame_latency, 16);
+        m_conf.max_frame_latency = GetConfigValue(CKEY_MAXFRAMELAT, 0);
+        if (m_conf.max_frame_latency > 0) {
+            m_conf.max_frame_latency = min(m_conf.max_frame_latency, 16);
         }
-        conf.enable_tearing = GetConfigValue(SECTION_RENDER, CKEY_ENABLETEARING, true);
+        m_conf.enable_tearing = GetConfigValue(CKEY_ENABLETEARING, true);
 
-        conf.limits.game = GetConfigValue(SECTION_RENDER, CKEY_FPSLIMIT, -1.0f);
+        m_conf.limits.game = GetConfigValue(CKEY_FPSLIMIT, -1.0f);
 
-        conf.limits.ui = GetConfigValue(SECTION_RENDER, CKEY_UIFPSLIMIT, 0.0f);
-        conf.limits.ui_map = GetConfigValue(SECTION_RENDER, CKEY_UIMAPFPSLIMIT, 0.0f);
-        conf.limits.ui_inventory = GetConfigValue(SECTION_RENDER, CKEY_UIINVFPSLIMIT, 0.0f);
-        conf.limits.ui_journal = GetConfigValue(SECTION_RENDER, CKEY_UIJOURFPSLIMIT, 0.0f);
-        conf.limits.ui_custom = GetConfigValue(SECTION_RENDER, CKEY_UICUSTOMFPSLIMIT, 0.0f);
-        conf.limits.ui_main = GetConfigValue(SECTION_RENDER, CKEY_UIMAINFPSLIMIT, 0.0f);
-        conf.limits.ui_race = GetConfigValue(SECTION_RENDER, CKEY_UIRACEFPSLIMIT, 0.0f);
-        conf.limits.ui_perk = GetConfigValue(SECTION_RENDER, CKEY_UIPERKFPSLIMIT, 0.0f);
-        conf.limits.ui_book = GetConfigValue(SECTION_RENDER, CKEY_UIBOOKFPSLIMIT, 0.0f);
-        conf.limits.ui_lockpick = GetConfigValue(SECTION_RENDER, CKEY_UILOCKFPSLIMIT, 0.0f);
-        conf.limits.ui_loadscreen = GetConfigValue(SECTION_RENDER, CKEY_LOADSCRFPSLIMIT, 0.0f);
-        conf.limits.ui_console = GetConfigValue(SECTION_RENDER, CKEY_UICONSOLEFPSLIMIT, 0.0f);
-        conf.limits.ui_tween = GetConfigValue(SECTION_RENDER, CKEY_UITWEENFPSLIMIT, 0.0f);
-        conf.limits.ui_sw = GetConfigValue(SECTION_RENDER, CKEY_UISWFPSLIMIT, 0.0f);
+        m_conf.limits.ui = GetConfigValue(CKEY_UIFPSLIMIT, 0.0f);
+        m_conf.limits.ui_map = GetConfigValue(CKEY_UIMAPFPSLIMIT, 0.0f);
+        m_conf.limits.ui_inventory = GetConfigValue(CKEY_UIINVFPSLIMIT, 0.0f);
+        m_conf.limits.ui_journal = GetConfigValue(CKEY_UIJOURFPSLIMIT, 0.0f);
+        m_conf.limits.ui_custom = GetConfigValue(CKEY_UICUSTOMFPSLIMIT, 0.0f);
+        m_conf.limits.ui_main = GetConfigValue(CKEY_UIMAINFPSLIMIT, 0.0f);
+        m_conf.limits.ui_race = GetConfigValue(CKEY_UIRACEFPSLIMIT, 0.0f);
+        m_conf.limits.ui_perk = GetConfigValue(CKEY_UIPERKFPSLIMIT, 0.0f);
+        m_conf.limits.ui_book = GetConfigValue(CKEY_UIBOOKFPSLIMIT, 0.0f);
+        m_conf.limits.ui_lockpick = GetConfigValue(CKEY_UILOCKFPSLIMIT, 0.0f);
+        m_conf.limits.ui_loadscreen = GetConfigValue(CKEY_LOADSCRFPSLIMIT, 0.0f);
+        m_conf.limits.ui_console = GetConfigValue(CKEY_UICONSOLEFPSLIMIT, 0.0f);
+        m_conf.limits.ui_tween = GetConfigValue(CKEY_UITWEENFPSLIMIT, 0.0f);
+        m_conf.limits.ui_sw = GetConfigValue(CKEY_UISWFPSLIMIT, 0.0f);
 
-        conf.limits.ui_dv = GetConfigValue(SECTION_RENDER, CKEY_UIFPSLIMIT_DV, true);
-        conf.limits.ui_map_dv = GetConfigValue(SECTION_RENDER, CKEY_UIMAPFPSLIMIT_DV, true);
-        conf.limits.ui_inventory_dv = GetConfigValue(SECTION_RENDER, CKEY_UIINVFPSLIMIT_DV, true);
-        conf.limits.ui_journal_dv = GetConfigValue(SECTION_RENDER, CKEY_UIJOURFPSLIMIT_DV, true);
-        conf.limits.ui_custom_dv = GetConfigValue(SECTION_RENDER, CKEY_UICUSTOMFPSLIMIT_DV, true);
-        conf.limits.ui_main_dv = GetConfigValue(SECTION_RENDER, CKEY_UIMAINFPSLIMIT_DV, true);
-        conf.limits.ui_race_dv = GetConfigValue(SECTION_RENDER, CKEY_UIRACEFPSLIMIT_DV, true);
-        conf.limits.ui_perk_dv = GetConfigValue(SECTION_RENDER, CKEY_UIPERKFPSLIMIT_DV, true);
-        conf.limits.ui_book_dv = GetConfigValue(SECTION_RENDER, CKEY_UIBOOKFPSLIMIT_DV, true);
-        conf.limits.ui_lockpick_dv = GetConfigValue(SECTION_RENDER, CKEY_UILOCKFPSLIMIT_DV, true);
-        conf.limits.ui_loadscreen_dv = GetConfigValue(SECTION_RENDER, CKEY_LOADSCRFPSLIMIT_DV, true);
-        conf.limits.ui_console_dv = GetConfigValue(SECTION_RENDER, CKEY_UICONSOLEFPSLIMIT_DV, true);
-        conf.limits.ui_tween_dv = GetConfigValue(SECTION_RENDER, CKEY_UITWEENFPSLIMIT_DV, true);
-        conf.limits.ui_sw_dv = GetConfigValue(SECTION_RENDER, CKEY_UISWFPSLIMIT_DV, true);
+        m_conf.limits.ui_dv = GetConfigValue(CKEY_UIFPSLIMIT_DV, true);
+        m_conf.limits.ui_map_dv = GetConfigValue(CKEY_UIMAPFPSLIMIT_DV, true);
+        m_conf.limits.ui_inventory_dv = GetConfigValue(CKEY_UIINVFPSLIMIT_DV, true);
+        m_conf.limits.ui_journal_dv = GetConfigValue(CKEY_UIJOURFPSLIMIT_DV, true);
+        m_conf.limits.ui_custom_dv = GetConfigValue(CKEY_UICUSTOMFPSLIMIT_DV, true);
+        m_conf.limits.ui_main_dv = GetConfigValue(CKEY_UIMAINFPSLIMIT_DV, true);
+        m_conf.limits.ui_race_dv = GetConfigValue(CKEY_UIRACEFPSLIMIT_DV, true);
+        m_conf.limits.ui_perk_dv = GetConfigValue(CKEY_UIPERKFPSLIMIT_DV, true);
+        m_conf.limits.ui_book_dv = GetConfigValue(CKEY_UIBOOKFPSLIMIT_DV, true);
+        m_conf.limits.ui_lockpick_dv = GetConfigValue(CKEY_UILOCKFPSLIMIT_DV, true);
+        m_conf.limits.ui_loadscreen_dv = GetConfigValue(CKEY_LOADSCRFPSLIMIT_DV, true);
+        m_conf.limits.ui_console_dv = GetConfigValue(CKEY_UICONSOLEFPSLIMIT_DV, true);
+        m_conf.limits.ui_tween_dv = GetConfigValue(CKEY_UITWEENFPSLIMIT_DV, true);
+        m_conf.limits.ui_sw_dv = GetConfigValue(CKEY_UISWFPSLIMIT_DV, true);
 
-        conf.limits.ui_loadscreenex = clamp<int32_t>(GetConfigValue<int32_t>(SECTION_RENDER, CKEY_LOADSCRFPSLIMITEX, 0), 0, 15);
-        conf.limits.ui_initialloadex = clamp<int32_t>(GetConfigValue<int32_t>(SECTION_RENDER, CKEY_INITIALLOADLIMITEX, 4), 0, 30);
+        m_conf.limits.ui_loadscreenex = std::clamp<int32_t>(GetConfigValue<int32_t>(CKEY_LOADSCRFPSLIMITEX, 0), 0, 15);
+        m_conf.limits.ui_initialloadex = std::clamp<int32_t>(GetConfigValue<int32_t>(CKEY_INITIALLOADLIMITEX, 4), 0, 30);
 
-        conf.adjust_ini = GetConfigValue(SECTION_GENERAL, CKEY_ADJUSTINICFG, true);
+        m_conf.adjust_ini = IConfigS(SECTION_GENERAL).GetConfigValue(CKEY_ADJUSTINICFG, true);
     }
 
-    bool DRender::ConfigTranslateSwapEffect(const string& param, int& out)
+    bool DRender::ConfigTranslateSwapEffect(const std::string& param, int& out) const
     {
         auto it = cfgSwapEffectMap.find(param);
         if (it != cfgSwapEffectMap.end()) {
@@ -293,7 +351,7 @@ namespace SDT
         }
     }
 
-    bool DRender::ConfigTranslateScalingMode(const string& param, DXGI_MODE_SCALING& out)
+    bool DRender::ConfigTranslateScalingMode(const std::string& param, DXGI_MODE_SCALING& out) const
     {
         auto it = cfgScalingModeMap.find(param);
         if (it != cfgScalingModeMap.end()) {
@@ -305,28 +363,17 @@ namespace SDT
         }
     }
 
-    string DRender::SwapEffectToConfigKey(DXGI_SWAP_EFFECT param)
-    {
-        auto it = cfgSwapEffectMapR.find(param);
-        if (it != cfgSwapEffectMapR.end()) {
-            return it->second;
-        }
-        else {
-            return "unknown";
-        }
-    }
-
     void DRender::UISetLimit(MenuEvent code, float limit, bool disable_vsync)
     {
         if (limit > 0.0f) {
-            m_uifl.SetLimit(code, limit, disable_vsync);
+            m_fl.SetLimit(code, limit, disable_vsync);
             Message("Framerate limit (%s): %.6g (VSync off: %s)",
-                menuCodeToLimitDesc[code].c_str(), limit, disable_vsync ? "true" : "false");
+                GetMenuDescription(code), limit, disable_vsync ? "true" : "false");
         }
         else if (limit < 0.0f) {
-            m_uifl.SetLimit(code, 0.0f, disable_vsync);
+            m_fl.SetLimit(code, 0.0f, disable_vsync);
             Message("Framerate limit (%s): disabled (VSync off: %s)",
-                menuCodeToLimitDesc[code].c_str(), disable_vsync ? "true" : "false");
+                GetMenuDescription(code), disable_vsync ? "true" : "false");
         }
     }
 
@@ -334,74 +381,74 @@ namespace SDT
     {
         tts = PerfCounter::Query();
 
-        if (conf.upscale) {
-            if (!(!conf.fullscreen && conf.borderless))
+        if (m_conf.upscale) {
+            if (!(!m_conf.fullscreen && m_conf.borderless))
             {
-                conf.upscale = false;
+                m_conf.upscale = false;
             }
             else {
                 Message("Borderless upscaling enabled");
             }
         }
 
-        vsync = conf.vsync_on ? conf.vsync_present_interval : 0;
+        vsync = m_conf.vsync_on ? m_conf.vsync_present_interval : 0;
 
-        if (conf.limits.game > 0.0f) {
-            current_fps_max = fps_max = static_cast<long long>((1.0 / static_cast<double>(conf.limits.game)) * 1000000.0);
+        if (m_conf.limits.game > 0.0f) {
+            current_fps_max = fps_max = static_cast<long long>((1.0 / static_cast<double>(m_conf.limits.game)) * 1000000.0);
             fps_limit = 1;
-            Message("Framerate limit (game): %.6g", conf.limits.game);
+            Message("Framerate limit (game): %.6g", m_conf.limits.game);
         }
-        else if (conf.limits.game == 0.0f) {
+        else if (m_conf.limits.game == 0.0f) {
             fps_limit = 0;
         }
         else {
             fps_limit = -1;
         }
 
-        UISetLimit(OnAnyMenu, conf.limits.ui, conf.limits.ui_dv);
-        UISetLimit(OnLoadingMenu, conf.limits.ui_loadscreen, conf.limits.ui_loadscreen_dv);
+        UISetLimit(MenuEvent::OnAnyMenu, m_conf.limits.ui, m_conf.limits.ui_dv);
+        UISetLimit(MenuEvent::OnLoadingMenu, m_conf.limits.ui_loadscreen, m_conf.limits.ui_loadscreen_dv);
 
-        if (m_uifl.HasLimit(OnLoadingMenu)) {
-            if (conf.limits.ui_loadscreenex > 0) {
+        if (m_fl.HasLimit(MenuEvent::OnLoadingMenu)) {
+            if (m_conf.limits.ui_loadscreenex > 0) {
                 lslExtraTime = PerfCounter::T(
-                    conf.limits.ui_loadscreenex * 1000000);
+                    m_conf.limits.ui_loadscreenex * 1000000);
             }
-            if (conf.limits.ui_initialloadex > 0) {
+            if (m_conf.limits.ui_initialloadex > 0) {
                 lslPostLoadExtraTime = PerfCounter::T(
-                    conf.limits.ui_initialloadex * 1000000);
+                    m_conf.limits.ui_initialloadex * 1000000);
             }
         }
 
-        if (conf.limits.ui_inventory != 0.0f) {
-            UISetLimit(OnInventoryMenu, conf.limits.ui_inventory, conf.limits.ui_inventory_dv);
-            UISetLimit(OnMagicMenu, conf.limits.ui_inventory, conf.limits.ui_inventory_dv);
-            UISetLimit(OnGiftMenu, conf.limits.ui_inventory, conf.limits.ui_inventory_dv);
-            UISetLimit(OnBarterMenu, conf.limits.ui_inventory, conf.limits.ui_inventory_dv);
-            UISetLimit(OnContainerMenu, conf.limits.ui_inventory, conf.limits.ui_inventory_dv);
-            UISetLimit(OnFavoritesMenu, conf.limits.ui_inventory, conf.limits.ui_inventory_dv);
+        if (m_conf.limits.ui_inventory != 0.0f) {
+            UISetLimit(MenuEvent::OnInventoryMenu, m_conf.limits.ui_inventory, m_conf.limits.ui_inventory_dv);
+            UISetLimit(MenuEvent::OnMagicMenu, m_conf.limits.ui_inventory, m_conf.limits.ui_inventory_dv);
+            UISetLimit(MenuEvent::OnGiftMenu, m_conf.limits.ui_inventory, m_conf.limits.ui_inventory_dv);
+            UISetLimit(MenuEvent::OnBarterMenu, m_conf.limits.ui_inventory, m_conf.limits.ui_inventory_dv);
+            UISetLimit(MenuEvent::OnContainerMenu, m_conf.limits.ui_inventory, m_conf.limits.ui_inventory_dv);
+            UISetLimit(MenuEvent::OnFavoritesMenu, m_conf.limits.ui_inventory, m_conf.limits.ui_inventory_dv);
         }
 
-        UISetLimit(OnJournalMenu, conf.limits.ui_journal, conf.limits.ui_journal_dv);
-        UISetLimit(OnMapMenu, conf.limits.ui_map, conf.limits.ui_map_dv);
-        UISetLimit(OnCustomMenu, conf.limits.ui_custom, conf.limits.ui_custom_dv);
-        UISetLimit(OnMainMenu, conf.limits.ui_main, conf.limits.ui_main_dv);
-        UISetLimit(OnRaceSexMenu, conf.limits.ui_race, conf.limits.ui_race_dv);
-        UISetLimit(OnStatsMenu, conf.limits.ui_perk, conf.limits.ui_perk_dv);
-        UISetLimit(OnBookMenu, conf.limits.ui_book, conf.limits.ui_book_dv);
-        UISetLimit(OnLockpickingMenu, conf.limits.ui_lockpick, conf.limits.ui_lockpick_dv);
-        UISetLimit(OnConsoleMenu, conf.limits.ui_console, conf.limits.ui_console_dv);
-        UISetLimit(OnTweenMenu, conf.limits.ui_tween, conf.limits.ui_tween_dv);
-        UISetLimit(OnSleepWaitMenu, conf.limits.ui_sw, conf.limits.ui_sw_dv);
+        UISetLimit(MenuEvent::OnJournalMenu, m_conf.limits.ui_journal, m_conf.limits.ui_journal_dv);
+        UISetLimit(MenuEvent::OnMapMenu, m_conf.limits.ui_map, m_conf.limits.ui_map_dv);
+        UISetLimit(MenuEvent::OnCustomMenu, m_conf.limits.ui_custom, m_conf.limits.ui_custom_dv);
+        UISetLimit(MenuEvent::OnMainMenu, m_conf.limits.ui_main, m_conf.limits.ui_main_dv);
+        UISetLimit(MenuEvent::OnRaceSexMenu, m_conf.limits.ui_race, m_conf.limits.ui_race_dv);
+        UISetLimit(MenuEvent::OnStatsMenu, m_conf.limits.ui_perk, m_conf.limits.ui_perk_dv);
+        UISetLimit(MenuEvent::OnBookMenu, m_conf.limits.ui_book, m_conf.limits.ui_book_dv);
+        UISetLimit(MenuEvent::OnLockpickingMenu, m_conf.limits.ui_lockpick, m_conf.limits.ui_lockpick_dv);
+        UISetLimit(MenuEvent::OnConsoleMenu, m_conf.limits.ui_console, m_conf.limits.ui_console_dv);
+        UISetLimit(MenuEvent::OnTweenMenu, m_conf.limits.ui_tween, m_conf.limits.ui_tween_dv);
+        UISetLimit(MenuEvent::OnSleepWaitMenu, m_conf.limits.ui_sw, m_conf.limits.ui_sw_dv);
     }
 
     void DRender::Patch()
     {
-        if (conf.max_rr > 0) {
+        if (m_conf.max_rr > 0) {
             safe_write(
                 DisplayRefreshRate + 0x4,
-                static_cast<uint32_t>(conf.max_rr)
+                static_cast<uint32_t>(m_conf.max_rr)
             );
-            Message("Refresh rate patch applied (max %d Hz)", conf.max_rr);
+            Message("Refresh rate patch applied (max %d Hz)", m_conf.max_rr);
         }
 
         safe_write(
@@ -411,7 +458,7 @@ namespace SDT
         );
         safe_write(
             bBorderless_Patch + 0x1,
-            static_cast<uint32_t>(m_Instance.conf.borderless)
+            static_cast<uint32_t>(m_Instance.m_conf.borderless)
         );
 
         safe_write(
@@ -421,7 +468,7 @@ namespace SDT
         );
         safe_write(
             bFullscreen_Patch + 0x1,
-            static_cast<uint32_t>(m_Instance.conf.fullscreen)
+            static_cast<uint32_t>(m_Instance.m_conf.fullscreen)
         );
 
         if (HasLimits()) {
@@ -434,16 +481,16 @@ namespace SDT
             limiter_installed = true;
         }
 
-        if (conf.max_frame_latency > 0) {
+        if (m_conf.max_frame_latency > 0) {
             safe_write(
                 MaxFrameLatency,
-                static_cast<uint32_t>(conf.max_frame_latency)
+                static_cast<uint32_t>(m_conf.max_frame_latency)
             );
-            Message("Maximum frame latency: %d", conf.max_frame_latency);
+            Message("Maximum frame latency: %d", m_conf.max_frame_latency);
         }
 
-        if (!conf.fullscreen) {
-            if (conf.disablebufferresize) {
+        if (!m_conf.fullscreen) {
+            if (m_conf.disablebufferresize) {
                 safe_write(
                     ResizeBuffersDisable,
                     reinterpret_cast<const void*>(Payloads::ResizeBuffersDisable),
@@ -452,7 +499,7 @@ namespace SDT
                 Debug("Disabled swap chain buffer resizing");
             }
 
-            if (conf.disabletargetresize) {
+            if (m_conf.disabletargetresize) {
                 safe_write(
                     ResizeTargetDisable,
                     reinterpret_cast<const void*>(Payloads::ResizeTargetDisable),
@@ -494,8 +541,8 @@ namespace SDT
             LogPatchEnd("IDXGISwapChain::ResizeTarget");
         }
 
-        if (conf.fullscreen == 0 && conf.enable_tearing
-            && (!conf.vsync_on || limiter_installed))
+        if (m_conf.fullscreen == 0 && m_conf.enable_tearing
+            && (!m_conf.vsync_on || limiter_installed))
         {
             struct PresentFlagsInject : JITASM::JITASM {
                 PresentFlagsInject(uintptr_t retnAddr, uintptr_t flagsAddr)
@@ -596,11 +643,11 @@ namespace SDT
             RegisterHook(
                 Present_Limiter,
                 reinterpret_cast<uintptr_t>(Throttle),
-                HookDescriptor::kWR6Call
+                HookDescriptor::HookType::kWR6Call
             );
         }
 
-        if (m_uifl.HasLimits()) {
+        if (m_fl.HasLimits()) {
             IEvents::RegisterForEvent(MenuEvent::OnAnyMenu, OnMenuEvent);
             if (lslPostLoadExtraTime > 0) {
                 IEvents::RegisterForEvent(Event::OnMessage, MessageHandler);
@@ -649,7 +696,7 @@ namespace SDT
             *m_Instance.bLockFramerate = 0;
         }
 
-        if (m_Instance.conf.adjust_ini) {
+        if (m_Instance.m_conf.adjust_ini) {
             if (*m_Instance.iFPSClamp != 0)
             {
                 m_Instance.Message("Setting iFPSClamp=0");
@@ -660,7 +707,7 @@ namespace SDT
 
     void DRender::SetFPSLimitOverride(long long max, bool disable_vsync)
     {
-        if (conf.vsync_on) {
+        if (m_conf.vsync_on) {
             if (disable_vsync) {
                 (*DXGIData)->SyncInterval = 0;
                 if (tearing_enabled) {
@@ -679,13 +726,19 @@ namespace SDT
         has_fl_override = true;
     }
 
+    void DRender::SetFPSLimitPost(long long a_max, long long a_expire)
+    {
+        m_Instance.oo_current_fps_max = a_max;
+        m_Instance.oo_expire_time = a_expire;
+    }
+
     void DRender::ResetFPSLimitOverride()
     {
         if (!has_fl_override) {
             return;
         }
 
-        if (conf.vsync_on) {
+        if (m_conf.vsync_on) {
             (*DXGIData)->SyncInterval = vsync;
             if (tearing_enabled) {
                 present_flags &= ~DXGI_PRESENT_ALLOW_TEARING;
@@ -696,10 +749,23 @@ namespace SDT
         has_fl_override = false;
     }
 
-    bool DRender::OnMenuEvent(MenuEvent code, MenuOpenCloseEvent* evn, EventDispatcher<MenuOpenCloseEvent>*)
+    void DRender::QueueFPSLimitOverride(long long max, bool disable_vsync)
     {
-        auto& fl = m_Instance.m_uifl;
+        m_afTasks.AddTask([=, this]() { SetFPSLimitOverride(max, disable_vsync); });
+    }
 
+    void DRender::QueueFPSLimitPost(long long a_max, long long a_expire)
+    {
+        m_afTasks.AddTask([=, this]() { SetFPSLimitPost(a_max, a_expire); });
+    }
+
+    void DRender::QueueFPSLimitOverrideReset()
+    {
+        m_afTasks.AddTask([this]() { ResetFPSLimitOverride(); });
+    }
+
+    bool DRender::HandleMenuEvent(MenuEvent a_code, MenuOpenCloseEvent* a_evn)
+    {
         auto mm = MenuManager::GetSingleton();
         if (!mm)
             return true;
@@ -707,47 +773,39 @@ namespace SDT
         MenuFramerateLimitDescriptor ld;
         if (mm->InPausedMenu())
         {
-            fl.Track(code, evn->opening);
+            m_fl.Track(a_code, a_evn->opening);
 
-            if (fl.GetCurrentLimit(ld)) {
-                m_Instance.m_afTasks.AddTask(
-                    new AssignFramerateLimitTask(
-                        ld.limit,
-                        ld.disable_vsync
-                    )
-                );
+            if (m_fl.GetCurrentLimit(ld)) {
+                QueueFPSLimitOverride(ld.limit, ld.disable_vsync);
             }
             else {
-                m_Instance.m_afTasks.AddTask(
-                    new AssignFramerateLimitTask());
+                QueueFPSLimitOverrideReset();
             }
         }
         else
         {
-            fl.ClearTracked();
-            m_Instance.m_afTasks.AddTask(
-                new AssignFramerateLimitTask());
+            m_fl.ClearStack();
+            QueueFPSLimitOverrideReset();
         }
 
-        if (m_Instance.lslExtraTime > 0 || m_Instance.lslPostLoadExtraTime > 0) {
-            if (code == MenuEvent::OnLoadingMenu && evn->opening == false) {
-                if (fl.GetLimit(MenuEvent::OnLoadingMenu, ld)) {
-                    if (m_Instance.lslPostLoadExtraTime > 0 && m_Instance.gameLoadState == 1) {
-                        m_Instance.gameLoadState = 0;
-                        m_Instance.m_afTasks.AddTask(
-                            new AssignFramerateLimitTask(
-                                ld.limit,
-                                PerfCounter::Query() + m_Instance.lslPostLoadExtraTime
-                            )
-                        );
+        if (lslExtraTime > 0 || lslPostLoadExtraTime > 0)
+        {
+            if (a_code == MenuEvent::OnLoadingMenu && a_evn->opening == false)
+            {
+                if (m_fl.GetLimit(MenuEvent::OnLoadingMenu, ld))
+                {
+                    if (lslPostLoadExtraTime > 0 && gameLoadState == 1)
+                    {
+                        gameLoadState = 0;
+                        QueueFPSLimitPost(
+                            ld.limit,
+                            PerfCounter::Query() + lslPostLoadExtraTime);
                     }
-                    else if (m_Instance.lslExtraTime > 0) {
-                        m_Instance.m_afTasks.AddTask(
-                            new AssignFramerateLimitTask(
-                                ld.limit,
-                                PerfCounter::Query() + m_Instance.lslExtraTime
-                            )
-                        );
+                    else if (lslExtraTime > 0)
+                    {
+                        QueueFPSLimitPost(
+                            ld.limit,
+                            PerfCounter::Query() + lslExtraTime);
                     }
                 }
             }
@@ -756,9 +814,14 @@ namespace SDT
         return true;
     }
 
+    bool DRender::OnMenuEvent(MenuEvent a_code, MenuOpenCloseEvent* a_evn, EventDispatcher<MenuOpenCloseEvent>*)
+    {
+        return m_Instance.HandleMenuEvent(a_code, a_evn);
+    }
+
     void DRender::Throttle()
     {
-        m_Instance.m_afTasks.ProcessTasksUnsafe();
+        m_Instance.m_afTasks.ProcessTasks();
 
         auto e = PerfCounter::Query();
 
@@ -809,15 +872,15 @@ namespace SDT
     {
         float maxt = 0.0f;
 
-        if (conf.vsync_on && pSwapChainDesc->Windowed == FALSE) {
+        if (m_conf.vsync_on && pSwapChainDesc->Windowed == FALSE) {
             maxt = static_cast<float>(GetRefreshRate(pSwapChainDesc));
         }
 
         if (fps_limit == 1) {
-            if (!(conf.vsync_on && pSwapChainDesc->Windowed == FALSE) ||
-                conf.limits.game < maxt)
+            if (!(m_conf.vsync_on && pSwapChainDesc->Windowed == FALSE) ||
+                m_conf.limits.game < maxt)
             {
-                maxt = conf.limits.game;
+                maxt = m_conf.limits.game;
             }
         }
 
@@ -840,10 +903,10 @@ namespace SDT
 
     DXGI_SWAP_EFFECT DRender::ManualGetSwapEffect(const DXGI_SWAP_CHAIN_DESC* pSwapChainDesc)
     {
-        DXGI_SWAP_EFFECT se = cfgSEtoSEMap[conf.swap_effect];
+        auto se = GetSwapEffect(m_conf.swap_effect);
 
         if (pSwapChainDesc->Windowed == TRUE) {
-            DXGI_SWAP_EFFECT nse = se;
+            auto nse = se;
 
             if (nse == DXGI_SWAP_EFFECT_FLIP_DISCARD &&
                 !(dxgi.caps & DXGI_CAP_FLIP_DISCARD))
@@ -859,8 +922,8 @@ namespace SDT
 
             if (nse != se) {
                 Warning("%s not supported, using %s",
-                    SwapEffectToConfigKey(se).c_str(),
-                    SwapEffectToConfigKey(nse).c_str()
+                    GetSwapEffectOption(se),
+                    GetSwapEffectOption(nse)
                 );
                 se = nse;
             }
@@ -878,7 +941,7 @@ namespace SDT
         }
 
         if (has_swap_effect) {
-            if (conf.swap_effect == -1) {
+            if (m_conf.swap_effect == -1) {
                 pSwapChainDesc->SwapEffect = AutoGetSwapEffect(pSwapChainDesc);
             }
             else {
@@ -890,13 +953,13 @@ namespace SDT
 
         if (pSwapChainDesc->Windowed == TRUE)
         {
-            if (conf.enable_tearing && flip_model &&
-                (!conf.vsync_on || limiter_installed))
+            if (m_conf.enable_tearing && flip_model &&
+                (!m_conf.vsync_on || limiter_installed))
             {
                 if (dxgi.caps & DXGI_CAP_TEARING) {
                     pSwapChainDesc->Flags |= DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
 
-                    if (!conf.vsync_on) {
+                    if (!m_conf.vsync_on) {
                         present_flags |= DXGI_PRESENT_ALLOW_TEARING;
                     }
 
@@ -909,11 +972,11 @@ namespace SDT
         }
         else {
             if (has_scaling_mode) {
-                pSwapChainDesc->BufferDesc.Scaling = conf.scaling_mode;
+                pSwapChainDesc->BufferDesc.Scaling = m_conf.scaling_mode;
             }
         }
 
-        if (conf.buffer_count == 0) {
+        if (m_conf.buffer_count == 0) {
             if (flip_model) {
                 pSwapChainDesc->BufferCount = 3;
             }
@@ -921,8 +984,8 @@ namespace SDT
                 pSwapChainDesc->BufferCount = 2;
             }
         }
-        else if (conf.buffer_count > 0) {
-            pSwapChainDesc->BufferCount = static_cast<UINT>(conf.buffer_count);
+        else if (m_conf.buffer_count > 0) {
+            pSwapChainDesc->BufferCount = static_cast<UINT>(m_conf.buffer_count);
         }
 
         if (flip_model) {
@@ -935,7 +998,7 @@ namespace SDT
             }
         }
 
-        if (conf.upscale) {
+        if (m_conf.upscale) {
             swapchain.width = pSwapChainDesc->BufferDesc.Width;
             swapchain.height = pSwapChainDesc->BufferDesc.Height;
         }
@@ -966,7 +1029,7 @@ namespace SDT
             m_Instance.vsync, pSwapChainDesc->Windowed);
 
         m_Instance.Debug("[D3D] SwapEffect: %s | SwapBufferCount: %u | Tearing: %d | Flags: 0x%.8X",
-            m_Instance.SwapEffectToConfigKey(pSwapChainDesc->SwapEffect).c_str(), pSwapChainDesc->BufferCount,
+            GetSwapEffectOption(pSwapChainDesc->SwapEffect), pSwapChainDesc->BufferCount,
             m_Instance.tearing_enabled, pSwapChainDesc->Flags);
 
         m_Instance.Message("[D3D] Windowed hardware composition support: %s",
@@ -1012,7 +1075,7 @@ namespace SDT
         auto evd_pre = D3D11CreateEventPre(pSwapChainDesc);
         IEvents::TriggerEvent(Event::OnD3D11PreCreate, reinterpret_cast<void*>(&evd_pre));
 
-        HRESULT hr = D3D11CreateDeviceAndSwapChain_O(
+        HRESULT hr = m_Instance.D3D11CreateDeviceAndSwapChain_O(
             pAdapter, DriverType, Software, Flags,
             pFeatureLevels, FeatureLevels, SDKVersion,
             pSwapChainDesc, ppSwapChain, ppDevice, pFeatureLevel,
@@ -1021,7 +1084,7 @@ namespace SDT
         if (hr == S_OK) {
             m_Instance.OnD3D11PostCreate(pSwapChainDesc, ppDevice);
 
-            auto evd_post = D3D11CreateEventPost(pSwapChainDesc, *ppDevice, *ppImmediateContext, *ppSwapChain);
+            auto evd_post = D3D11CreateEventPost(pSwapChainDesc, *ppDevice, *ppImmediateContext, *ppSwapChain, pAdapter);
             IEvents::TriggerEvent(Event::OnD3D11PostCreate, reinterpret_cast<void*>(&evd_post));
             IEvents::TriggerEvent(Event::OnD3D11PostPostCreate, reinterpret_cast<void*>(&evd_post));
         }
@@ -1034,9 +1097,9 @@ namespace SDT
 
     HRESULT WINAPI DRender::CreateDXGIFactory_Hook(REFIID riid, _COM_Outptr_ void** ppFactory)
     {
-        HRESULT hr = CreateDXGIFactory_O(riid, ppFactory);
+        HRESULT hr = m_Instance.CreateDXGIFactory_O(riid, ppFactory);
         if (SUCCEEDED(hr)) {
-            m_Instance.pFactory = reinterpret_cast<IDXGIFactory*>(*ppFactory);
+            m_Instance.m_dxgiFactory = static_cast<IDXGIFactory*>(*ppFactory);
         }
         else {
             m_Instance.FatalError("CreateDXGIFactory failed (%lX)", hr);
@@ -1045,7 +1108,7 @@ namespace SDT
         return hr;
     }
 
-    IDXGIFactory* DRender::DXGI_GetFactory()
+    IDXGIFactory* DRender::DXGI_GetFactory() const
     {
         HMODULE hModule = LoadLibraryA("dxgi.dll");
         if (!hModule)
@@ -1067,7 +1130,7 @@ namespace SDT
         bool release;
         IDXGIFactory* factory;
 
-        if (!pFactory)
+        if (!m_dxgiFactory)
         {
             Warning("IDXGIFactory not set, attempting to create..");
 
@@ -1081,7 +1144,7 @@ namespace SDT
             release = true;
         }
         else {
-            factory = pFactory;
+            factory = m_dxgiFactory;
             release = false;
         }
 
@@ -1160,44 +1223,30 @@ namespace SDT
         return false;
     }
 
-    DRender::AssignFramerateLimitTask::AssignFramerateLimitTask() :
-        m_type(kLimitReset)
-    {
-    }
 
-    DRender::AssignFramerateLimitTask::AssignFramerateLimitTask(
-        long long a_max,
-        bool a_vsync)
-        :
-        m_type(kLimitSet),
-        m_max(a_max),
-        m_vsync(a_vsync)
+    bool DRender::QueryVideoMemoryInfo(
+        IDXGISwapChain* a_swapChain,
+        DXGI_QUERY_VIDEO_MEMORY_INFO& a_out) const
     {
-    }
+        try
+        {
+            ComPtr<IDXGIDevice> pDXGIDevice;
+            DirectX::ThrowIfFailed(a_swapChain->GetDevice(IID_PPV_ARGS(pDXGIDevice.GetAddressOf())));
 
-    DRender::AssignFramerateLimitTask::AssignFramerateLimitTask(
-        long long a_max,
-        long long a_expire)
-        :
-        m_type(kLimitPost),
-        m_max(a_max),
-        m_expire(a_expire)
-    {
-    }
+            ComPtr<IDXGIAdapter> pDXGIAdapter;
+            DirectX::ThrowIfFailed(pDXGIDevice->GetAdapter(pDXGIAdapter.GetAddressOf()));
 
-    void DRender::AssignFramerateLimitTask::Run()
-    {
-        switch (m_type) {
-        case kLimitSet:
-            m_Instance.SetFPSLimitOverride(m_max, m_vsync);
-            break;
-        case kLimitReset:
-            m_Instance.ResetFPSLimitOverride();
-            break;
-        case kLimitPost:
-            m_Instance.oo_expire_time = m_expire;
-            m_Instance.oo_current_fps_max = m_max;
-            break;
+            ComPtr<IDXGIAdapter3> adapter;
+            DirectX::ThrowIfFailed(pDXGIAdapter.As(&adapter));
+
+            DirectX::ThrowIfFailed(adapter->QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_LOCAL, std::addressof(a_out)));
+
+            return true;
+        }
+        catch (const std::exception &)
+        {
+            return false;
         }
     }
+
 }

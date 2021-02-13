@@ -188,7 +188,7 @@ namespace SDT
             UInt32 unk76;
         } IDXGIDataSub;
 
-        STATIC_ASSERT(sizeof(IDXGIDataSub) == 80);
+        static_assert(sizeof(IDXGIDataSub) == 80);
 
         typedef struct __IDXGIData
         {
@@ -212,20 +212,20 @@ namespace SDT
             IDXGIDataSub unk72[32];
         } IDXGIData;
 
-        STATIC_ASSERT(sizeof(IDXGIData) == 2632);
+        static_assert(sizeof(IDXGIData) == 2632);
 
         class _SettingCollectionList {
         public:
-            virtual void Unk_01() = 0;
-            virtual void Unk_02() = 0;
-            virtual void Unk_03() = 0;
-            virtual void Unk_04() = 0;
-            virtual void Unk_05() = 0;
-            virtual void Unk_06() = 0;
-            virtual void Unk_07() = 0;
-            virtual void Unk_08() = 0;
-            virtual void Unk_09() = 0;
-            virtual void LoadINI() = 0;
+            virtual void Unk_01();
+            virtual void Unk_02();
+            virtual void Unk_03();
+            virtual void Unk_04();
+            virtual void Unk_05();
+            virtual void Unk_06();
+            virtual void Unk_07();
+            virtual void Unk_08();
+            virtual void Unk_09();
+            virtual void LoadINI();
 
             char inipath[260]; // MAX_PATH
             uint8_t pad10C[12];
@@ -234,6 +234,6 @@ namespace SDT
             void LoadIni_Hook();
         };
 
-        STATIC_ASSERT(offsetof(_SettingCollectionList, items) == 0x118);
+        static_assert(offsetof(_SettingCollectionList, items) == 0x118);
     }
 }

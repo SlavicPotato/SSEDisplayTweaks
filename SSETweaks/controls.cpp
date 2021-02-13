@@ -2,25 +2,23 @@
 
 namespace SDT 
 {
-    constexpr char* SECTION_CONTROLS = "Controls";
-
-    constexpr char* CKEY_DAMPINGFIX = "ThirdPersonMovementFix";
-    constexpr char* CKEY_TCPFTHRESH = "MovementThreshold";
-    constexpr char* CKEY_FSHS = "SittingHorizontalLookSensitivityFix";
+    static constexpr const char* CKEY_DAMPINGFIX = "ThirdPersonMovementFix";
+    static constexpr const char* CKEY_TCPFTHRESH = "MovementThreshold";
+    static constexpr const char* CKEY_FSHS = "SittingHorizontalLookSensitivityFix";
 
     DControls DControls::m_Instance;
 
     void DControls::LoadConfig()
     {
-        conf.damping_fix = GetConfigValue(SECTION_CONTROLS, CKEY_DAMPINGFIX, true);
-        conf.tcpf_threshold = std::clamp(GetConfigValue(SECTION_CONTROLS, CKEY_TCPFTHRESH, 0.25f), 0.01f, 5.0f);
-        conf.fp_mount_horiz_sens = GetConfigValue(SECTION_CONTROLS, CKEY_FSHS, true);
+        m_conf.damping_fix = GetConfigValue(CKEY_DAMPINGFIX, true);
+        m_conf.tcpf_threshold = std::clamp(GetConfigValue(CKEY_TCPFTHRESH, 0.25f), 0.01f, 5.0f);
+        m_conf.fp_mount_horiz_sens = GetConfigValue(CKEY_FSHS, true);
     }
 
     void DControls::PostLoadConfig()
     {
-        if (conf.damping_fix) {
-            Message("Third person movement threshold: %.6g", conf.tcpf_threshold);
+        if (m_conf.damping_fix) {
+            Message("Third person movement threshold: %.6g", m_conf.tcpf_threshold);
         }
     }
 
@@ -34,7 +32,7 @@ namespace SDT
 
     void DControls::Patch()
     {
-        if (conf.damping_fix)
+        if (m_conf.damping_fix)
         {
             struct MovementThresholdInject : JITASM::JITASM {
                 MovementThresholdInject(uintptr_t retnAddr, float* maxvAddr)
@@ -58,7 +56,7 @@ namespace SDT
   
             LogPatchBegin(CKEY_DAMPINGFIX);
             {
-                MovementThresholdInject code(MT_Inject + 0x8, &conf.tcpf_threshold);
+                MovementThresholdInject code(MT_Inject + 0x8, &m_conf.tcpf_threshold);
                 g_branchTrampoline.Write6Branch(MT_Inject, code.get());
 
                 Patching::safe_memset(MT_Inject + 0x6, 0xCC, 0x2);
@@ -66,7 +64,7 @@ namespace SDT
             LogPatchEnd(CKEY_DAMPINGFIX);
         }
 
-        if (conf.fp_mount_horiz_sens)
+        if (m_conf.fp_mount_horiz_sens)
         {
             if (fMouseHeadingXScale && fMouseHeadingSensitivity)
             {
@@ -103,15 +101,20 @@ namespace SDT
         }
     }
 
-    void DControls::MouseSens_Hook(PlayerControls* p1, FirstPersonState* p2)
+    void DControls::MouseSens_Hook(PlayerControls* a_controls, FirstPersonState* a_fpState)
     {
         float interval = *Game::frameTimer;
 
-        if (interval < _EPSILON)
+        if (interval < std::numeric_limits<float>::epsilon())
             return;
 
         auto f = *m_Instance.fMouseHeadingXScale * *m_Instance.fMouseHeadingSensitivity;
-        p2->unk68[0] = *UnkFloat0 * (p1->unk02C / (f / interval) * (f * 30.0f)) + p2->unk68[0];
+        auto d = f / interval;
+
+        if (d < std::numeric_limits<float>::epsilon())
+            return;
+
+        a_fpState->unk68[0] = *UnkFloat0 * (a_controls->unk02C / d * (f * 30.0f)) + a_fpState->unk68[0];
     }
 
 }

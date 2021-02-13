@@ -7,13 +7,13 @@ namespace SDT
     class MsgProc
     {
         typedef std::function<void(HWND, UINT, WPARAM, LPARAM)> MsgProcFunc;
-        typedef std::unordered_map<UINT, std::vector<MsgProcFunc>> MPMap;
+        typedef stl::unordered_map<UINT, stl::vector<MsgProcFunc>> MPMap;
     public:
-        typedef std::vector<UINT> MsgList;
+        typedef stl::vector<UINT> MsgList;
 
         void Add(UINT msg, const MsgProcFunc& f)
         {
-            m_map[msg].push_back(f);
+            m_map[msg].emplace_back(f);
         }
 
         void Add(const MsgList& l, const MsgProcFunc& f)
@@ -24,7 +24,7 @@ namespace SDT
 
         inline bool HasProcessors() const noexcept
         {
-            return m_map.size() != 0;
+            return !m_map.empty();
         }
 
         void Process(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -59,11 +59,11 @@ namespace SDT
             _In_opt_ LPVOID lpParam);
 
     public:
+        static inline constexpr auto ID = DRIVER_ID::WINDOW;
+
         FN_NAMEPROC("Window")
         FN_ESSENTIAL(false)
-        FN_PRIO(4)
-        FN_DRVID(DRIVER_WINDOW)
-
+        FN_DRVDEF(4)
     private:
         DWindow();
 
@@ -123,7 +123,7 @@ namespace SDT
             bool lock_cursor;
             bool force_minimize;
             bool upscale;
-        }conf;
+        }m_conf;
 
         MsgProc mp;
 

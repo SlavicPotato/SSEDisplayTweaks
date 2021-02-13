@@ -2,17 +2,16 @@
 
 namespace SDT
 {
-    constexpr char* SECTION_GENERAL = "General";
-    constexpr char* SECTION_HAVOK = "Havok";
+    static constexpr const char* SECTION_GENERAL = "General";
 
-    constexpr char* CKEY_HAVOKON = "DynamicMaxTimeScaling";
-    constexpr char* CKEY_HAVOKENABLED = "Enabled";
-    constexpr char* CKEY_MAXFPS = "MaximumFramerate";
-    constexpr char* CKEY_MINFPS = "MinimumFramerate";
-    constexpr char* CKEY_FMTCOFFSET = "MaxTimeComplexOffset";
-    constexpr char* CKEY_STATSON = "OSDStatsEnabled";
+    static constexpr const char* CKEY_HAVOKON = "DynamicMaxTimeScaling";
+    static constexpr const char* CKEY_HAVOKENABLED = "Enabled";
+    static constexpr const char* CKEY_MAXFPS = "MaximumFramerate";
+    static constexpr const char* CKEY_MINFPS = "MinimumFramerate";
+    static constexpr const char* CKEY_FMTCOFFSET = "MaxTimeComplexOffset";
+    static constexpr const char* CKEY_STATSON = "OSDStatsEnabled";
 
-    constexpr char* CKEY_ADJUSTINICFG = "AdjustGameSettings";
+    static constexpr const char* CKEY_ADJUSTINICFG = "AdjustGameSettings";
 
     DHavok DHavok::m_Instance;
 
@@ -23,44 +22,45 @@ namespace SDT
 
     void DHavok::LoadConfig()
     {
-        conf.havok_enabled = GetConfigValue(SECTION_HAVOK, CKEY_HAVOKENABLED, false);
-        conf.havok_on = GetConfigValue(SECTION_HAVOK, CKEY_HAVOKON, true);
-        conf.fmt_min = GetConfigValue(SECTION_HAVOK, CKEY_MINFPS, 60.0f);
-        conf.fmt_max = GetConfigValue(SECTION_HAVOK, CKEY_MAXFPS, 0.0f);
-        conf.fmtc_offset = std::clamp(GetConfigValue(SECTION_HAVOK, CKEY_FMTCOFFSET, 30.0f), 0.0f, 30.0f);
-        conf.stats_enabled = GetConfigValue(SECTION_HAVOK, CKEY_STATSON, false);
-        conf.adjust_ini = GetConfigValue(SECTION_GENERAL, CKEY_ADJUSTINICFG, true);
+        m_conf.havok_enabled = GetConfigValue(CKEY_HAVOKENABLED, false);
+        m_conf.havok_on = GetConfigValue(CKEY_HAVOKON, true);
+        m_conf.fmt_min = GetConfigValue(CKEY_MINFPS, 60.0f);
+        m_conf.fmt_max = GetConfigValue(CKEY_MAXFPS, 0.0f);
+        m_conf.fmtc_offset = std::clamp(GetConfigValue(CKEY_FMTCOFFSET, 30.0f), 0.0f, 30.0f);
+        m_conf.stats_enabled = GetConfigValue(CKEY_STATSON, false);
+
+        m_conf.adjust_ini = IConfigS(SECTION_GENERAL).GetConfigValue(CKEY_ADJUSTINICFG, true);
     }
 
     void DHavok::PostLoadConfig()
     {
-        if (conf.havok_enabled)
+        if (m_conf.havok_enabled)
         {
-            auto rd = IDDispatcher::GetDriver<DRender>(DRIVER_RENDER);
+            auto rd = IDDispatcher::GetDriver<DRender>();
 
-            if (conf.havok_on && !rd || !rd->IsOK()) {
-                conf.havok_on = false;
+            if (m_conf.havok_on && !rd || !rd->IsOK()) {
+                m_conf.havok_on = false;
                 Error("Render driver unavailable, disabling dynamic scaling");
             }
 
-            if (conf.fmt_max > 0.0f) {
-                if (conf.fmt_max < HAVOK_MAXTIME_MIN) {
-                    conf.fmt_max = HAVOK_MAXTIME_MIN;
+            if (m_conf.fmt_max > 0.0f) {
+                if (m_conf.fmt_max < HAVOK_MAXTIME_MIN) {
+                    m_conf.fmt_max = HAVOK_MAXTIME_MIN;
                 }
 
-                fmt_min = 1.0f / conf.fmt_max;
+                fmt_min = 1.0f / m_conf.fmt_max;
             }
 
-            if (conf.fmt_min < HAVOK_MAXTIME_MIN) {
-                conf.fmt_min = HAVOK_MAXTIME_MIN;
+            if (m_conf.fmt_min < HAVOK_MAXTIME_MIN) {
+                m_conf.fmt_min = HAVOK_MAXTIME_MIN;
             }
 
-            fmt_max = 1.0f / conf.fmt_min;
+            fmt_max = 1.0f / m_conf.fmt_min;
 
-            if (conf.fmt_max > 0.0f)
+            if (m_conf.fmt_max > 0.0f)
             {
-                if (conf.fmt_min == conf.fmt_max) {
-                    conf.havok_on = false;
+                if (m_conf.fmt_min == m_conf.fmt_max) {
+                    m_conf.havok_on = false;
                 }
             }
         }
@@ -68,17 +68,17 @@ namespace SDT
 
     void DHavok::RegisterHooks()
     {
-        if (conf.havok_enabled) {
+        if (m_conf.havok_enabled) {
             IEvents::RegisterForEvent(Event::OnD3D11PreCreate, OnD3D11PreCreate_Havok);
 
-            if (conf.havok_on) {
+            if (m_conf.havok_on) {
 
-                OSDDriver = IDDispatcher::GetDriver<DOSD>(DRIVER_OSD);
+                m_OSDDriver = IDDispatcher::GetDriver<DOSD>();
 
                 bool regOSDEvent;
 
                 uintptr_t hf;
-                if (OSDDriver && OSDDriver->IsOK() && OSDDriver->conf.enabled && conf.stats_enabled)
+                if (m_OSDDriver && m_OSDDriver->IsOK() && m_OSDDriver->m_conf.enabled && m_conf.stats_enabled)
                 {
                     regOSDEvent = true;
                     hf = reinterpret_cast<uintptr_t>(hookRTHStats);
@@ -90,7 +90,7 @@ namespace SDT
 
                 if (!Hook::Call5(PhysCalcMaxTime, hf, PhysCalcMaxTime_O))
                 {
-                    conf.havok_on = false;
+                    m_conf.havok_on = false;
                     Error("Couldn't hook physics calc function");
                     return;
                 }
@@ -127,25 +127,25 @@ namespace SDT
         return true;
     }
 
-    void DHavok::CalculateHavokValues(bool a_isComplex)
+    void DHavok::CalculateHavokValues(bool a_isComplex) const
     {
         float interval = std::clamp(*Game::frameTimer, fmt_min, fmt_max);
 
         *fMaxTime = interval;
 
         if (a_isComplex)
-            *fMaxTimeComplex = 1.0f / max(1.0f / interval - conf.fmtc_offset, HAVOK_MAXTIME_MIN);
+            *fMaxTimeComplex = 1.0f / max(1.0f / interval - m_conf.fmtc_offset, HAVOK_MAXTIME_MIN);
     }
 
-    void DHavok::UpdateHavokStats()
+    void DHavok::UpdateHavokStats() const
     {
-        IStats::Accum(10, double(*fMaxTime));
-        IStats::Accum(11, double(*fMaxTimeComplex));
+        m_Instance.m_stats_counters[0].accum(static_cast<double>(*fMaxTime));
+        m_Instance.m_stats_counters[1].accum(static_cast<double>(*fMaxTimeComplex));
     }
 
-    float DHavok::AutoGetMaxTime(const DXGI_SWAP_CHAIN_DESC* pSwapChainDesc, float def)
+    float DHavok::AutoGetMaxTime(const DXGI_SWAP_CHAIN_DESC* pSwapChainDesc, float def) const
     {
-        auto rd = IDDispatcher::GetDriver<DRender>(DRIVER_RENDER);
+        auto rd = IDDispatcher::GetDriver<DRender>();
 
         float maxt = rd->GetMaxFramerate(pSwapChainDesc);
         if (maxt > 0.0f) {
@@ -159,9 +159,9 @@ namespace SDT
         return maxt;
     }
 
-    bool DHavok::HavokHasPossibleIssues(const DXGI_SWAP_CHAIN_DESC* pSwapChainDesc, float t)
+    bool DHavok::HavokHasPossibleIssues(const DXGI_SWAP_CHAIN_DESC* pSwapChainDesc, float t) const
     {
-        auto rd = IDDispatcher::GetDriver<DRender>(DRIVER_RENDER);
+        auto rd = IDDispatcher::GetDriver<DRender>();
 
         float maxfr = rd->GetMaxFramerate(pSwapChainDesc);
         if (maxfr > 0.0f && t > 1.0f / maxfr) {
@@ -170,12 +170,12 @@ namespace SDT
         return false;
     }
 
-    void DHavok::ApplyHavokSettings(DXGI_SWAP_CHAIN_DESC* pSwapChainDesc)
+    void DHavok::ApplyHavokSettings(const DXGI_SWAP_CHAIN_DESC* pSwapChainDesc)
     {
         float maxt;
 
-        if (conf.havok_on) {
-            if (conf.fmt_max <= 0.0f) {
+        if (m_conf.havok_on) {
+            if (m_conf.fmt_max <= 0.0f) {
                 fmt_min = AutoGetMaxTime(pSwapChainDesc, 240.0f);
             }
 
@@ -190,17 +190,17 @@ namespace SDT
             maxt = fmt_min;
 
             Message("(DYNAMIC) fMaxTime=%.6g-%.6g fMaxTimeComplexOffset=%.6g (Max FPS = %.6g)",
-                fmt_min, fmt_max, conf.fmtc_offset, 1.0f / fmt_min);
+                fmt_min, fmt_max, m_conf.fmtc_offset, 1.0f / fmt_min);
         }
         else {
-            if (conf.fmt_max > 0.0f) {
+            if (m_conf.fmt_max > 0.0f) {
                 maxt = fmt_min;
             }
             else {
                 maxt = AutoGetMaxTime(pSwapChainDesc, 60.0f);
             }
 
-            float maxtc = 1.0f / max(1.0f / maxt - conf.fmtc_offset, HAVOK_MAXTIME_MIN);
+            float maxtc = 1.0f / max(1.0f / maxt - m_conf.fmtc_offset, HAVOK_MAXTIME_MIN);
 
             *fMaxTime = maxt;
             *fMaxTimeComplex = maxtc;
@@ -217,7 +217,7 @@ namespace SDT
             Warning("uMaxNumPhysicsStepsPerUpdate is 0, adjusting to 3");
         }
         else if (*uMaxNumPhysicsStepsPerUpdate != 3) {
-            if (conf.adjust_ini) {
+            if (m_conf.adjust_ini) {
                 m_Instance.Message("Setting uMaxNumPhysicsStepsPerUpdate=3");
                 *uMaxNumPhysicsStepsPerUpdate = 3;
             }
@@ -231,7 +231,7 @@ namespace SDT
             Warning("uMaxNumPhysicsStepsPerUpdateComplex is 0, adjusting to 1");
         }
         else if (*uMaxNumPhysicsStepsPerUpdateComplex != 1) {
-            if (conf.adjust_ini) {
+            if (m_conf.adjust_ini) {
                 m_Instance.Message("Setting uMaxNumPhysicsStepsPerUpdateComplex=1");
                 *uMaxNumPhysicsStepsPerUpdateComplex = 1;
             }
@@ -260,14 +260,14 @@ namespace SDT
 
         if (!*m_Instance.isComplex)
         {
-            if (IStats::Get(10, val)) {
+            if (m_Instance.m_stats_counters[0].get(val)) {
                 _snwprintf_s(m_Instance.bufStats, _TRUNCATE,
                     L"fMaxTime: %.4g", val);
             }
         }
         else
         {
-            if (IStats::Get(11, val)) {
+            if (m_Instance.m_stats_counters[1].get(val)) {
                 _snwprintf_s(m_Instance.bufStats, _TRUNCATE,
                     L"fMaxTimeComplex: %.4g", val);
             }
@@ -280,11 +280,11 @@ namespace SDT
     {
         auto info = reinterpret_cast<D3D11CreateEventPre*>(data);
 
-        m_Instance.ApplyHavokSettings(const_cast<DXGI_SWAP_CHAIN_DESC*>(info->m_pSwapChainDesc));
+        m_Instance.ApplyHavokSettings(info->m_pSwapChainDesc);
     }
 
     void DHavok::OnD3D11PostCreate_Havok(Event code, void* data)
     {
-        m_Instance.OSDDriver->AddStatsCallback(StatsRendererCallback);
+        m_Instance.m_OSDDriver->AddStatsCallback(StatsRendererCallback);
     }
 }

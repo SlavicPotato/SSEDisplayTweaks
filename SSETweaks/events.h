@@ -2,18 +2,27 @@
 
 namespace SDT
 {
-    enum Event {
-        OnConfigLoad = 1,
+    enum class Event : uint32_t
+    {
+        OnConfigLoad,
         OnD3D11PreCreate,
         OnD3D11PostCreate,
         OnD3D11PostPostCreate,
         OnCreateWindowEx,
         OnMenuEvent,
-        OnMessage
+        OnMessage,
+        OnGameSave,
+        OnGameLoad,
+        OnFormDelete,
+        OnRevert,
+        OnLogMessage,
+        OnGameShutdown,
+        OnExit
     };
 
-    enum MenuEvent {
-        OnAnyMenu = -1,
+    enum class MenuEvent : uint32_t
+    {
+        OnAnyMenu,
         OnUnknownMenu,
         OnLoadingMenu,
         OnMainMenu,
@@ -56,9 +65,9 @@ namespace SDT
         OnConsoleNativeUIMenu,
         OnContainerMenu,
         OnMessageBoxMenu,
-        OnCustomMenu
+        OnCustomMenu,
+        Max
     };
-       
 
     class MenuOpenCloseEventInitializer : 
         public BSTEventSink <MenuOpenCloseEvent>
@@ -97,28 +106,30 @@ namespace SDT
             m_code(m_code), m_callback(callback)
         {}
 
-        int m_code;
+        E m_code;
         C m_callback;
     };
 
     class MenuEventTrack
     {
-    public:
-        typedef std::unordered_set<MenuEvent> trackSet_t;
+        using trackSet_t = stl::unordered_set<MenuEvent>;
 
-        void SetTracked(const trackSet_t& map);
-        void SetTracked(trackSet_t&& map);
-        void AddTracked(MenuEvent code);
-        void RemoveTracked(MenuEvent code);
-        void Track(MenuEvent code, bool opening);
-        void ClearTracked();
-        bool IsTracking();
+    public:
+
+        MenuEventTrack() = default;
+        MenuEventTrack(const trackSet_t& a_set);
+
+        void SetTracked(const trackSet_t& a_set);
+
+        void Track(MenuEvent a_code, bool a_opening);
+        void ClearStack();
 
     protected:
 
-        std::vector<MenuEvent> m_stack;
-        trackSet_t m_tracked;
+        stl::vector<MenuEvent> m_stack;
+        bool m_tracked[Enum::Underlying(MenuEvent::Max)];
     };
+
 
     class IEvents :
         protected IHook
@@ -127,43 +138,46 @@ namespace SDT
         friend class MenuOpenCloseEventInitializer;
 
         typedef void(*inihookproc) (void);
+
+        using mstcMap_t = stl::unordered_map<const char*, MenuEvent>;
     public:
 
-        typedef std::unordered_map<std::string, MenuEvent> MenuNameToCodeMap;
+        static inline constexpr auto ID = DRIVER_ID::EVENTS;
+
+        struct uistr_desc_t
+        {
+            UIStringHolder::STRING_INDICES index;
+            MenuEvent event;
+        };
+
+        typedef stl::unordered_map<std::string, MenuEvent> MenuNameToCodeMap;
 
         typedef EventTriggerDescriptor<Event, EventCallback> _EventTriggerDescriptor;
         typedef EventTriggerDescriptor<MenuEvent, MenuEventCallback> _MenuEventCallbackDescriptor;
 
         static bool Initialize();
-        static void RegisterForEvent(Event m_code, EventCallback fn);
-        static void RegisterForEvent(MenuEvent m_code, MenuEventCallback fn);
-        static void TriggerEvent(Event m_code, void* args = nullptr);
-        static void TriggerMenuEventAny(MenuEvent m_code, MenuOpenCloseEvent* evn, EventDispatcher<MenuOpenCloseEvent>* dispatcher);
+        static void RegisterForEvent(Event a_code, EventCallback a_fn);
+        static void RegisterForEvent(MenuEvent a_code, MenuEventCallback a_fn);
+        static void TriggerEvent(Event a_code, void* a_args = nullptr);
+        static void TriggerMenuEventAny(MenuEvent a_code, MenuOpenCloseEvent* a_evn, EventDispatcher<MenuOpenCloseEvent>* a_dispatcher);
 
-        void TriggerMenuEventImpl(MenuEvent triggercode, MenuEvent code, MenuOpenCloseEvent* evn, EventDispatcher<MenuOpenCloseEvent>* dispatcher);
+        void TriggerMenuEventImpl(MenuEvent a_triggercode, MenuEvent a_code, MenuOpenCloseEvent* a_evn, EventDispatcher<MenuOpenCloseEvent>* a_dispatcher);
 
-        inline static MenuEvent GetMenuEventCode(const char* str) {
-            return m_Instance.m_mstc_map[str];
-        }
-        
-        inline static MenuEvent GetMenuEventCode(const std::string &str) {
-            return m_Instance.m_mstc_map[str];
-        }
+        static MenuEvent GetMenuEventCode(const BSFixedString& a_str);
 
         FN_NAMEPROC("Events")
         FN_ESSENTIAL(true)
-        FN_PRIO(0)
-        FN_DRVID(DRIVER_EVENTS)
+        FN_DRVDEF(0)
     private:
         IEvents() = default;
 
         static void PostLoadPluginINI_Hook();
-        static void MessageHandler(SKSEMessagingInterface::Message* message);
+        static void MessageHandler(SKSEMessagingInterface::Message* a_message);
 
         void CreateMSTCMap();
 
-        std::unordered_map<Event, std::vector<_EventTriggerDescriptor>> m_events;
-        std::unordered_map<MenuEvent, std::vector<_MenuEventCallbackDescriptor>> m_menu_events;
+        stl::unordered_map<Event, stl::vector<_EventTriggerDescriptor>> m_events;
+        stl::unordered_map<MenuEvent, stl::vector<_MenuEventCallbackDescriptor>> m_menu_events;
 
         inihookproc LoadPluginINI_O;
 

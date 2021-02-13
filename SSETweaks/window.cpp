@@ -1,14 +1,10 @@
 #include "pch.h"
 
-using namespace std;
-
 namespace SDT
 {
-    constexpr const char* SECTION_WINDOW = "Window";
-
-    constexpr const char* CKEY_GHOSTING = "DisableProcessWindowsGhosting";
-    constexpr const char* CKEY_LOCKCURSOR = "LockCursor";
-    constexpr const char* CKEY_FORCEMIN = "ForceMinimize";
+    static constexpr const char* CKEY_GHOSTING = "DisableProcessWindowsGhosting";
+    static constexpr const char* CKEY_LOCKCURSOR = "LockCursor";
+    static constexpr const char* CKEY_FORCEMIN = "ForceMinimize";
 
     DWindow::CreateWindowExA_T DWindow::CreateWindowExA_O;
 
@@ -23,32 +19,32 @@ namespace SDT
 
     void DWindow::LoadConfig()
     {
-        conf.disable_ghosting = GetConfigValue(SECTION_WINDOW, CKEY_GHOSTING, false);
-        conf.lock_cursor = GetConfigValue(SECTION_WINDOW, CKEY_LOCKCURSOR, false);
-        conf.force_minimize = GetConfigValue(SECTION_WINDOW, CKEY_FORCEMIN, false);
+        m_conf.disable_ghosting = GetConfigValue(CKEY_GHOSTING, false);
+        m_conf.lock_cursor = GetConfigValue(CKEY_LOCKCURSOR, false);
+        m_conf.force_minimize = GetConfigValue(CKEY_FORCEMIN, false);
 
-        auto rd = IDDispatcher::GetDriver<DRender>(DRIVER_RENDER);
-        conf.upscale = rd && rd->IsOK() && rd->conf.upscale;
+        auto rd = IDDispatcher::GetDriver<DRender>();
+        m_conf.upscale = rd && rd->IsOK() && rd->m_conf.upscale;
     }
 
     void DWindow::PostLoadConfig()
     {
-        if (conf.disable_ghosting) {
+        if (m_conf.disable_ghosting) {
             ::DisableProcessWindowsGhosting();
             Message("Ghosting disabled");
         }
 
-        if (conf.lock_cursor) {
+        if (m_conf.lock_cursor) {
             SetupCursorLockMP();
             Message("Cursor locking enabled");
         }
 
-        if (conf.force_minimize) {
+        if (m_conf.force_minimize) {
             SetupForceMinimizeMP();
             Message("Forcing minimize on focus loss");
         }
 
-        if (conf.upscale) {
+        if (m_conf.upscale) {
             iLocationX = ISKSE::GetINISettingAddr<int>("iLocation X:Display");
             iLocationY = ISKSE::GetINISettingAddr<int>("iLocation Y:Display");
         }
@@ -56,8 +52,8 @@ namespace SDT
 
     void DWindow::SetupCursorLockMP()
     {
-        mp.Add(MsgProc::MsgList(
-            { WM_SETFOCUS , WM_CAPTURECHANGED }),
+        mp.Add(
+            { WM_SETFOCUS , WM_CAPTURECHANGED },
             [&](HWND hWnd, UINT, WPARAM, LPARAM)
             {
                 if (::GetFocus() == hWnd && ::GetActiveWindow() == hWnd) {
@@ -65,8 +61,8 @@ namespace SDT
                 }
             });
 
-        mp.Add(MsgProc::MsgList(
-            { WM_WINDOWPOSCHANGED, WM_SIZING }),
+        mp.Add(
+            { WM_WINDOWPOSCHANGED, WM_SIZING },
             [&](HWND hWnd, UINT, WPARAM, LPARAM)
             {
                 CaptureCursor(hWnd, true);
@@ -90,8 +86,8 @@ namespace SDT
                 }
             });
 
-        mp.Add(MsgProc::MsgList(
-            { WM_KILLFOCUS, WM_DESTROY }),
+        mp.Add(
+            { WM_KILLFOCUS, WM_DESTROY },
             [&](HWND hWnd, UINT, WPARAM, LPARAM)
             {
                 CaptureCursor(hWnd, false);
@@ -110,7 +106,7 @@ namespace SDT
 
     void DWindow::RegisterHooks()
     {
-        if (mp.HasProcessors() || conf.upscale) {
+        if (mp.HasProcessors() || m_conf.upscale) {
             if (!Hook::Call6(CreateWindowEx_C, reinterpret_cast<uintptr_t>(CreateWindowExA_Hook), CreateWindowExA_O)) {
                 Error("CreateWindowExA hook failed");
                 SetOK(false);
@@ -118,11 +114,11 @@ namespace SDT
             }
         }
 
-        if (conf.upscale) {
+        if (m_conf.upscale) {
             RegisterHook(
                 GetClientRect1,
                 reinterpret_cast<uintptr_t>(GetClientRect_Hook),
-                HookDescriptor::kWR6Call
+                HookDescriptor::HookType::kWR6Call
             );
 
             IEvents::RegisterForEvent(Event::OnD3D11PreCreate, OnD3D11PreCreate_Upscale);
@@ -190,7 +186,7 @@ namespace SDT
                 "[0x%llX] Message hook installed", hWnd);
         }
 
-        if (m_Instance.conf.upscale)
+        if (m_Instance.m_conf.upscale)
         {
             int offsetx = 0;
             int offsety = 0;

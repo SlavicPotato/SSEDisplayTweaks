@@ -46,7 +46,7 @@ namespace SDT
 
     void DInput::DispatchKeyEvent(KeyEvent ev, UInt32 key)
     {
-        for (const auto h : callbacks) {
+        for (const auto &h : callbacks) {
             h->ReceiveEvent(ev, key);
         }
     }
@@ -62,7 +62,7 @@ namespace SDT
         {
             if (e->eventType == InputEvent::kEventType_Button)
             {
-                auto t = DYNAMIC_CAST(e, InputEvent, ButtonEvent);
+                auto t = RTTI<ButtonEvent>::Cast(e);
 
                 UInt32 deviceType = t->deviceType;
 

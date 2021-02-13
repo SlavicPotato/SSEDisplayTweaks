@@ -13,6 +13,10 @@
       <Configuration>PreRelease</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Release DT|x64">
+      <Configuration>Release DT</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="Release MT|x64">
       <Configuration>Release MT</Configuration>
       <Platform>x64</Platform>
@@ -52,6 +56,13 @@
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release MT|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release DT|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
@@ -100,6 +111,9 @@
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release MT|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release DT|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseAVX2|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
@@ -133,6 +147,13 @@
     <IntDir>$(Platform)\$(ProjectName)\$(Configuration)\</IntDir>
     <OutDir>$(SolutionDir)$(Platform)\$(ProjectName)\$(Configuration)\</OutDir>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release DT|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <TargetName>SSEDisplayTweaks</TargetName>
+    <PostBuildEventUseInBuild>true</PostBuildEventUseInBuild>
+    <IntDir>$(Platform)\$(ProjectName)\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)$(Platform)\$(ProjectName)\$(Configuration)\</OutDir>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseAVX2|x64'">
     <LinkIncremental>false</LinkIncremental>
     <TargetName>SSEDisplayTweaks</TargetName>
@@ -160,6 +181,13 @@
     <PostBuildEventUseInBuild>true</PostBuildEventUseInBuild>
     <IntDir>$(Platform)\$(ProjectName)\$(Configuration)\</IntDir>
     <OutDir>$(SolutionDir)$(Platform)\$(ProjectName)\$(Configuration)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='ReleaseAVX2 MT|x64'">
+    <VcpkgConfiguration>x64-windows-rel-static</VcpkgConfiguration>
+  </PropertyGroup>
+  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Release MT|x64'">
+    <VcpkgConfiguration>Release</VcpkgConfiguration>
+    <VcpkgTriplet>x64-windows-rel-static</VcpkgTriplet>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -207,15 +235,15 @@
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <ForcedIncludeFiles>common/IPrefix.h</ForcedIncludeFiles>
       <LanguageStandard>stdcpplatest</LanguageStandard>
-      <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
       <BufferSecurityCheck>false</BufferSecurityCheck>
-      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
       <CallingConvention>Cdecl</CallingConvention>
       <StringPooling>true</StringPooling>
       <Optimization>MaxSpeed</Optimization>
       <DebugInformationFormat>None</DebugInformationFormat>
       <UseFullPaths>false</UseFullPaths>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalOptions>/permissive %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -249,9 +277,7 @@
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <ForcedIncludeFiles>common/IPrefix.h</ForcedIncludeFiles>
       <LanguageStandard>stdcpplatest</LanguageStandard>
-      <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
       <BufferSecurityCheck>false</BufferSecurityCheck>
-      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <CallingConvention>Cdecl</CallingConvention>
       <StringPooling>true</StringPooling>
       <Optimization>MaxSpeed</Optimization>
@@ -260,6 +286,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <IntelJCCErratum>true</IntelJCCErratum>
       <FunctionLevelLinking>true</FunctionLevelLinking>
+      <AdditionalOptions>/permissive %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -272,6 +299,51 @@
       <AdditionalLibraryDirectories>$(SolutionDir)..;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <Version>
       </Version>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+    </Link>
+    <PostBuildEvent>
+      <Command>copy "$(TargetPath)" "$(SSEPath)\Data\SKSE\Plugins" /Y</Command>
+      <Message>Installing to: $(SSEPath)\Data\SKSE\Plugins\</Message>
+    </PostBuildEvent>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..\sse-build-resources\skse64\;$(ProjectDir)..\..\sse-build-resources\skse64\skse64\</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release DT|x64'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING;NDEBUG;SSEDISPLAYTWEAKS_EXPORTS;_WINDOWS;_USRDLL;TARGET_SKSE_RUNTIME_VERSION=0x01050610;NTDDI_VERSION=NTDDI_WIN7;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>false</ConformanceMode>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..\sse-build-resources\;$(ProjectDir)..\..\DirectXTK\;$(ProjectDir)..\..\sse-build-resources\skse64\;$(ProjectDir)..\..\sse-build-resources\skse64\skse64\</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <ForcedIncludeFiles>common/IPrefix.h</ForcedIncludeFiles>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <CallingConvention>Cdecl</CallingConvention>
+      <StringPooling>true</StringPooling>
+      <Optimization>MaxSpeed</Optimization>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <UseFullPaths>false</UseFullPaths>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <IntelJCCErratum>true</IntelJCCErratum>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <AdditionalOptions>/permissive %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableUAC>false</EnableUAC>
+      <ModuleDefinitionFile>exports.def</ModuleDefinitionFile>
+      <AdditionalDependencies>kernel32.lib;shell32.lib;user32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)..;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <Version>
+      </Version>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
     </Link>
     <PostBuildEvent>
       <Command>copy "$(TargetPath)" "$(SSEPath)\Data\SKSE\Plugins" /Y</Command>
@@ -305,6 +377,7 @@
       <UseFullPaths>false</UseFullPaths>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <IntelJCCErratum>true</IntelJCCErratum>
+      <AdditionalOptions>/permissive %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -350,6 +423,7 @@
       <UseFullPaths>false</UseFullPaths>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <IntelJCCErratum>true</IntelJCCErratum>
+      <AdditionalOptions>/permissive %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -465,6 +539,7 @@
     <ClInclude Include="data.h" />
     <ClInclude Include="dispatcher.h" />
     <ClInclude Include="drv_base.h" />
+    <ClInclude Include="drv_ids.h" />
     <ClInclude Include="events.h" />
     <ClInclude Include="game.h" />
     <ClInclude Include="havok.h" />
@@ -480,7 +555,6 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="skse.h" />
     <ClInclude Include="stats.h" />
-    <ClInclude Include="tasks.h" />
     <ClInclude Include="version.h" />
     <ClInclude Include="window.h" />
   </ItemGroup>
@@ -501,6 +575,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release MT|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release DT|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseAVX2|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseAVX2 MT|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='PreRelease|x64'">Create</PrecompiledHeader>
@@ -508,10 +583,10 @@
     </ClCompile>
     <ClCompile Include="dispatcher.cpp" />
     <ClCompile Include="skse.cpp" />
-    <ClCompile Include="stats.cpp" />
     <ClCompile Include="window.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="cpp.hint" />
     <None Include="exports.def" />
     <None Include="SSEDisplayTweaks.ini" />
   </ItemGroup>

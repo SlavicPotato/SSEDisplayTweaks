@@ -7,36 +7,53 @@ namespace SDT
     public:
         static int Load();
 
-        inline float GetConfigValue(const char* sect, const char* key, float default) const
+        SKMP_FORCEINLINE std::string GetConfigValue(const char* key, const char* default) const
         {
-            return m_confReader.GetFloat(sect, key, default);
+            return m_confReader.Get(ModuleName(), key, default);
         }
 
-        inline double GetConfigValue(const char* sect, const char* key, double default) const
+        SKMP_FORCEINLINE float GetConfigValue(const char* key, float default) const
         {
-            return m_confReader.GetReal(sect, key, default);
+            return m_confReader.GetFloat(ModuleName(), key, default);
         }
 
-        inline bool GetConfigValue(const char* sect, const char* key, bool default) const
+        SKMP_FORCEINLINE double GetConfigValue(const char* key, double default) const
         {
-            return m_confReader.GetBoolean(sect, key, default);
+            return m_confReader.GetReal(ModuleName(), key, default);
         }
 
-        inline std::string GetConfigValue(const char* sect, const char* key, const char* default) const
+        SKMP_FORCEINLINE bool GetConfigValue(const char* key, bool default) const
         {
-            return m_confReader.Get(sect, key, default);
+            return m_confReader.GetBoolean(ModuleName(), key, default);
         }
 
-        template <typename T>
-        inline T GetConfigValue(const char* sect, const char* key, T default) const
+        template <typename T, typename = std::enable_if_t<!std::is_same_v<T, bool> && (std::is_integral_v<T> || std::is_enum_v<T>) && std::is_convertible_v<T, long>>>
+        T GetConfigValue(const char* key, T default) const
         {
-            return static_cast<T>(m_confReader.GetInteger(sect, key, static_cast<long>(default)));
+            return static_cast<T>(m_confReader.GetInteger(ModuleName(), key, static_cast<long>(default)));
         }
+
+        virtual const char* ModuleName() const noexcept = 0;
 
     private:
         static INIReader m_confReader;
+    };
+
+    class IConfigS : public IConfig
+    {
     public:
-        IConfig() = default;
-        virtual ~IConfig() noexcept = default;
+        IConfigS() = delete;
+
+        IConfigS(const char* a_name)
+            : m_sectionName(a_name)
+        {
+        }
+
+        virtual const char* ModuleName() const noexcept {
+            return m_sectionName.c_str();
+        }
+
+    private:
+        std::string m_sectionName;
     };
 }
