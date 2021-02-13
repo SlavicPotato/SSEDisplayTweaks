@@ -3,9 +3,12 @@
 namespace SDT
 {
 
-    class StatsRenderer
+    class SKMP_ALIGN(16) StatsRenderer
     {
     public:
+
+        SKMP_DECLARE_ALIGNED_ALLOCATOR(16);
+
         typedef const wchar_t* (*Callback)(void);
 
         enum Align {
@@ -16,28 +19,50 @@ namespace SDT
         };
 
         StatsRenderer(
-            ID3D11Device* pDevice,
-            ID3D11DeviceContext* pDeviceContext,
-            UINT bufferX, UINT bufferY,
-            const DirectX::XMFLOAT2& offset = DirectX::XMFLOAT2(4.0f, 4.0f),
-            float outlineSize = 1.0f,
-            Align al = TOP_LEFT,
-            const DirectX::XMFLOAT2& scale = DirectX::XMFLOAT2(1.0f, 1.0f),
-            const DirectX::XMVECTORF32& fontColor = DirectX::Colors::White,
-            const DirectX::XMVECTORF32& outlineColor = DirectX::Colors::Black
+            ID3D11Device * a_pDevice,
+            ID3D11DeviceContext * a_pDeviceContext,
+            UINT a_bufferX, UINT a_bufferY,
+            const DirectX::XMFLOAT2A & a_offset = { 4.0f, 4.0f },
+            float a_outlineSize = 1.0f,
+            Align a_al = TOP_LEFT,
+            const DirectX::XMFLOAT2A & a_scale = { 1.0f, 1.0f },
+            const DirectX::XMVECTORF32 & a_fontColor = DirectX::Colors::White,
+            const DirectX::XMVECTORF32 & a_outlineColor = DirectX::Colors::Black
         );
 
         bool Load(int resource);
         bool Load(const wchar_t* filename);
 
-        bool IsLoaded() { return isLoaded; }
+        SKMP_FORCEINLINE bool IsLoaded() const { return m_isLoaded; }
 
-        void AddCallback(Callback cb);
-        size_t GetNumCallbacks();
-        void MulScale(float mul);
-        void MulScale(const DirectX::XMFLOAT2& mul);
+        SKMP_FORCEINLINE void AddCallback(Callback cb)
+        {
+            m_callbacks.emplace_back(cb);
+        }
 
-        void DrawStrings() const;
+        SKMP_FORCEINLINE bool RemoveCallback(Callback cb)
+        {
+            auto it = std::find(m_callbacks.begin(), m_callbacks.end(), cb);
+            if (it != m_callbacks.end()) {
+                m_callbacks.erase(it);
+                return true;
+            }
+            return false;
+        }
+
+        SKMP_FORCEINLINE size_t GetNumCallbacks() const {
+            return m_callbacks.size();
+        }
+
+        SKMP_FORCEINLINE void MulScale(float mul) {
+            m_scale = _mm_mul_ps(m_scale, _mm_set_ps1(mul));
+        }
+
+        SKMP_FORCEINLINE void MulScale(const DirectX::XMFLOAT2A& mul) {
+            m_scale = _mm_mul_ps(m_scale, DirectX::XMLoadFloat2A(std::addressof(mul)));
+        }
+
+        void DrawStrings();
         void Update();
         void UpdateStrings();
         void AdjustPosition();
@@ -48,25 +73,25 @@ namespace SDT
         std::unique_ptr<DirectX::SpriteBatch> m_spriteBatch;
         std::unique_ptr<DirectX::SpriteFont> m_font;
 
-        except::descriptor e_last;
+        except::descriptor m_lastException;
+        bool m_isLoaded;
 
-        stl::vector<Callback> callbacks;
-        std::wostringstream ss;
-        std::wstring s;
+        stl::vector<Callback> m_callbacks;
+        stl::wstring m_drawString;
 
-        DirectX::XMFLOAT2 pos, opos[4], origin, scale, off;
-        DirectX::XMVECTORF32 fcol, ocol;
+        DirectX::XMFLOAT2A m_offset, m_bufferSize;
+        DirectX::XMVECTORF32 m_fontColor, m_outlineColor;
 
-        float bx, by, ol;
-        Align align;
+        DirectX::XMVECTOR m_outlinePos[4], m_pos, m_origin, m_scale;
+        DirectX::XMVECTOR m_outlineSize;
 
-        bool isLoaded;
+        Align m_alignment;
 
         ID3D11Device* m_pDevice;
         ID3D11BlendState* m_blendState;
     };
 
-    class DOSD :
+    class SKMP_ALIGN(16) DOSD :
         public IDriver,
         IConfig
     {
@@ -125,8 +150,8 @@ namespace SDT
         static StatsRenderer::Align ConfigGetStatsRendererAlignment(int32_t param);
         static int ConfigGetFontResource(Font font);
         static void ConfigParseColors(const std::string& in, DirectX::XMVECTORF32& out);
-        static void ConfigParseScale(const std::string& in, DirectX::XMFLOAT2& out);
-        static void ConfigParseVector2(const std::string& in, DirectX::XMFLOAT2& out);
+        static void ConfigParseScale(const std::string& in, DirectX::XMFLOAT2A& out);
+        static void ConfigParseVector2(const std::string& in, DirectX::XMFLOAT2A& out);
         static void ConfigGetFlags(const std::string& in, uint32_t& out);
         static uint32_t ConfigGetComboKey(int32_t param);
 
@@ -155,7 +180,7 @@ namespace SDT
 
         Present_T Present_O;*/
 
-        struct
+        struct SKMP_ALIGN(16)
         {
             long long lastUpdate;
             uint64_t lastFrameCount, frameCounter;
@@ -167,8 +192,8 @@ namespace SDT
                 DirectX::XMVECTORF32 font;
                 DirectX::XMVECTORF32 outline;
             }colors;
-            DirectX::XMFLOAT2 scale;
-            DirectX::XMFLOAT2 offset;
+            DirectX::XMFLOAT2A scale;
+            DirectX::XMFLOAT2A offset;
             struct {
                 double fps;
                 double frametime;

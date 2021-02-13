@@ -221,7 +221,7 @@ namespace SDT
         }
     }
 
-    void DOSD::ConfigParseScale(const std::string& in, DirectX::XMFLOAT2& out)
+    void DOSD::ConfigParseScale(const std::string& in, DirectX::XMFLOAT2A& out)
     {
         stl::vector<float> scale;
         StrHelpers::SplitString<float>(in, ' ', scale);
@@ -242,7 +242,7 @@ namespace SDT
         }
     }
 
-    void DOSD::ConfigParseVector2(const std::string& in, DirectX::XMFLOAT2& out)
+    void DOSD::ConfigParseVector2(const std::string& in, DirectX::XMFLOAT2A& out)
     {
         stl::vector<float> v2;
         StrHelpers::SplitString<float>(in, ' ', v2);
@@ -269,48 +269,47 @@ namespace SDT
     }
 
     StatsRenderer::StatsRenderer(
-        ID3D11Device* pDevice,
-        ID3D11DeviceContext* pDeviceContext,
-        UINT bufferX, UINT bufferY,
-        const XMFLOAT2& offset,
-        float outlineSize,
-        Align alignment,
-        const XMFLOAT2& _scale,
-        const XMVECTORF32& fontColor,
-        const XMVECTORF32& outlineColor
+        ID3D11Device* a_pDevice,
+        ID3D11DeviceContext* a_pDeviceContext,
+        UINT a_bufferX, UINT a_bufferY,
+        const XMFLOAT2A& a_offset,
+        float a_outlineSize,
+        Align a_alignment,
+        const XMFLOAT2A& a_scale,
+        const XMVECTORF32& a_fontColor,
+        const XMVECTORF32& a_outlineColor
     ) :
-        isLoaded(false)
+        m_isLoaded(false),
+        m_pDevice(a_pDevice),
+        m_bufferSize{ static_cast<float>(a_bufferX), static_cast<float>(a_bufferY) },
+        m_offset(a_offset),
+        m_alignment(a_alignment),
+        m_scale(XMLoadFloat2A(&a_scale)),
+        m_fontColor(a_fontColor),
+        m_outlineColor(a_outlineColor),
+        m_origin(g_XMZero)
     {
-        m_commonStates = std::make_unique<CommonStates>(pDevice);
-        m_spriteBatch = std::make_unique<SpriteBatch>(pDeviceContext);
+        m_commonStates = std::make_unique<CommonStates>(a_pDevice);
+        m_spriteBatch = std::make_unique<SpriteBatch>(a_pDeviceContext);
 
         m_blendState = m_commonStates->NonPremultiplied();
 
-        m_pDevice = pDevice;
+        XMFLOAT2A tmp(a_outlineSize, a_outlineSize);
+        m_outlineSize = XMLoadFloat2A(std::addressof(tmp));
 
-        bx = static_cast<float>(bufferX);
-        by = static_cast<float>(bufferY);
-        off = offset;
-        align = alignment;
-        origin = XMFLOAT2(0.0f, 0.0f);
-        scale = _scale;
-        fcol = fontColor;
-        ocol = outlineColor;
-        ol = outlineSize;
-
-        switch (align)
+        switch (m_alignment)
         {
         case Align::TOP_LEFT:
-            pos = off;
+            m_pos = XMLoadFloat2A(&m_offset);
             break;
         case Align::TOP_RIGHT:
-            pos = XMFLOAT2(bx, off.y);
+            m_pos = XMLoadFloat2A(&XMFLOAT2A(m_bufferSize.x, m_offset.y));
             break;
         case Align::BOTTOM_LEFT:
-            pos = XMFLOAT2(off.x, by);
+            m_pos = XMLoadFloat2A(&XMFLOAT2A(m_offset.x, m_bufferSize.y));
             break;
         case Align::BOTTOM_RIGHT:
-            pos = XMFLOAT2(bx, by);
+            m_pos = XMLoadFloat2A(&XMFLOAT2A(m_bufferSize.x, m_bufferSize.y));
             break;
         }
 
@@ -320,20 +319,20 @@ namespace SDT
     bool StatsRenderer::Load(int resource)
     {
         HRSRC hRes = ::FindResource(ISKSE::g_moduleHandle, MAKEINTRESOURCE(resource), RT_RCDATA);
-        if (hRes == NULL) {
+        if (hRes == nullptr) {
             return false;
         }
 
         HGLOBAL hData = ::LoadResource(ISKSE::g_moduleHandle, hRes);
-        if (hData == NULL) {
+        if (hData == nullptr) {
             return false;
         }
 
         DWORD dSize = ::SizeofResource(ISKSE::g_moduleHandle, hRes);
 
         LPVOID pData = ::LockResource(hData);
-        if (pData == NULL) {
-            return false;
+        if (pData == nullptr) {
+            goto finish;
         }
 
         try
@@ -342,16 +341,16 @@ namespace SDT
         }
         catch (std::exception& e)
         {
-            e_last = e;
+            m_lastException = e;
             goto finish;
         }
 
-        isLoaded = true;
+        m_isLoaded = true;
 
     finish:
         FreeResource(pData);
 
-        return isLoaded;
+        return m_isLoaded;
     }
 
     bool StatsRenderer::Load(const wchar_t* filename)
@@ -362,61 +361,40 @@ namespace SDT
         }
         catch (std::exception& e)
         {
-            e_last = e;
+            m_lastException = e;
             return false;
         }
 
-        return (isLoaded = true);
+        return (m_isLoaded = true);
     }
 
-    void StatsRenderer::AddCallback(Callback cb)
+    void StatsRenderer::DrawStrings()
     {
-        callbacks.push_back(cb);
-    }
-
-    size_t StatsRenderer::GetNumCallbacks()
-    {
-        return callbacks.size();
-    }
-
-    void StatsRenderer::MulScale(float mul)
-    {
-        scale.x *= mul;
-        scale.y *= mul;
-    }
-
-    void StatsRenderer::MulScale(const DirectX::XMFLOAT2& mul)
-    {
-        scale.x *= mul.x;
-        scale.y *= mul.y;
-    }
-
-    void StatsRenderer::DrawStrings() const
-    {
-        if (!isLoaded) {
+        if (!m_isLoaded) {
             return;
         }
 
         try {
-            auto text = s.c_str();
+            auto text = m_drawString.c_str();
             auto sb = m_spriteBatch.get();
 
             m_spriteBatch->Begin(SpriteSortMode_Deferred, m_blendState);
-            m_font->DrawString(sb, text, opos[0], ocol, 0.0f, origin, scale);
-            m_font->DrawString(sb, text, opos[1], ocol, 0.0f, origin, scale);
-            m_font->DrawString(sb, text, opos[2], ocol, 0.0f, origin, scale);
-            m_font->DrawString(sb, text, opos[3], ocol, 0.0f, origin, scale);
-            m_font->DrawString(sb, text, pos, fcol, 0.0f, origin, scale);
+            m_font->DrawString(sb, text, m_outlinePos[0], m_outlineColor, 0.0f, m_origin, m_scale);
+            m_font->DrawString(sb, text, m_outlinePos[1], m_outlineColor, 0.0f, m_origin, m_scale);
+            m_font->DrawString(sb, text, m_outlinePos[2], m_outlineColor, 0.0f, m_origin, m_scale);
+            m_font->DrawString(sb, text, m_outlinePos[3], m_outlineColor, 0.0f, m_origin, m_scale);
+            m_font->DrawString(sb, text, m_pos, m_fontColor, 0.0f, m_origin, m_scale);
             m_spriteBatch->End();
+
         }
-        catch (...)
+        catch (const std::exception&)
         {
         }
     }
 
     void StatsRenderer::Update()
     {
-        if (!isLoaded) {
+        if (!m_isLoaded) {
             return;
         }
 
@@ -424,61 +402,60 @@ namespace SDT
             UpdateStrings();
             AdjustPosition();
         }
-        catch (...)
+        catch (const std::exception&)
         {
         }
     }
 
     void StatsRenderer::UpdateStrings()
     {
-        ss.str(L"");
-        ss.clear();
+        stl::wostringstream ss;
 
-        for (const auto& f : callbacks) {
+        for (const auto& f : m_callbacks) {
             auto buf = f();
             if (buf != nullptr && buf[0] != 0x0) {
                 ss << buf << std::endl;
             }
         }
 
-        s = ss.str();
+        m_drawString = ss.str();
     }
 
     void StatsRenderer::AdjustPosition()
     {
-        switch (align)
+
+        switch (m_alignment)
         {
         case Align::TOP_RIGHT:
         {
-            XMFLOAT2 sw;
-            XMStoreFloat2(&sw, m_font->MeasureString(s.c_str(), false));
+            auto w = m_font->MeasureString(m_drawString.c_str(), false);
 
-            auto x = bx - (sw.x * scale.x) - off.x;
-            if (x < pos.x) {
-                pos.x = x;
+            auto x = m_bufferSize.x - (w.m128_f32[0] * m_scale.m128_f32[0]) - m_offset.x;
+            if (x < m_pos.m128_f32[0]) {
+                m_pos.m128_f32[0] = x;
                 AdjustOutline();
             }
         }
         break;
         case Align::BOTTOM_LEFT:
         {
-            XMFLOAT2 sw;
-            XMStoreFloat2(&sw, m_font->MeasureString(s.c_str(), false));
+            auto w = m_font->MeasureString(m_drawString.c_str(), false);
 
-            pos.y = by - (sw.y * scale.y) - off.y;
+            m_pos.m128_f32[1] = m_bufferSize.y - (w.m128_f32[1] * m_scale.m128_f32[1]) - m_offset.y;
+
             AdjustOutline();
         }
         break;
         case Align::BOTTOM_RIGHT:
         {
-            XMFLOAT2 sw;
-            XMStoreFloat2(&sw, m_font->MeasureString(s.c_str(), false));
+            auto w = m_font->MeasureString(m_drawString.c_str(), false);
 
-            auto x = bx - (sw.x * scale.x) - off.x;
-            if (x < pos.x) {
-                pos.x = x;
+            auto x = m_bufferSize.x - (w.m128_f32[0] * m_scale.m128_f32[0]) - m_offset.x;
+            if (x < m_pos.m128_f32[0]) {
+                m_pos.m128_f32[0] = x;
             }
-            pos.y = by - (sw.y * scale.y) - off.y;
+            m_pos.m128_f32[1] = m_bufferSize.y - (w.m128_f32[1] * m_scale.m128_f32[1]) - m_offset.y;
+
             AdjustOutline();
         }
         break;
@@ -487,11 +464,13 @@ namespace SDT
 
     void StatsRenderer::AdjustOutline()
     {
-        opos[0] = XMFLOAT2(pos.x + ol, pos.y + ol);
-        opos[1] = XMFLOAT2(pos.x - ol, pos.y + ol);
-        opos[2] = XMFLOAT2(pos.x - ol, pos.y - ol);
-        opos[3] = XMFLOAT2(pos.x + ol, pos.y - ol);
+        m_outlinePos[0] = _mm_add_ps(m_pos, m_outlineSize);
+        m_outlinePos[1] = _mm_addsub_ps(m_pos, m_outlineSize);
+        m_outlinePos[2] = _mm_sub_ps(m_pos, m_outlineSize);
+        m_outlinePos[3].m128_f32[0] = m_pos.m128_f32[0] + m_outlineSize.m128_f32[0];
+        m_outlinePos[3].m128_f32[1] = m_pos.m128_f32[1] - m_outlineSize.m128_f32[1];
     }
+
 
     void DOSD::KeyPressHandler::ReceiveEvent(KeyEvent ev, UInt32 keyCode)
     {
@@ -698,7 +677,7 @@ namespace SDT
             }
 
             if (!isCustom) {
-                m_Instance.statsRenderer->MulScale(XMFLOAT2(1.0f, 0.9f));
+                m_Instance.statsRenderer->MulScale(XMFLOAT2A(1.0f, 0.9f));
             }
 
         }
