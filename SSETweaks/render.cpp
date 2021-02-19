@@ -11,6 +11,7 @@ namespace SDT
     static constexpr const char* CKEY_FULLSCREEN = "Fullscreen";
     static constexpr const char* CKEY_BORDERLESS = "Borderless";
     static constexpr const char* CKEY_UPSCALE = "BorderlessUpscale";
+    static constexpr const char* CKEY_UPSCALE_PRIMARY_MON = "BorderlessUpscaleRelativeToPrimaryMonitor";
     static constexpr const char* CKEY_DISABLEBUFFERRESIZE = "DisableBufferResizing";
     static constexpr const char* CKEY_DISABLETARGETRESIZE = "DisableTargetResizing";
     static constexpr const char* CKEY_VSYNC = "EnableVSync";
@@ -57,6 +58,9 @@ namespace SDT
     static constexpr const char* CKEY_UISWFPSLIMIT_DV = "UIFramerateLimitSleepWaitVSyncOff";
 
     static constexpr const char* CKEY_ADJUSTINICFG = "AdjustGameSettings";
+
+    static constexpr const char* CKEY_RESOLUTON = "Resolution";
+    static constexpr const char* CKEY_RESSCALE = "ResolutionScale";
 
     using namespace Structures;
     using namespace Patching;
@@ -277,6 +281,7 @@ namespace SDT
         m_conf.fullscreen = static_cast<uint8_t>(GetConfigValue(CKEY_FULLSCREEN, false));
         m_conf.borderless = static_cast<uint8_t>(GetConfigValue(CKEY_BORDERLESS, true));
         m_conf.upscale = GetConfigValue(CKEY_UPSCALE, false);
+        m_conf.upscale_select_primary_monitor = GetConfigValue(CKEY_UPSCALE_PRIMARY_MON, true);
         m_conf.disablebufferresize = GetConfigValue(CKEY_DISABLEBUFFERRESIZE, false);
         m_conf.disabletargetresize = GetConfigValue(CKEY_DISABLETARGETRESIZE, false);
 
@@ -337,6 +342,13 @@ namespace SDT
         m_conf.limits.ui_initialloadex = std::clamp<int32_t>(GetConfigValue<int32_t>(CKEY_INITIALLOADLIMITEX, 4), 0, 30);
 
         m_conf.adjust_ini = IConfigS(SECTION_GENERAL).GetConfigValue(CKEY_ADJUSTINICFG, true);
+
+        if (!ConfigParseResolution(GetConfigValue(CKEY_RESOLUTON, "-1 -1"), m_conf.resolution)) {
+            m_conf.resolution[0] = -1;
+            m_conf.resolution[1] = -1;
+        }
+
+        m_conf.resolution_scale = GetConfigValue(CKEY_RESSCALE, -1.0f);
     }
 
     bool DRender::ConfigTranslateSwapEffect(const std::string& param, int& out) const
@@ -361,6 +373,20 @@ namespace SDT
         else {
             return false;
         }
+    }
+
+    bool DRender::ConfigParseResolution(const std::string& in, int32_t(&a_out)[2])
+    {
+        stl::vector<int32_t> v2;
+        StrHelpers::SplitString<int32_t>(in, 'x', v2);
+
+        if (v2.size() < 2)
+            return false;
+
+        a_out[0] = v2[0];
+        a_out[1] = v2[1];
+
+        return true;
     }
 
     void DRender::UISetLimit(MenuEvent code, float limit, bool disable_vsync)
@@ -489,7 +515,8 @@ namespace SDT
             Message("Maximum frame latency: %d", m_conf.max_frame_latency);
         }
 
-        if (!m_conf.fullscreen) {
+        if (!m_conf.fullscreen)
+        {
             if (m_conf.disablebufferresize) {
                 safe_write(
                     ResizeBuffersDisable,
@@ -507,6 +534,52 @@ namespace SDT
                 );
 
                 Debug("Disabled swap chain target resizing");
+            }
+
+            bool patchRes(false);
+            int32_t w, h;
+
+            if (m_conf.resolution[0] > 0 && m_conf.resolution[1] > 0)
+            {
+                w = m_conf.resolution[0];
+                h = m_conf.resolution[1];
+
+                patchRes = true;
+            }
+            else
+            {
+                w = *iSizeW;
+                h = *iSizeH;
+            }
+
+            if (m_conf.resolution_scale > 0.0f)
+            {
+                w = static_cast<int32_t>(static_cast<float>(w) * m_conf.resolution_scale);
+                h = static_cast<int32_t>(static_cast<float>(h) * m_conf.resolution_scale);
+
+                patchRes = true;
+            }
+
+            if (patchRes)
+            {
+                w = std::max<int32_t>(w, 1);
+                h = std::max<int32_t>(h, 1);
+
+                safe_write(
+                    iSizeW_Patch,
+                    Payloads::res_patch,
+                    sizeof(Payloads::res_patch)
+                );
+                safe_write(iSizeW_Patch + 0x1, w);
+
+                safe_write(
+                    iSizeH_Patch,
+                    Payloads::res_patch,
+                    sizeof(Payloads::res_patch)
+                );
+                safe_write(iSizeH_Patch + 0x1, h);
+
+                Message("Resolution override: (%dx%d)", w, h);
             }
         }
         else {
@@ -666,6 +739,16 @@ namespace SDT
 
         iFPSClamp = ISKSE::GetINISettingAddr<int32_t>("iFPSClamp:General");
         if (!iFPSClamp) {
+            return false;
+        }
+
+        iSizeW = ISKSE::GetINIPrefSettingAddr<int32_t>("iSize W:Display");
+        if (!iSizeW) {
+            return false;
+        }
+
+        iSizeH = ISKSE::GetINIPrefSettingAddr<int32_t>("iSize H:Display");
+        if (!iSizeH) {
             return false;
         }
 

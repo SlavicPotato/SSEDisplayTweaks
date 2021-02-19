@@ -97,6 +97,8 @@ namespace SDT
         // 35548
         constexpr uintptr_t bFullscreen_Patch = 0x82F;
         constexpr uintptr_t bBorderless_Patch = 0x83A;
+        constexpr uintptr_t iSizeW_Patch = 0x845;
+        constexpr uintptr_t iSizeH_Patch = 0x84F;
 
         // 40555356574156488DAC2440FFFFFF4881ECC001000048C74598FEFFFFFF8B0D????????65488B042558000000488B3CC841BE68070000418B1C3E899DF000000033F64189343E+86D  (35548)
         constexpr uintptr_t DisplayRefreshRate = 0x86D;
@@ -150,6 +152,9 @@ namespace SDT
         constexpr uint8_t nopjmp[] = { 0x90, 0xEB };
         constexpr uint8_t bw_patch[] = {
             0xB8, 0x01, 0x00, 0x00, 0x00, 0x90, 0x90
+        };
+        constexpr uint8_t res_patch[] = {
+            0xB8, 0x00, 0x00, 0x00, 0x00, 0x90
         };
         constexpr uint8_t PhysCalcFix[] = {
             0x90, 0x90, 0x90, 0x90

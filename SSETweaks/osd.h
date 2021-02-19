@@ -134,6 +134,7 @@ namespace SDT
             uint32_t combo_key;
             uint32_t key;
             StatsRenderer::Align align;
+            bool scale_to_window;
         } m_conf;
 
         FN_NAMEPROC("OSD")

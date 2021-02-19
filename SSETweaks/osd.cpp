@@ -21,14 +21,15 @@ namespace SDT
     static constexpr const char* CKEY_STATSFLAGS = "Flags";
     static constexpr const char* CKEY_STATSITEMS = "Show";
     static constexpr const char* CKEY_COMBOKEY = "ComboKey";
+    static constexpr const char* CKEY_SCALETOWINDOW = "ScaleToWindow";
 
-    constexpr uint32_t F_SHOW_FPS = 1U << 0;
-    constexpr uint32_t F_SHOW_FPS_SIMPLE = 1U << 2;
-    constexpr uint32_t F_SHOW_FRAMETIME = 1U << 3;
-    constexpr uint32_t F_SHOW_FRAMETIME_SIMPLE = 1U << 4;
-    constexpr uint32_t F_SHOW_COUNTER = 1U << 5;
-    constexpr uint32_t F_SHOW_VRAM_USAGE = 1U << 6;
-    constexpr uint32_t F_SHOW_ALL = (F_SHOW_FPS | F_SHOW_FRAMETIME | F_SHOW_COUNTER | F_SHOW_VRAM_USAGE);
+    static constexpr uint32_t F_SHOW_FPS = 1U << 0;
+    static constexpr uint32_t F_SHOW_FPS_SIMPLE = 1U << 2;
+    static constexpr uint32_t F_SHOW_FRAMETIME = 1U << 3;
+    static constexpr uint32_t F_SHOW_FRAMETIME_SIMPLE = 1U << 4;
+    static constexpr uint32_t F_SHOW_COUNTER = 1U << 5;
+    static constexpr uint32_t F_SHOW_VRAM_USAGE = 1U << 6;
+    static constexpr uint32_t F_SHOW_ALL = (F_SHOW_FPS | F_SHOW_FRAMETIME | F_SHOW_COUNTER | F_SHOW_VRAM_USAGE);
 
     using namespace DirectX;
 
@@ -75,6 +76,7 @@ namespace SDT
         m_conf.font_autoscale = GetConfigValue(CKEY_STATSAUTOSCALE, true);
         m_conf.interval = std::clamp(GetConfigValue(CKEY_STATSINTERVAL, 1.0f), 0.01f, 900.0f);
         m_conf.items = GetConfigValue(CKEY_STATSITEMS, "fps,frametime");
+        m_conf.scale_to_window = GetConfigValue(CKEY_SCALETOWINDOW, true);
     }
 
     void DOSD::PostLoadConfig()
@@ -281,10 +283,12 @@ namespace SDT
     ) :
         m_isLoaded(false),
         m_pDevice(a_pDevice),
-        m_bufferSize{ static_cast<float>(a_bufferX), static_cast<float>(a_bufferY) },
+        m_bufferSize(
+            static_cast<float>(a_bufferX),
+            static_cast<float>(a_bufferY)),
         m_offset(a_offset),
         m_alignment(a_alignment),
-        m_scale(XMLoadFloat2A(&a_scale)),
+        m_scale(XMLoadFloat2A(std::addressof(a_scale))),
         m_fontColor(a_fontColor),
         m_outlineColor(a_outlineColor),
         m_origin(g_XMZero)
@@ -303,13 +307,15 @@ namespace SDT
             m_pos = XMLoadFloat2A(&m_offset);
             break;
         case Align::TOP_RIGHT:
-            m_pos = XMLoadFloat2A(&XMFLOAT2A(m_bufferSize.x, m_offset.y));
+            tmp = XMFLOAT2A(m_bufferSize.x, m_offset.y);
+            m_pos = XMLoadFloat2A(std::addressof(tmp));
             break;
         case Align::BOTTOM_LEFT:
-            m_pos = XMLoadFloat2A(&XMFLOAT2A(m_offset.x, m_bufferSize.y));
+            tmp = XMFLOAT2A(m_offset.x, m_bufferSize.y);
+            m_pos = XMLoadFloat2A(std::addressof(tmp));
             break;
         case Align::BOTTOM_RIGHT:
-            m_pos = XMLoadFloat2A(&XMFLOAT2A(m_bufferSize.x, m_bufferSize.y));
+            m_pos = XMLoadFloat2A(std::addressof(m_bufferSize));
             break;
         }
 
@@ -560,7 +566,7 @@ namespace SDT
                 info.Budget / (1024 * 1024));
         }
         else {
-            _snwprintf_s(m_Instance.bufStats4, _TRUNCATE, L"VRAM: QUERY ERROR");
+            ::_snwprintf_s(m_Instance.bufStats4, _TRUNCATE, L"VRAM: QUERY ERROR");
         }
 
         return m_Instance.bufStats4;
@@ -580,8 +586,8 @@ namespace SDT
 
         m_Instance.stats.frameCounter++;
 
-        if (m_Instance.stats.draw) {
-
+        if (m_Instance.stats.draw) 
+        {
             auto e = PerfCounter::Query();
             auto deltaT = PerfCounter::delta_us(m_Instance.stats.lastUpdate, e);
 
@@ -612,6 +618,24 @@ namespace SDT
     void DOSD::OnD3D11PostCreate_OSD(Event code, void* data)
     {
         auto info = reinterpret_cast<D3D11CreateEventPost*>(data);
+
+        if (m_Instance.m_conf.scale_to_window)
+        {
+            RECT rect;
+            if (::GetClientRect(info->m_pSwapChainDesc->OutputWindow, std::addressof(rect)) == TRUE)
+            {
+                float ww = static_cast<float>(rect.right - rect.left);
+                float wh = static_cast<float>(rect.bottom - rect.top);
+                float bw = static_cast<float>(info->m_pSwapChainDesc->BufferDesc.Width);
+                float bh = static_cast<float>(info->m_pSwapChainDesc->BufferDesc.Height);
+
+                float ws = bw / ww;
+                float hs = bh / wh;
+
+                m_Instance.stats.scale.x *= ws;
+                m_Instance.stats.scale.y *= hs;
+            }
+        }
 
         m_Instance.statsRenderer = std::make_unique<StatsRenderer>(
             info->m_pDevice, info->m_pImmediateContext,
@@ -658,21 +682,25 @@ namespace SDT
             else if (m_Instance.stats.flags & F_SHOW_FPS) {
                 m_Instance.AddStatsCallback(StatsRendererCallback_FPS);
             }
+
             if (m_Instance.stats.flags & F_SHOW_FRAMETIME_SIMPLE) {
                 m_Instance.AddStatsCallback(StatsRendererCallback_SimpleFrametime);
             }
             else if (m_Instance.stats.flags & F_SHOW_FRAMETIME) {
                 m_Instance.AddStatsCallback(StatsRendererCallback_Frametime);
             }
+
             if (m_Instance.stats.flags & F_SHOW_COUNTER) {
                 m_Instance.AddStatsCallback(StatsRendererCallback_Counter);
             }
 
             if (m_Instance.stats.flags & F_SHOW_VRAM_USAGE)
             {
-                if (SUCCEEDED(info->m_pAdapter->QueryInterface(IID_PPV_ARGS(m_Instance.m_adapter.GetAddressOf()))))
-                {
+                if (SUCCEEDED(info->m_pAdapter->QueryInterface(IID_PPV_ARGS(m_Instance.m_adapter.GetAddressOf())))) {
                     m_Instance.AddStatsCallback(StatsRendererCallback_VRAM);
+                }
+                else {
+                    m_Instance.Error("Failed to get IDXGIAdapter3, DXGI 1.4 or later is required to display VRAM usage info");
                 }
             }
 

@@ -10,6 +10,41 @@ namespace SDT
 
     DWindow DWindow::m_Instance;
 
+    bool MonitorInfo::GetPrimary(HMONITOR& a_handle)
+    {
+        FindDesc fd;
+
+        fd.found = false;
+
+        ::EnumDisplayMonitors(NULL, NULL, FindPrimary, reinterpret_cast<LPARAM>(&fd));
+
+        bool found = fd.found;
+
+        if (found)
+            a_handle = fd.handle;
+
+        return found;
+    }
+
+    BOOL CALLBACK MonitorInfo::FindPrimary(HMONITOR a_handle, HDC, LPRECT, LPARAM a_out)
+    {
+        MONITORINFO mi;
+        mi.cbSize = sizeof(mi);
+        if (::GetMonitorInfoA(a_handle, &mi))
+        {
+            if (mi.dwFlags & MONITORINFOF_PRIMARY)
+            {
+                auto fd = reinterpret_cast<FindDesc*>(a_out);
+
+                fd->found = true;
+                fd->handle = a_handle;
+                return FALSE;
+            }
+        }
+
+        return TRUE;
+    }
+
     DWindow::DWindow() :
         iLocationX(nullptr),
         iLocationY(nullptr)
@@ -197,8 +232,16 @@ namespace SDT
             if (m_Instance.iLocationY)
                 offsety = *m_Instance.iLocationY;
 
-            HMONITOR hMonitor = ::MonitorFromWindow(
-                hWnd, MONITOR_DEFAULTTOPRIMARY);
+            HMONITOR hMonitor;
+            bool gotHandle(false);
+
+            auto rd = IDDispatcher::GetDriver<DRender>();
+
+            if (rd->m_conf.upscale_select_primary_monitor)
+                gotHandle = MonitorInfo::GetPrimary(hMonitor);
+
+            if (!gotHandle)
+                hMonitor = ::MonitorFromWindow(hWnd, MONITOR_DEFAULTTOPRIMARY);
 
             MONITORINFO mi;
             mi.cbSize = sizeof(mi);

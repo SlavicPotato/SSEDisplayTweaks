@@ -13,12 +13,12 @@ namespace SDT
 
         void Add(UINT msg, const MsgProcFunc& f)
         {
-            m_map[msg].emplace_back(f);
+            m_map.try_emplace(msg).first->second.emplace_back(f);
         }
 
         void Add(const MsgList& l, const MsgProcFunc& f)
         {
-            for (const auto msg : l)
+            for (const auto &msg : l)
                 Add(msg, f);
         }
 
@@ -38,6 +38,25 @@ namespace SDT
         }
     private:
         MPMap m_map;
+    };
+
+    class MonitorInfo
+    {
+
+        struct FindDesc
+        {
+            bool found;
+            HMONITOR handle;
+        };
+
+    public:
+
+        static bool GetPrimary(HMONITOR& a_handle);
+
+    private:
+
+        static BOOL CALLBACK FindPrimary(HMONITOR, HDC, LPRECT, LPARAM);
+
     };
 
     class DWindow :

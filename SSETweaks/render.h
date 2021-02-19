@@ -66,6 +66,7 @@ namespace SDT
             uint8_t fullscreen;
             uint8_t borderless;
             bool upscale;
+            bool upscale_select_primary_monitor;
             bool disablebufferresize;
             bool disabletargetresize;
             bool vsync_on;
@@ -76,6 +77,8 @@ namespace SDT
             int32_t buffer_count;
             int32_t max_frame_latency;
             bool enable_tearing;
+            int32_t resolution[2];
+            float resolution_scale;
 
             struct {
                 float game;
@@ -144,6 +147,7 @@ namespace SDT
 
         bool ConfigTranslateSwapEffect(const std::string& param, int& out) const;
         bool ConfigTranslateScalingMode(const std::string& param, DXGI_MODE_SCALING& out) const;
+        static bool ConfigParseResolution(const std::string& in, int32_t(&a_out)[2]);
 
         bool ValidateDisplayMode(const DXGI_SWAP_CHAIN_DESC* pSwapChainDesc) const;
         UINT GetRefreshRate(const DXGI_SWAP_CHAIN_DESC* pSwapChainDesc) const;
@@ -220,6 +224,8 @@ namespace SDT
 
         uint8_t* bLockFramerate;
         int32_t* iFPSClamp;
+        int32_t* iSizeW;
+        int32_t* iSizeH;
 
         IDXGIFactory* m_dxgiFactory;
 
@@ -233,6 +239,8 @@ namespace SDT
 
         inline static auto bFullscreen_Patch = IAL::Addr(AID::Init0, Offsets::bFullscreen_Patch);
         inline static auto bBorderless_Patch = IAL::Addr(AID::Init0, Offsets::bBorderless_Patch);
+        inline static auto iSizeW_Patch = IAL::Addr(AID::Init0, Offsets::iSizeW_Patch);
+        inline static auto iSizeH_Patch = IAL::Addr(AID::Init0, Offsets::iSizeH_Patch);
         inline static auto DisplayRefreshRate = IAL::Addr(AID::Init0, Offsets::DisplayRefreshRate);
 
         inline static auto DXGIData = IAL::Addr<Structures::IDXGIData**>(AID::DXGIData);
