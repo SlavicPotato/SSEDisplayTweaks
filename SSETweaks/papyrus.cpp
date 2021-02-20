@@ -7,10 +7,19 @@ namespace SDT
     static constexpr const char* CKEY_UPDATEBUDGET = "UpdateBudgetBase";
     static constexpr const char* CKEY_MAXTIME = "BudgetMaxFPS";
     static constexpr const char* CKEY_STATSON = "OSDStatsEnabled";
+    static constexpr const char* CKEY_SHOWVMOVERSTRESSES = "OSDWarnVMOverstressed";
 
     using namespace Patching;
 
     DPapyrus DPapyrus::m_Instance;
+
+    DPapyrus::DPapyrus() :
+        m_lastInterval(1.0f / 60.0f),
+        fUpdateBudgetMS(nullptr)
+    {
+        bufStats1[0] = 0x0;
+        bufStats2[0] = 0x0;
+    }
 
     void DPapyrus::LoadConfig()
     {
@@ -20,10 +29,22 @@ namespace SDT
         m_conf.dynbudget_fps_max = std::clamp(GetConfigValue(CKEY_MAXTIME, 144.0f), m_conf.dynbudget_fps_min, 300.0f);
         m_conf.dynbudget_base = std::clamp(GetConfigValue(CKEY_UPDATEBUDGET, 1.2f), 0.1f, 4.0f);
         m_conf.stats_enabled = GetConfigValue(CKEY_STATSON, false);
+        m_conf.warn_overstressed = GetConfigValue(CKEY_SHOWVMOVERSTRESSES, true);
     }
 
     void DPapyrus::PostLoadConfig()
     {
+        if (!fUpdateBudgetMS) {
+            m_conf.dynbudget_enabled = false;
+        }
+
+        m_OSDDriver = IDDispatcher::GetDriver<DOSD>();
+        if (!m_OSDDriver || !m_OSDDriver->IsOK())
+        {
+            m_conf.stats_enabled = false;
+            m_conf.warn_overstressed = false;
+        }
+
         if (m_conf.dynbudget_enabled)
         {
             if (m_conf.dynbudget_fps_max == m_conf.dynbudget_fps_min) {
@@ -32,11 +53,6 @@ namespace SDT
             }
             else
             {
-                m_OSDDriver = IDDispatcher::GetDriver<DOSD>();
-
-                enable_stats = m_OSDDriver && m_OSDDriver->IsOK() &&
-                    m_OSDDriver->m_conf.enabled && m_conf.stats_enabled;
-
                 bmult = m_conf.dynbudget_base / (1.0f / 60.0f * 1000.0f) * 1000.0f;
                 t_max = 1.0f / m_conf.dynbudget_fps_min;
                 t_min = 1.0f / m_conf.dynbudget_fps_max;
@@ -93,7 +109,7 @@ namespace SDT
 
             LogPatchBegin("UpdateBudget (game)");
             {
-                UpdateBudgetInject code(UpdateBudgetGame, enable_stats);
+                UpdateBudgetInject code(UpdateBudgetGame, m_conf.stats_enabled);
                 g_branchTrampoline.Write6Branch(UpdateBudgetGame, code.get());
 
                 safe_memset(UpdateBudgetGame + 0x6, 0xCC, 2);
@@ -102,7 +118,7 @@ namespace SDT
 
             LogPatchBegin("UpdateBudget (UI)");
             {
-                UpdateBudgetInject code(UpdateBudgetUI, enable_stats);
+                UpdateBudgetInject code(UpdateBudgetUI, m_conf.stats_enabled);
                 g_branchTrampoline.Write6Branch(UpdateBudgetUI, code.get());
 
                 safe_memset(UpdateBudgetUI + 0x6, 0xCC, 2);
@@ -113,7 +129,7 @@ namespace SDT
 
     void DPapyrus::RegisterHooks()
     {
-        if (m_conf.dynbudget_enabled && enable_stats) {
+        if ((m_conf.dynbudget_enabled && m_conf.stats_enabled) || m_conf.warn_overstressed) {
             IEvents::RegisterForEvent(Event::OnD3D11PostCreate, OnD3D11PostCreate_Papyrus);
         }
     }
@@ -121,10 +137,7 @@ namespace SDT
     bool DPapyrus::Prepare()
     {
         fUpdateBudgetMS = ISKSE::GetINISettingAddr<float>("fUpdateBudgetMS:Papyrus");
-        if (!fUpdateBudgetMS) {
-            return false;
-        }
-
+        
         return true;
     }
 
@@ -132,7 +145,15 @@ namespace SDT
     {
         float interval = std::clamp(*Game::frameTimer, m_Instance.t_min, m_Instance.t_max);
 
-        interval *= m_Instance.bmult;
+        if (interval <= m_Instance.m_lastInterval) {
+            m_Instance.m_lastInterval = interval;
+        }
+        else {
+            m_Instance.m_lastInterval = std::min(m_Instance.m_lastInterval + interval * 0.0075f, interval);
+        }
+
+        interval = m_Instance.m_lastInterval * m_Instance.bmult;
+
         *m_Instance.fUpdateBudgetMS = interval;
 
         return interval;
@@ -147,7 +168,7 @@ namespace SDT
         return cft;
     }
 
-    const wchar_t* DPapyrus::StatsRendererCallback()
+    const wchar_t* DPapyrus::StatsRendererCallback1()
     {
         double val;
         if (m_Instance.m_stats_counter.get(val)) {
@@ -158,10 +179,28 @@ namespace SDT
         return m_Instance.bufStats1;
     }
 
+    const wchar_t* DPapyrus::StatsRendererCallback2()
+    {
+        auto vm = (*g_skyrimVM)->GetClassRegistry();
+
+        if (vm->overstressed) {
+            _snwprintf_s(m_Instance.bufStats2,
+                _TRUNCATE, L"VM Overstressed");
+        }
+        else {
+            m_Instance.bufStats2[0] = 0x0;
+        }
+         
+        return m_Instance.bufStats2;
+    }
+
     void DPapyrus::OnD3D11PostCreate_Papyrus(Event, void*)
     {
-        m_Instance.bufStats1[0] = 0x0;
-        m_Instance.m_OSDDriver->AddStatsCallback(StatsRendererCallback);
+        if (m_Instance.m_conf.stats_enabled)
+            m_Instance.m_OSDDriver->AddStatsCallback(StatsRendererCallback1);
+
+        if (m_Instance.m_conf.warn_overstressed)
+            m_Instance.m_OSDDriver->AddStatsCallback(StatsRendererCallback2);
     }
 
 }

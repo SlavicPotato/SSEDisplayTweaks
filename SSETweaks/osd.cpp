@@ -117,6 +117,8 @@ namespace SDT
         {
             IEvents::RegisterForEvent(Event::OnD3D11PostCreate, OnD3D11PostCreate_OSD);
             IEvents::RegisterForEvent(Event::OnD3D11PostPostCreate, OnD3D11PostPostCreate_OSD);
+
+            inputEventHandler.SetKeys(m_conf.combo_key, m_conf.key);
             DInput::RegisterForKeyEvents(&inputEventHandler);
 
             struct PresentHook : JITASM::JITASM {
@@ -151,8 +153,7 @@ namespace SDT
 
     bool DOSD::Prepare()
     {
-        auto rd = IDDispatcher::GetDriver<DRender>();
-        return rd && rd->IsOK();
+        return IDDispatcher::DriverOK(DRender::ID);
     }
 
     int DOSD::ConfigGetFontResource(Font param)
@@ -478,35 +479,14 @@ namespace SDT
     }
 
 
-    void DOSD::KeyPressHandler::ReceiveEvent(KeyEvent ev, UInt32 keyCode)
+    void DOSD::KeyPressHandler::OnKeyPressed()
     {
-        switch (ev)
-        {
-        case KeyEvent::KeyDown:
-        {
-            if (keyCode == m_Instance.m_conf.combo_key) {
-                combo_down = true;
-            }
-            else if (keyCode == m_Instance.m_conf.key) {
-                if (combo_down) {
-                    if (!m_Instance.stats.draw) {
-                        m_Instance.stats.warmup = 2;
-                        m_Instance.stats.draw = true;
-                    }
-                    else {
-                        m_Instance.stats.draw = false;
-                    }
-                }
-            }
+        if (!m_Instance.stats.draw) {
+            m_Instance.stats.warmup = 2;
+            m_Instance.stats.draw = true;
         }
-        break;
-        case KeyEvent::KeyUp:
-        {
-            if (keyCode == m_Instance.m_conf.combo_key) {
-                combo_down = false;
-            }
-        }
-        break;
+        else {
+            m_Instance.stats.draw = false;
         }
     }
 
@@ -586,7 +566,7 @@ namespace SDT
 
         m_Instance.stats.frameCounter++;
 
-        if (m_Instance.stats.draw) 
+        if (m_Instance.stats.draw)
         {
             auto e = PerfCounter::Query();
             auto deltaT = PerfCounter::delta_us(m_Instance.stats.lastUpdate, e);

@@ -13,7 +13,7 @@ namespace SDT
         FN_ESSENTIAL(false)
         FN_DRVDEF(6)
     private:
-        DPapyrus() = default;
+        DPapyrus();
 
         virtual void LoadConfig() override;
         virtual void PostLoadConfig() override;
@@ -21,10 +21,11 @@ namespace SDT
         virtual bool Prepare() override;
         virtual void RegisterHooks() override;
 
-        static float __forceinline CalculateUpdateBudget();
+        static float SKMP_FORCEINLINE CalculateUpdateBudget();
         static float CalculateUpdateBudgetStats();
 
-        static const wchar_t* StatsRendererCallback();
+        static const wchar_t* StatsRendererCallback1();
+        static const wchar_t* StatsRendererCallback2();
 
         static void OnD3D11PostCreate_Papyrus(Event code, void* data);
 
@@ -35,6 +36,7 @@ namespace SDT
             float dynbudget_fps_max;
             float dynbudget_base;
             bool stats_enabled;
+            bool warn_overstressed;
         }m_conf;
 
         inline static auto SetExpressionOverride_lea = IAL::Addr(AID::SetExpressionOverride, Offsets::SetExpressionOverride_lea);
@@ -42,17 +44,17 @@ namespace SDT
         inline static auto UpdateBudgetGame = IAL::Addr(AID::ScriptRunGame, Offsets::ScriptUpdateBudgetGame);
         inline static auto UpdateBudgetUI = IAL::Addr(AID::ScriptRunUI, Offsets::ScriptUpdateBudgetUI);
 
+        float m_lastInterval;
         float* fUpdateBudgetMS;
 
         float bmult;
         float t_max;
         float t_min;
 
-        wchar_t bufStats1[128];
+        wchar_t bufStats1[64];
+        wchar_t bufStats2[64];
 
         DOSD* m_OSDDriver;
-
-        bool enable_stats;
 
         StatsCounter m_stats_counter;
 

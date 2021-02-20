@@ -302,7 +302,7 @@ namespace SDT
         }
         m_conf.max_frame_latency = GetConfigValue(CKEY_MAXFRAMELAT, 0);
         if (m_conf.max_frame_latency > 0) {
-            m_conf.max_frame_latency = min(m_conf.max_frame_latency, 16);
+            m_conf.max_frame_latency = std::min(m_conf.max_frame_latency, 16);
         }
         m_conf.enable_tearing = GetConfigValue(CKEY_ENABLETEARING, true);
 

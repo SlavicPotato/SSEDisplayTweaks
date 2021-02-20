@@ -101,10 +101,10 @@ namespace SDT
             FontMax
         };
 
-        class KeyPressHandler : public KeyEventHandler
+        class KeyPressHandler : public ComboKeyPressHandler
         {
         public:
-            virtual void ReceiveEvent(KeyEvent, UInt32) override;
+            virtual void OnKeyPressed() override;
         private:
             bool combo_down = false;
         };

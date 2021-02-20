@@ -134,7 +134,7 @@ namespace SDT
         *fMaxTime = interval;
 
         if (a_isComplex)
-            *fMaxTimeComplex = 1.0f / max(1.0f / interval - m_conf.fmtc_offset, HAVOK_MAXTIME_MIN);
+            *fMaxTimeComplex = 1.0f / std::max(1.0f / interval - m_conf.fmtc_offset, HAVOK_MAXTIME_MIN);
     }
 
     void DHavok::UpdateHavokStats() const
@@ -200,7 +200,7 @@ namespace SDT
                 maxt = AutoGetMaxTime(pSwapChainDesc, 60.0f);
             }
 
-            float maxtc = 1.0f / max(1.0f / maxt - m_conf.fmtc_offset, HAVOK_MAXTIME_MIN);
+            float maxtc = 1.0f / std::max(1.0f / maxt - m_conf.fmtc_offset, HAVOK_MAXTIME_MIN);
 
             *fMaxTime = maxt;
             *fMaxTimeComplex = maxtc;
