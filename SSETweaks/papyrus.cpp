@@ -18,7 +18,6 @@ namespace SDT
         fUpdateBudgetMS(nullptr)
     {
         bufStats1[0] = 0x0;
-        bufStats2[0] = 0x0;
     }
 
     void DPapyrus::LoadConfig()
@@ -183,15 +182,7 @@ namespace SDT
     {
         auto vm = (*g_skyrimVM)->GetClassRegistry();
 
-        if (vm->overstressed) {
-            _snwprintf_s(m_Instance.bufStats2,
-                _TRUNCATE, L"VM Overstressed");
-        }
-        else {
-            m_Instance.bufStats2[0] = 0x0;
-        }
-         
-        return m_Instance.bufStats2;
+        return vm->overstressed ? L"VM Overstressed" : L"";
     }
 
     void DPapyrus::OnD3D11PostCreate_Papyrus(Event, void*)

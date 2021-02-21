@@ -34,6 +34,8 @@ namespace SDT {
             ISKSE::localTrampolineSize - g_localTrampoline.Remain(),
             ISKSE::localTrampolineSize);
 
+        IConfig::Clear();
+
         return true;
     }
 }

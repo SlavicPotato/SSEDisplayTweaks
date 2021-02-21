@@ -9,4 +9,9 @@ namespace SDT
         m_confReader.Load(PLUGIN_INI_FILE);
         return m_confReader.ParseError();
     }
+
+    void IConfig::Clear()
+    {
+        m_confReader.Clear();
+    }
 }

@@ -52,7 +52,6 @@ namespace SDT
         float t_min;
 
         wchar_t bufStats1[64];
-        wchar_t bufStats2[64];
 
         DOSD* m_OSDDriver;
 
