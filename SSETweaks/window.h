@@ -45,6 +45,8 @@ namespace SDT
 
         struct FindDesc
         {
+            FindDesc() : found(false) {}
+
             bool found;
             HMONITOR handle;
         };
@@ -110,6 +112,9 @@ namespace SDT
             _In_opt_ HINSTANCE hInstance,
             _In_opt_ LPVOID lpParam);
 
+        void DoUpscale(HWND a_windowHandle, int& X, int& Y, int& nWidth, int& nHeight);
+        void DoCenter(HWND a_windowHandle, int& X, int& Y, int nWidth, int nHeight);
+
         CreateWindowExA_fn_t m_createWindowExA_O;
         GetClientRect_fn_t m_getClientRect_O;
 
@@ -131,7 +136,9 @@ namespace SDT
         } m_upscaling;
 
         WNDPROC pfnWndProc;
+
         static void OnD3D11PreCreate_Upscale(Event code, void* data);
+        static void PostConfigLoad(Event code, void* data);
 
         static BOOL WINAPI
             GetClientRect_Hook(
@@ -149,6 +156,9 @@ namespace SDT
             bool lock_cursor;
             bool force_minimize;
             bool upscale;
+            bool center_window;
+            int offset_x;
+            int offset_y;
         }m_conf;
 
         MsgProc m_mp;
