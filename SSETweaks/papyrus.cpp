@@ -7,17 +7,16 @@ namespace SDT
     static constexpr const char* CKEY_UPDATEBUDGET = "UpdateBudgetBase";
     static constexpr const char* CKEY_MAXTIME = "BudgetMaxFPS";
     static constexpr const char* CKEY_STATSON = "OSDStatsEnabled";
-    static constexpr const char* CKEY_SHOWVMOVERSTRESSES = "OSDWarnVMOverstressed";
+    static constexpr const char* CKEY_SHOWVMOVERSTRESSED = "OSDWarnVMOverstressed";
 
     using namespace Patching;
 
     DPapyrus DPapyrus::m_Instance;
 
     DPapyrus::DPapyrus() :
-        m_lastInterval(1.0f / 60.0f),
-        fUpdateBudgetMS(nullptr)
+        m_lastInterval(1.0f / 60.0f)
     {
-        bufStats1[0] = 0x0;
+        m_bufStats1[0] = 0x0;
     }
 
     void DPapyrus::LoadConfig()
@@ -28,12 +27,12 @@ namespace SDT
         m_conf.dynbudget_fps_max = std::clamp(GetConfigValue(CKEY_MAXTIME, 144.0f), m_conf.dynbudget_fps_min, 300.0f);
         m_conf.dynbudget_base = std::clamp(GetConfigValue(CKEY_UPDATEBUDGET, 1.2f), 0.1f, 4.0f);
         m_conf.stats_enabled = GetConfigValue(CKEY_STATSON, false);
-        m_conf.warn_overstressed = GetConfigValue(CKEY_SHOWVMOVERSTRESSES, true);
+        m_conf.warn_overstressed = GetConfigValue(CKEY_SHOWVMOVERSTRESSED, true);
     }
 
     void DPapyrus::PostLoadConfig()
     {
-        if (!fUpdateBudgetMS) {
+        if (!m_gv.fUpdateBudgetMS) {
             m_conf.dynbudget_enabled = false;
         }
 
@@ -52,12 +51,12 @@ namespace SDT
             }
             else
             {
-                bmult = m_conf.dynbudget_base / (1.0f / 60.0f * 1000.0f) * 1000.0f;
-                t_max = 1.0f / m_conf.dynbudget_fps_min;
-                t_min = 1.0f / m_conf.dynbudget_fps_max;
+                m_bmult = m_conf.dynbudget_base / (1.0f / 60.0f * 1000.0f) * 1000.0f;
+                m_t_max = 1.0f / m_conf.dynbudget_fps_min;
+                m_t_min = 1.0f / m_conf.dynbudget_fps_max;
 
                 Message("UpdateBudgetBase: %.6g ms (%.6g - %.6g)",
-                    m_conf.dynbudget_base, t_min * bmult, t_max * bmult);
+                    m_conf.dynbudget_base, m_t_min * m_bmult, m_t_max * m_bmult);
 
             }
         }
@@ -83,7 +82,7 @@ namespace SDT
         if (m_conf.dynbudget_enabled)
         {
             struct UpdateBudgetInject : JITASM::JITASM {
-                UpdateBudgetInject(uintptr_t targetAddr, bool enable_stats)
+                UpdateBudgetInject(std::uintptr_t targetAddr, bool enable_stats)
                     : JITASM()
                 {
                     Xbyak::Label callLabel;
@@ -98,10 +97,10 @@ namespace SDT
 
                     L(callLabel);
                     if (enable_stats) {
-                        dq(uintptr_t(DPapyrus::CalculateUpdateBudgetStats));
+                        dq(std::uintptr_t(DPapyrus::CalculateUpdateBudgetStats));
                     }
                     else {
-                        dq(uintptr_t(DPapyrus::CalculateUpdateBudget));
+                        dq(std::uintptr_t(DPapyrus::CalculateUpdateBudget));
                     }
                 }
             };
@@ -135,14 +134,14 @@ namespace SDT
 
     bool DPapyrus::Prepare()
     {
-        fUpdateBudgetMS = ISKSE::GetINISettingAddr<float>("fUpdateBudgetMS:Papyrus");
+        m_gv.fUpdateBudgetMS = ISKSE::GetINISettingAddr<float>("fUpdateBudgetMS:Papyrus");
         
         return true;
     }
 
     float DPapyrus::CalculateUpdateBudget()
     {
-        float interval = std::clamp(*Game::frameTimer, m_Instance.t_min, m_Instance.t_max);
+        float interval = std::clamp(*Game::g_frameTimer, m_Instance.m_t_min, m_Instance.m_t_max);
 
         if (interval <= m_Instance.m_lastInterval) {
             m_Instance.m_lastInterval = interval;
@@ -151,9 +150,9 @@ namespace SDT
             m_Instance.m_lastInterval = std::min(m_Instance.m_lastInterval + interval * 0.0075f, interval);
         }
 
-        interval = m_Instance.m_lastInterval * m_Instance.bmult;
+        interval = m_Instance.m_lastInterval * m_Instance.m_bmult;
 
-        *m_Instance.fUpdateBudgetMS = interval;
+        *m_Instance.m_gv.fUpdateBudgetMS = interval;
 
         return interval;
     }
@@ -162,7 +161,7 @@ namespace SDT
     {
         float cft = CalculateUpdateBudget();
 
-        m_Instance.m_stats_counter.accum(cft);
+        m_Instance.m_stats_counter.accum(static_cast<double>(cft));
 
         return cft;
     }
@@ -171,11 +170,11 @@ namespace SDT
     {
         double val;
         if (m_Instance.m_stats_counter.get(val)) {
-            ::_snwprintf_s(m_Instance.bufStats1,
+            ::_snwprintf_s(m_Instance.m_bufStats1,
                 _TRUNCATE, L"fUpdateBudgetMS: %.4g", val);
         }
 
-        return m_Instance.bufStats1;
+        return m_Instance.m_bufStats1;
     }
 
     const wchar_t* DPapyrus::StatsRendererCallback2()

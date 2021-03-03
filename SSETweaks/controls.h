@@ -9,9 +9,9 @@ namespace SDT
     public:
         static inline constexpr auto ID = DRIVER_ID::CONTROLS;
 
-        FN_NAMEPROC("Controls")
-        FN_ESSENTIAL(false)
-        FN_DRVDEF(6)
+        FN_NAMEPROC("Controls");
+        FN_ESSENTIAL(false);
+        FN_DRVDEF(6);
     private:
         DControls() = default;
 
@@ -28,8 +28,10 @@ namespace SDT
 
         static void MouseSens_Hook(PlayerControls* a_controls, FirstPersonState* a_fpState);
 
-        float* fMouseHeadingXScale;
-        float* fMouseHeadingSensitivity;
+        struct {
+            float* fMouseHeadingXScale;
+            float* fMouseHeadingSensitivity;
+        } m_gv;
 
         inline static auto MT_Inject = IAL::Addr(AID::UnkMovFunc0, Offsets::MT_Inject);
 

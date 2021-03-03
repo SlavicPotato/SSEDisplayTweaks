@@ -74,20 +74,20 @@ namespace SDT
 
         static void RegisterForKeyEvents(KeyEventHandler* const handler);
 
-        FN_NAMEPROC("Input")
-        FN_ESSENTIAL(false)
-        FN_DRVDEF(1)
+        FN_NAMEPROC("Input");
+        FN_ESSENTIAL(false);
+        FN_DRVDEF(1);
     private:
         DInput() = default;
 
         virtual void RegisterHooks() override;
         virtual bool Prepare() override;
 
-        static void MessageHandler(Event m_code, void* args);
+        static void MessageHandler(Event m_code, void* a_args);
 
         void DispatchKeyEvent(KeyEvent ev, UInt32 key);
 
-        stl::vector<KeyEventHandler*> callbacks;
+        stl::vector<KeyEventHandler*> m_handlers;
 
         static DInput m_Instance;
     };

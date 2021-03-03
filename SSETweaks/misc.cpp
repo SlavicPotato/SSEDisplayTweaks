@@ -8,7 +8,7 @@ namespace SDT
 
     void DMisc::LoadConfig()
     {
-        m_conf.skipmissingini = GetConfigValue(CKEY_SKIPMISSINGINI, false);
+        m_conf.skipmissingini = GetConfigValue(CKEY_SKIPMISSINGINI, true);
     }
 
     void Structures::_SettingCollectionList::LoadIni_Hook()
@@ -35,7 +35,7 @@ namespace SDT
         {
             Patching::safe_write(
                 SkipNoINI,
-                reinterpret_cast<const void*>(Payloads::SkipNoINI),
+                static_cast<const void*>(Payloads::SkipNoINI),
                 sizeof(Payloads::SkipNoINI));
         }
     }

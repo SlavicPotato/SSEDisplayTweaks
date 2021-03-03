@@ -2,7 +2,7 @@
 
 namespace SDT
 {
-    enum class DRIVER_ID : uint32_t
+    enum class DRIVER_ID : std::uint32_t
     {
         INVALID,
         EVENTS,

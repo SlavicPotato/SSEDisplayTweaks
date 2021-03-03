@@ -9,9 +9,9 @@ namespace SDT
     public:
         static inline constexpr auto ID = DRIVER_ID::PAPYRUS;
 
-        FN_NAMEPROC("Papyrus")
-        FN_ESSENTIAL(false)
-        FN_DRVDEF(6)
+        FN_NAMEPROC("Papyrus");
+        FN_ESSENTIAL(false);
+        FN_DRVDEF(6);
     private:
         DPapyrus();
 
@@ -45,13 +45,16 @@ namespace SDT
         inline static auto UpdateBudgetUI = IAL::Addr(AID::ScriptRunUI, Offsets::ScriptUpdateBudgetUI);
 
         float m_lastInterval;
-        float* fUpdateBudgetMS;
 
-        float bmult;
-        float t_max;
-        float t_min;
+        struct {
+            float* fUpdateBudgetMS;
+        }m_gv;
 
-        wchar_t bufStats1[64];
+        float m_bmult;
+        float m_t_max;
+        float m_t_min;
+
+        wchar_t m_bufStats1[64];
 
         DOSD* m_OSDDriver;
 

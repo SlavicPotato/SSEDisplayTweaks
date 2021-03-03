@@ -236,14 +236,14 @@ namespace SDT
         tearing_enabled(false),
         has_fl_override(false),
         fps_limit(-1),
-        present_flags(0),
+        m_present_flags(0),
         lslExtraTime(0),
         lslPostLoadExtraTime(0),
         oo_expire_time(0),
         oo_current_fps_max(0),
         gameLoadState(0),
         m_dxgiFactory(nullptr),
-        swapchain{ 0, 0, 0 },
+        m_swapchain{ 0, 0, 0 },
         m_fl({
             MenuEvent::OnJournalMenu,
             MenuEvent::OnMainMenu,
@@ -271,22 +271,22 @@ namespace SDT
             MenuEvent::OnBookMenu
             })
     {
-        swapchain.flags = 0;
-        swapchain.width = 0;
-        swapchain.height = 0;
+        m_swapchain.flags = 0;
+        m_swapchain.width = 0;
+        m_swapchain.height = 0;
     }
 
     void DRender::LoadConfig()
     {
-        m_conf.fullscreen = static_cast<uint8_t>(GetConfigValue(CKEY_FULLSCREEN, false));
-        m_conf.borderless = static_cast<uint8_t>(GetConfigValue(CKEY_BORDERLESS, true));
+        m_conf.fullscreen = static_cast<std::uint8_t>(GetConfigValue(CKEY_FULLSCREEN, false));
+        m_conf.borderless = static_cast<std::uint8_t>(GetConfigValue(CKEY_BORDERLESS, true));
         m_conf.upscale = GetConfigValue(CKEY_UPSCALE, false);
         m_conf.upscale_select_primary_monitor = GetConfigValue(CKEY_UPSCALE_PRIMARY_MON, true);
         m_conf.disablebufferresize = GetConfigValue(CKEY_DISABLEBUFFERRESIZE, false);
         m_conf.disabletargetresize = GetConfigValue(CKEY_DISABLETARGETRESIZE, false);
 
         m_conf.vsync_on = GetConfigValue(CKEY_VSYNC, true);
-        m_conf.vsync_present_interval = std::clamp<uint32_t>(GetConfigValue<uint32_t>(CKEY_VSYNCPRESENTINT, 1), 1, 4);
+        m_conf.vsync_present_interval = std::clamp<std::uint32_t>(GetConfigValue<std::uint32_t>(CKEY_VSYNCPRESENTINT, 1), 1, 4);
         m_conf.max_rr = GetConfigValue(CKEY_MAXRR, 0);
         has_swap_effect = ConfigTranslateSwapEffect(
             GetConfigValue(CKEY_SWAPEFFECT, "auto"),
@@ -298,7 +298,7 @@ namespace SDT
         );
         m_conf.buffer_count = GetConfigValue(CKEY_BUFFERCOUNT, 0);
         if (m_conf.buffer_count > -1) {
-            m_conf.buffer_count = std::clamp<uint32_t>(m_conf.buffer_count, 0, 8);
+            m_conf.buffer_count = std::clamp<std::int32_t>(m_conf.buffer_count, 0, 8);
         }
         m_conf.max_frame_latency = GetConfigValue(CKEY_MAXFRAMELAT, 0);
         if (m_conf.max_frame_latency > 0) {
@@ -338,8 +338,8 @@ namespace SDT
         m_conf.limits.ui_tween_dv = GetConfigValue(CKEY_UITWEENFPSLIMIT_DV, true);
         m_conf.limits.ui_sw_dv = GetConfigValue(CKEY_UISWFPSLIMIT_DV, true);
 
-        m_conf.limits.ui_loadscreenex = std::clamp<int32_t>(GetConfigValue<int32_t>(CKEY_LOADSCRFPSLIMITEX, 0), 0, 15);
-        m_conf.limits.ui_initialloadex = std::clamp<int32_t>(GetConfigValue<int32_t>(CKEY_INITIALLOADLIMITEX, 4), 0, 30);
+        m_conf.limits.ui_loadscreenex = std::clamp<std::int32_t>(GetConfigValue<std::int32_t>(CKEY_LOADSCRFPSLIMITEX, 0), 0, 15);
+        m_conf.limits.ui_initialloadex = std::clamp<std::int32_t>(GetConfigValue<std::int32_t>(CKEY_INITIALLOADLIMITEX, 4), 0, 30);
 
         m_conf.adjust_ini = IConfigS(SECTION_GENERAL).GetConfigValue(CKEY_ADJUSTINICFG, true);
 
@@ -375,10 +375,10 @@ namespace SDT
         }
     }
 
-    bool DRender::ConfigParseResolution(const std::string& in, int32_t(&a_out)[2])
+    bool DRender::ConfigParseResolution(const std::string& in, std::int32_t(&a_out)[2])
     {
-        stl::vector<int32_t> v2;
-        StrHelpers::SplitString<int32_t>(in, 'x', v2);
+        stl::vector<std::int32_t> v2;
+        StrHelpers::SplitString<std::int32_t>(in, 'x', v2);
 
         if (v2.size() < 2)
             return false;
@@ -405,7 +405,7 @@ namespace SDT
 
     void DRender::PostLoadConfig()
     {
-        tts = PerfCounter::Query();
+        tts = IPerfCounter::Query();
 
         if (m_conf.upscale) {
             if (!(!m_conf.fullscreen && m_conf.borderless))
@@ -436,11 +436,11 @@ namespace SDT
 
         if (m_fl.HasLimit(MenuEvent::OnLoadingMenu)) {
             if (m_conf.limits.ui_loadscreenex > 0) {
-                lslExtraTime = PerfCounter::T(
+                lslExtraTime = IPerfCounter::T(
                     m_conf.limits.ui_loadscreenex * 1000000);
             }
             if (m_conf.limits.ui_initialloadex > 0) {
-                lslPostLoadExtraTime = PerfCounter::T(
+                lslPostLoadExtraTime = IPerfCounter::T(
                     m_conf.limits.ui_initialloadex * 1000000);
             }
         }
@@ -472,7 +472,7 @@ namespace SDT
         if (m_conf.max_rr > 0) {
             safe_write(
                 DisplayRefreshRate + 0x4,
-                static_cast<uint32_t>(m_conf.max_rr)
+                static_cast<std::uint32_t>(m_conf.max_rr)
             );
             Message("Refresh rate patch applied (max %d Hz)", m_conf.max_rr);
         }
@@ -484,7 +484,7 @@ namespace SDT
         );
         safe_write(
             bBorderless_Patch + 0x1,
-            static_cast<uint32_t>(m_Instance.m_conf.borderless)
+            static_cast<std::uint32_t>(m_Instance.m_conf.borderless)
         );
 
         safe_write(
@@ -494,7 +494,7 @@ namespace SDT
         );
         safe_write(
             bFullscreen_Patch + 0x1,
-            static_cast<uint32_t>(m_Instance.m_conf.fullscreen)
+            static_cast<std::uint32_t>(m_Instance.m_conf.fullscreen)
         );
 
         if (HasLimits()) {
@@ -510,7 +510,7 @@ namespace SDT
         if (m_conf.max_frame_latency > 0) {
             safe_write(
                 MaxFrameLatency,
-                static_cast<uint32_t>(m_conf.max_frame_latency)
+                static_cast<std::uint32_t>(m_conf.max_frame_latency)
             );
             Message("Maximum frame latency: %d", m_conf.max_frame_latency);
         }
@@ -537,7 +537,7 @@ namespace SDT
             }
 
             bool patchRes(false);
-            int32_t w, h;
+            std::int32_t w, h;
 
             if (m_conf.resolution[0] > 0 && m_conf.resolution[1] > 0)
             {
@@ -548,22 +548,22 @@ namespace SDT
             }
             else
             {
-                w = *iSizeW;
-                h = *iSizeH;
+                w = *m_gv.iSizeW;
+                h = *m_gv.iSizeH;
             }
 
             if (m_conf.resolution_scale > 0.0f)
             {
-                w = static_cast<int32_t>(static_cast<float>(w) * m_conf.resolution_scale);
-                h = static_cast<int32_t>(static_cast<float>(h) * m_conf.resolution_scale);
+                w = static_cast<std::int32_t>(static_cast<float>(w) * m_conf.resolution_scale);
+                h = static_cast<std::int32_t>(static_cast<float>(h) * m_conf.resolution_scale);
 
                 patchRes = true;
             }
 
             if (patchRes)
             {
-                w = std::max<int32_t>(w, 1);
-                h = std::max<int32_t>(h, 1);
+                w = std::max<std::int32_t>(w, 1);
+                h = std::max<std::int32_t>(h, 1);
 
                 safe_write(
                     iSizeW_Patch,
@@ -584,7 +584,7 @@ namespace SDT
         }
         else {
             struct ResizeTargetInjectArgs : JITASM::JITASM {
-                ResizeTargetInjectArgs(uintptr_t retnAddr, uintptr_t mdescAddr
+                ResizeTargetInjectArgs(std::uintptr_t retnAddr, std::uintptr_t mdescAddr
                 ) : JITASM()
                 {
                     Xbyak::Label mdescLabel;
@@ -606,7 +606,7 @@ namespace SDT
             {
                 ResizeTargetInjectArgs code(
                     ResizeTarget + 0x8,
-                    uintptr_t(&modeDesc));
+                    std::uintptr_t(&modeDesc));
                 g_branchTrampoline.Write6Branch(
                     ResizeTarget, code.get());
                 safe_memset(ResizeTarget + 0x6, 0xCC, 0x2);
@@ -618,7 +618,7 @@ namespace SDT
             && (!m_conf.vsync_on || limiter_installed))
         {
             struct PresentFlagsInject : JITASM::JITASM {
-                PresentFlagsInject(uintptr_t retnAddr, uintptr_t flagsAddr)
+                PresentFlagsInject(std::uintptr_t retnAddr, std::uintptr_t flagsAddr)
                     : JITASM()
                 {
                     Xbyak::Label flagsLabel;
@@ -641,19 +641,19 @@ namespace SDT
             {
                 PresentFlagsInject code(
                     Present_Flags_Inject + 0x7,
-                    uintptr_t(&present_flags));
+                    std::uintptr_t(&m_present_flags));
 
                 g_branchTrampoline.Write6Branch(
                     Present_Flags_Inject, code.get());
 
-                safe_write<uint8_t>(Present_Flags_Inject + 0x6, 0xCC);
+                safe_write<std::uint8_t>(Present_Flags_Inject + 0x6, 0xCC);
             }
             LogPatchEnd("IDXGISwapChain::Present");
         }
 
         {
             struct ResizeBuffersInjectArgs : JITASM::JITASM {
-                ResizeBuffersInjectArgs(uintptr_t retnAddr, uintptr_t swdAddr
+                ResizeBuffersInjectArgs(std::uintptr_t retnAddr, std::uintptr_t swdAddr
                 ) : JITASM()
                 {
                     Xbyak::Label retnLabel;
@@ -683,7 +683,7 @@ namespace SDT
             {
                 ResizeBuffersInjectArgs code(
                     ResizeBuffers_Inject + 0x18,
-                    uintptr_t(&swapchain));
+                    std::uintptr_t(&m_swapchain));
 
                 g_branchTrampoline.Write6Branch(
                     ResizeBuffers_Inject, code.get());
@@ -697,25 +697,25 @@ namespace SDT
     void DRender::RegisterHooks()
     {
         if (!Hook::Call5(CreateDXGIFactory_C,
-            reinterpret_cast<uintptr_t>(CreateDXGIFactory_Hook),
-            CreateDXGIFactory_O)) {
-            Error("CreateDXGIFactory hook failed");
+            reinterpret_cast<std::uintptr_t>(CreateDXGIFactory_Hook),
+            m_createDXGIFactory_O)) 
+        {
+            Warning("CreateDXGIFactory hook failed");
         }
 
         if (!Hook::Call5(D3D11CreateDeviceAndSwapChain_C,
-            reinterpret_cast<uintptr_t>(D3D11CreateDeviceAndSwapChain_Hook),
-            D3D11CreateDeviceAndSwapChain_O))
+            reinterpret_cast<std::uintptr_t>(D3D11CreateDeviceAndSwapChain_Hook),
+            m_D3D11CreateDeviceAndSwapChain_O))
         {
             Error("D3D11CreateDeviceAndSwapChain hook failed");
             SetOK(false);
             return;
         }
 
-
         if (HasLimits()) {
             RegisterHook(
                 Present_Limiter,
-                reinterpret_cast<uintptr_t>(Throttle),
+                reinterpret_cast<std::uintptr_t>(Throttle),
                 HookDescriptor::HookType::kWR6Call
             );
         }
@@ -732,23 +732,23 @@ namespace SDT
 
     bool DRender::Prepare()
     {
-        bLockFramerate = ISKSE::GetINISettingAddr<uint8_t>("bLockFramerate:Display");
-        if (!bLockFramerate) {
+        m_gv.bLockFramerate = ISKSE::GetINISettingAddr<std::uint8_t>("bLockFramerate:Display");
+        if (!m_gv.bLockFramerate) {
             return false;
         }
 
-        iFPSClamp = ISKSE::GetINISettingAddr<int32_t>("iFPSClamp:General");
-        if (!iFPSClamp) {
+        m_gv.iFPSClamp = ISKSE::GetINISettingAddr<std::int32_t>("iFPSClamp:General");
+        if (!m_gv.iFPSClamp) {
             return false;
         }
 
-        iSizeW = ISKSE::GetINIPrefSettingAddr<int32_t>("iSize W:Display");
-        if (!iSizeW) {
+        m_gv.iSizeW = ISKSE::GetINIPrefSettingAddr<std::int32_t>("iSize W:Display");
+        if (!m_gv.iSizeW) {
             return false;
         }
 
-        iSizeH = ISKSE::GetINIPrefSettingAddr<int32_t>("iSize H:Display");
-        if (!iSizeH) {
+        m_gv.iSizeH = ISKSE::GetINIPrefSettingAddr<std::int32_t>("iSize H:Display");
+        if (!m_gv.iSizeH) {
             return false;
         }
 
@@ -776,14 +776,14 @@ namespace SDT
     void DRender::OnConfigLoad(Event m_code, void* args)
     {
         if (m_Instance.limiter_installed || m_Instance.fps_limit == 0) {
-            *m_Instance.bLockFramerate = 0;
+            *m_Instance.m_gv.bLockFramerate = 0;
         }
 
         if (m_Instance.m_conf.adjust_ini) {
-            if (*m_Instance.iFPSClamp != 0)
+            if (*m_Instance.m_gv.iFPSClamp != 0)
             {
                 m_Instance.Message("Setting iFPSClamp=0");
-                *m_Instance.iFPSClamp = 0;
+                *m_Instance.m_gv.iFPSClamp = 0;
             }
         }
     }
@@ -794,13 +794,13 @@ namespace SDT
             if (disable_vsync) {
                 (*DXGIData)->SyncInterval = 0;
                 if (tearing_enabled) {
-                    present_flags |= DXGI_PRESENT_ALLOW_TEARING;
+                    m_present_flags |= DXGI_PRESENT_ALLOW_TEARING;
                 }
             }
             else {
                 (*DXGIData)->SyncInterval = vsync;
                 if (tearing_enabled) {
-                    present_flags &= ~DXGI_PRESENT_ALLOW_TEARING;
+                    m_present_flags &= ~DXGI_PRESENT_ALLOW_TEARING;
                 }
             }
         }
@@ -824,7 +824,7 @@ namespace SDT
         if (m_conf.vsync_on) {
             (*DXGIData)->SyncInterval = vsync;
             if (tearing_enabled) {
-                present_flags &= ~DXGI_PRESENT_ALLOW_TEARING;
+                m_present_flags &= ~DXGI_PRESENT_ALLOW_TEARING;
             }
         }
 
@@ -882,13 +882,13 @@ namespace SDT
                         gameLoadState = 0;
                         QueueFPSLimitPost(
                             ld.limit,
-                            PerfCounter::Query() + lslPostLoadExtraTime);
+                            IPerfCounter::Query() + lslPostLoadExtraTime);
                     }
                     else if (lslExtraTime > 0)
                     {
                         QueueFPSLimitPost(
                             ld.limit,
-                            PerfCounter::Query() + lslExtraTime);
+                            IPerfCounter::Query() + lslExtraTime);
                     }
                 }
             }
@@ -906,7 +906,7 @@ namespace SDT
     {
         m_Instance.m_afTasks.ProcessTasks();
 
-        auto e = PerfCounter::Query();
+        auto e = IPerfCounter::Query();
 
         long long limit;
         if (m_Instance.oo_expire_time > 0) {
@@ -923,10 +923,10 @@ namespace SDT
         }
 
         if (limit > 0) {
-            while (PerfCounter::delta_us(m_Instance.tts, e) < limit)
+            while (IPerfCounter::delta_us(m_Instance.tts, e) < limit)
             {
                 ::Sleep(0);
-                e = PerfCounter::Query();
+                e = IPerfCounter::Query();
             }
         }
         m_Instance.tts = e;
@@ -973,10 +973,10 @@ namespace SDT
     DXGI_SWAP_EFFECT DRender::AutoGetSwapEffect(const DXGI_SWAP_CHAIN_DESC* pSwapChainDesc) const
     {
         if (pSwapChainDesc->Windowed == TRUE) {
-            if (dxgi.caps & DXGI_CAP_FLIP_DISCARD) {
+            if (m_dxgi.caps & DXGI_CAP_FLIP_DISCARD) {
                 return DXGI_SWAP_EFFECT_FLIP_DISCARD;
             }
-            else if (dxgi.caps & DXGI_CAP_FLIP_SEQUENTIAL) {
+            else if (m_dxgi.caps & DXGI_CAP_FLIP_SEQUENTIAL) {
                 return DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
             }
         }
@@ -992,13 +992,13 @@ namespace SDT
             auto nse = se;
 
             if (nse == DXGI_SWAP_EFFECT_FLIP_DISCARD &&
-                !(dxgi.caps & DXGI_CAP_FLIP_DISCARD))
+                !(m_dxgi.caps & DXGI_CAP_FLIP_DISCARD))
             {
                 nse = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
             }
 
             if (nse == DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL &&
-                !(dxgi.caps & DXGI_CAP_FLIP_SEQUENTIAL))
+                !(m_dxgi.caps & DXGI_CAP_FLIP_SEQUENTIAL))
             {
                 nse = DXGI_SWAP_EFFECT_DISCARD;
             }
@@ -1039,11 +1039,11 @@ namespace SDT
             if (m_conf.enable_tearing && flip_model &&
                 (!m_conf.vsync_on || limiter_installed))
             {
-                if (dxgi.caps & DXGI_CAP_TEARING) {
+                if (m_dxgi.caps & DXGI_CAP_TEARING) {
                     pSwapChainDesc->Flags |= DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
 
                     if (!m_conf.vsync_on) {
-                        present_flags |= DXGI_PRESENT_ALLOW_TEARING;
+                        m_present_flags |= DXGI_PRESENT_ALLOW_TEARING;
                     }
 
                     tearing_enabled = true;
@@ -1082,8 +1082,8 @@ namespace SDT
         }
 
         if (m_conf.upscale) {
-            swapchain.width = pSwapChainDesc->BufferDesc.Width;
-            swapchain.height = pSwapChainDesc->BufferDesc.Height;
+            m_swapchain.width = pSwapChainDesc->BufferDesc.Width;
+            m_swapchain.height = pSwapChainDesc->BufferDesc.Height;
         }
 
         modeDesc = pSwapChainDesc->BufferDesc;
@@ -1092,7 +1092,7 @@ namespace SDT
             modeDesc.Format = DXGI_FORMAT_UNKNOWN;
         }
 
-        swapchain.flags = pSwapChainDesc->Flags;
+        m_swapchain.flags = pSwapChainDesc->Flags;
     }
 
     void DRender::OnD3D11PreCreate(IDXGIAdapter* pAdapter, const DXGI_SWAP_CHAIN_DESC* pSwapChainDesc)
@@ -1120,7 +1120,7 @@ namespace SDT
 
         if (pSwapChainDesc->Windowed == TRUE) {
             if (!m_Instance.IsFlipOn(pSwapChainDesc)) {
-                if (!(m_Instance.dxgi.caps & (DXGI_CAP_FLIP_DISCARD | DXGI_CAP_FLIP_SEQUENTIAL))) {
+                if (!(m_Instance.m_dxgi.caps & (DXGI_CAP_FLIP_DISCARD | DXGI_CAP_FLIP_SEQUENTIAL))) {
                     m_Instance.Warning("Flip not supported on your system, switch to exclusive fullscreen for better peformance");
                 }
                 else {
@@ -1158,7 +1158,7 @@ namespace SDT
         auto evd_pre = D3D11CreateEventPre(pSwapChainDesc);
         IEvents::TriggerEvent(Event::OnD3D11PreCreate, reinterpret_cast<void*>(&evd_pre));
 
-        HRESULT hr = m_Instance.D3D11CreateDeviceAndSwapChain_O(
+        HRESULT hr = m_Instance.m_D3D11CreateDeviceAndSwapChain_O(
             pAdapter, DriverType, Software, Flags,
             pFeatureLevels, FeatureLevels, SDKVersion,
             pSwapChainDesc, ppSwapChain, ppDevice, pFeatureLevel,
@@ -1180,7 +1180,7 @@ namespace SDT
 
     HRESULT WINAPI DRender::CreateDXGIFactory_Hook(REFIID riid, _COM_Outptr_ void** ppFactory)
     {
-        HRESULT hr = m_Instance.CreateDXGIFactory_O(riid, ppFactory);
+        HRESULT hr = m_Instance.m_createDXGIFactory_O(riid, ppFactory);
         if (SUCCEEDED(hr)) {
             m_Instance.m_dxgiFactory = static_cast<IDXGIFactory*>(*ppFactory);
         }
@@ -1220,7 +1220,7 @@ namespace SDT
             factory = DXGI_GetFactory();
             if (!factory) {
                 Error("Couldn't create IDXGIFactory, assuming DXGI_CAPS_ALL");
-                dxgi.caps = DXGI_CAPS_ALL;
+                m_dxgi.caps = DXGI_CAPS_ALL;
                 return;
             }
 
@@ -1231,14 +1231,14 @@ namespace SDT
             release = false;
         }
 
-        dxgi.caps = 0;
+        m_dxgi.caps = 0;
 
         do
         {
             {
                 ComPtr<IDXGIFactory5> tmp;
                 if (SUCCEEDED(factory->QueryInterface(IID_PPV_ARGS(&tmp)))) {
-                    dxgi.caps = (
+                    m_dxgi.caps = (
                         DXGI_CAP_FLIP_SEQUENTIAL |
                         DXGI_CAP_FLIP_DISCARD);
 
@@ -1248,7 +1248,7 @@ namespace SDT
                         &allowTearing, sizeof(allowTearing));
 
                     if (SUCCEEDED(hr) && allowTearing) {
-                        dxgi.caps |= DXGI_CAP_TEARING;
+                        m_dxgi.caps |= DXGI_CAP_TEARING;
                     }
 
                     break;
@@ -1258,7 +1258,7 @@ namespace SDT
             {
                 ComPtr<IDXGIFactory4> tmp;
                 if (SUCCEEDED(factory->QueryInterface(IID_PPV_ARGS(&tmp)))) {
-                    dxgi.caps = (
+                    m_dxgi.caps = (
                         DXGI_CAP_FLIP_SEQUENTIAL |
                         DXGI_CAP_FLIP_DISCARD);
 
@@ -1269,7 +1269,7 @@ namespace SDT
             {
                 ComPtr<IDXGIFactory3> tmp;
                 if (SUCCEEDED(factory->QueryInterface(IID_PPV_ARGS(&tmp)))) {
-                    dxgi.caps = DXGI_CAP_FLIP_SEQUENTIAL;
+                    m_dxgi.caps = DXGI_CAP_FLIP_SEQUENTIAL;
                 }
             }
         } while (0);
@@ -1326,7 +1326,7 @@ namespace SDT
 
             return true;
         }
-        catch (const std::exception &)
+        catch (const std::exception&)
         {
             return false;
         }

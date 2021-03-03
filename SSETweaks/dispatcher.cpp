@@ -41,17 +41,17 @@ namespace SDT
 
     bool IDDispatcher::InitializeDrivers_Impl()
     {
-        PostProcessDrivers();
+        PreProcessDrivers();
 
         std::sort(m_drivers.begin(), m_drivers.end(),
-            [](const auto &a, const auto &b) -> bool
-            {
+            [](const auto& a, const auto& b) {
                 return a->GetPriority() < b->GetPriority();
             });
 
-        for (const auto &drv : m_drivers)
+        for (const auto& drv : m_drivers)
         {
             drv->SetOK(drv->Prepare());
+
             if (drv->IsOK()) {
                 continue;
             }
@@ -67,36 +67,36 @@ namespace SDT
 
         decltype(m_drivers)::size_type count = 0;
 
-        for (const auto &drv : m_drivers)
+        for (const auto& drv : m_drivers)
         {
             if (!drv->IsOK()) {
                 continue;
             }
 
             Debug("Initializing: %s", drv->ModuleName());
+
             if (!drv->Initialize()) {
                 FatalError("Driver initialization failed: %s", drv->ModuleName());
                 return false;
             }
+
             count++;
         }
 
-        Message("%zu drivers initialized", count);
+        Message("%zu driver(s) initialized", count);
 
         m_drivers.swap(decltype(m_drivers)());
 
         return true;
     }
 
-    void IDDispatcher::PostProcessDrivers()
+    void IDDispatcher::PreProcessDrivers()
     {
-        for (const auto &drv : m_drivers) 
+        for (const auto& drv : m_drivers)
         {
-            auto driver_id = drv->GetID();
-
             ASSERT(drv->GetPriority() > -1);
 
-            auto& e = m_drivermap.emplace(driver_id, drv);
+            auto& e = m_drivermap.try_emplace(drv->GetID(), drv);
 
             ASSERT(e.second == true);
         }

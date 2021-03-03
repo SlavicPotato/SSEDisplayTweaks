@@ -49,7 +49,7 @@ extern "C"
 
     bool SKSEPlugin_Load(const SKSEInterface* skse)
     {
-        ASSERT(SDT::ISKSE::g_moduleHandle != nullptr);
+        ASSERT(SDT::ISKSE::moduleHandle != nullptr);
 
         gLog.Message("%s version %s (runtime %u.%u.%u.%u)",
             PLUGIN_NAME, PLUGIN_VERSION_VERSTRING,
@@ -59,12 +59,12 @@ extern "C"
             GET_EXE_VERSION_SUB(skse->runtimeVersion));
 
         if (!IAL::IsLoaded()) {
-            gLog.FatalError("Could not load the address library, check requirements on the nexus page");
+            gLog.FatalError("Could not load the address library, make sure it's installed");
             return false;
         }
 
         if (IAL::HasBadQuery()) {
-            gLog.FatalError("One or more addresses could not be retrieved from the database");
+            gLog.FatalError("One or more addresses could not be retrieved from the address library");
             return false;
         }
 
@@ -100,7 +100,7 @@ BOOL APIENTRY DllMain(
     switch (ul_reason_for_call)
     {
     case DLL_PROCESS_ATTACH:
-        SDT::ISKSE::g_moduleHandle = hModule;
+        SDT::ISKSE::moduleHandle = hModule;
         break;
     }
     return TRUE;

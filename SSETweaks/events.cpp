@@ -53,7 +53,7 @@ namespace SDT
     {
         if (!Hook::Call5(
             LoadPluginINI_C,
-            reinterpret_cast<uintptr_t>(PostLoadPluginINI_Hook),
+            reinterpret_cast<std::uintptr_t>(PostLoadPluginINI_Hook),
             m_Instance.LoadPluginINI_O
         ))
         {
@@ -63,7 +63,7 @@ namespace SDT
 
         m_Instance.Debug("Installed event hooks");
 
-        ISKSE::g_messaging->RegisterListener(ISKSE::g_pluginHandle, "SKSE", MessageHandler);
+        ISKSE::messaging->RegisterListener(ISKSE::pluginHandle, "SKSE", MessageHandler);
 
         return true;
     }
@@ -130,7 +130,7 @@ namespace SDT
     {
         if (a_message->type == SKSEMessagingInterface::kMessage_InputLoaded) {
             auto mm = MenuManager::GetSingleton();
-            if (mm) 
+            if (mm)
             {
                 auto dispatcher = mm->MenuOpenCloseEventDispatcher();
                 dispatcher->AddEventSink(MenuOpenCloseEventInitializer::GetSingleton());
@@ -154,10 +154,10 @@ namespace SDT
             return;
         }
 
-        for (size_t i = 0; i < std::size(s_mstc_map_desc); i++)
+        for (auto& e : s_mstc_map_desc)
         {
-            auto& str = uiStrHolder->GetString(s_mstc_map_desc[i].index);
-            m_mstc_map.emplace(str.data, s_mstc_map_desc[i].event);
+            auto& str = uiStrHolder->GetString(e.index);
+            m_mstc_map.emplace(str.data, e.event);
         }
 
         m_mstc_map[BSFixedString("CustomMenu").data] = MenuEvent::OnCustomMenu;
@@ -189,11 +189,11 @@ namespace SDT
 
     void MenuEventTrack::SetTracked(const trackSet_t& a_set)
     {
-        for (uint32_t i = 0; i < Enum::Underlying(MenuEvent::Max); i++)
-            m_tracked[i] = false;
+        for (auto& e : m_tracked) {
+            e = false;
+        }
 
-        for (auto& e : a_set)
-        {
+        for (auto& e : a_set) {
             m_tracked[Enum::Underlying(e)] = true;
         }
     };

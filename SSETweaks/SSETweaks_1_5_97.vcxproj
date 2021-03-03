@@ -240,7 +240,7 @@
       <CallingConvention>Cdecl</CallingConvention>
       <StringPooling>true</StringPooling>
       <Optimization>MaxSpeed</Optimization>
-      <DebugInformationFormat>None</DebugInformationFormat>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <UseFullPaths>false</UseFullPaths>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalOptions>/permissive %(AdditionalOptions)</AdditionalOptions>
@@ -281,7 +281,7 @@
       <CallingConvention>Cdecl</CallingConvention>
       <StringPooling>true</StringPooling>
       <Optimization>MaxSpeed</Optimization>
-      <DebugInformationFormat>None</DebugInformationFormat>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <UseFullPaths>false</UseFullPaths>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <IntelJCCErratum>true</IntelJCCErratum>
@@ -325,7 +325,7 @@
       <CallingConvention>Cdecl</CallingConvention>
       <StringPooling>true</StringPooling>
       <Optimization>MaxSpeed</Optimization>
-      <DebugInformationFormat>None</DebugInformationFormat>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <UseFullPaths>false</UseFullPaths>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <IntelJCCErratum>true</IntelJCCErratum>
@@ -373,7 +373,7 @@
       <CallingConvention>Cdecl</CallingConvention>
       <StringPooling>true</StringPooling>
       <Optimization>MaxSpeed</Optimization>
-      <DebugInformationFormat>None</DebugInformationFormat>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <UseFullPaths>false</UseFullPaths>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <IntelJCCErratum>true</IntelJCCErratum>
@@ -419,7 +419,7 @@
       <CallingConvention>Cdecl</CallingConvention>
       <StringPooling>true</StringPooling>
       <Optimization>MaxSpeed</Optimization>
-      <DebugInformationFormat>None</DebugInformationFormat>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <UseFullPaths>false</UseFullPaths>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <IntelJCCErratum>true</IntelJCCErratum>
@@ -586,6 +586,7 @@
     <ClCompile Include="window.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\README.md" />
     <None Include="cpp.hint" />
     <None Include="exports.def" />
     <None Include="SSEDisplayTweaks.ini" />

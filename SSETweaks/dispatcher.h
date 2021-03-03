@@ -11,18 +11,14 @@ namespace SDT
         static bool DriverOK(DRIVER_ID const id);
         static IDriver* GetDriver(DRIVER_ID const id);
 
-        template <typename T>
-        [[nodiscard]] static T* GetDriver()
-        {
-            static_assert(std::is_base_of_v<IDriver, T>);
-            return static_cast<T*>(GetDriver(T::ID));
-        }
+        template <class T>
+        [[nodiscard]] static auto GetDriver();
 
-        FN_NAMEPROC("Dispatcher")
+        FN_NAMEPROC("Dispatcher");
     private:
         IDDispatcher() = default;
 
-        void PostProcessDrivers();
+        void PreProcessDrivers();
         bool InitializeDrivers_Impl();
 
         stl::vector<IDriver*> m_drivers;
@@ -30,4 +26,15 @@ namespace SDT
 
         static IDDispatcher m_Instance;
     };
+
+    template <class T>
+    auto IDDispatcher::GetDriver()
+    {
+        using type = std::remove_all_extents_t<std::remove_reference_t<std::remove_cv_t<T>>>;
+
+        static_assert(std::is_base_of_v<IDriver, type>);
+
+        return static_cast<type*>(GetDriver(type::ID));
+    }
+
 }

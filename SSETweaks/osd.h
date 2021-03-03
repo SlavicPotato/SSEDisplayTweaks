@@ -50,7 +50,7 @@ namespace SDT
             return false;
         }
 
-        SKMP_FORCEINLINE size_t GetNumCallbacks() const {
+        SKMP_FORCEINLINE auto GetNumCallbacks() const {
             return m_callbacks.size();
         }
 
@@ -113,8 +113,8 @@ namespace SDT
 
         void AddStatsCallback(StatsRenderer::Callback cb)
         {
-            if (statsRenderer.get() != nullptr) {
-                statsRenderer->AddCallback(cb);
+            if (m_statsRenderer.get() != nullptr) {
+                m_statsRenderer->AddCallback(cb);
             }
         }
 
@@ -131,16 +131,19 @@ namespace SDT
             std::string offset;
             std::string items;
             float outline_size;
-            uint32_t combo_key;
-            uint32_t key;
+            std::uint32_t combo_key;
+            std::uint32_t key;
             StatsRenderer::Align align;
             bool scale_to_window;
         } m_conf;
 
-        FN_NAMEPROC("OSD")
-        FN_ESSENTIAL(false)
-        FN_DRVDEF(3)
+        FN_NAMEPROC("OSD");
+        FN_ESSENTIAL(false);
+        FN_DRVDEF(3);
     private:
+
+        using itemToFlag_t = stl::iunordered_map<std::string, std::uint32_t>;
+
         DOSD();
 
         virtual void LoadConfig() override;
@@ -148,16 +151,13 @@ namespace SDT
         virtual void RegisterHooks() override;
         virtual bool Prepare() override;
 
-        static StatsRenderer::Align ConfigGetStatsRendererAlignment(int32_t param);
+        static StatsRenderer::Align ConfigGetStatsRendererAlignment(std::int32_t param);
         static int ConfigGetFontResource(Font font);
         static void ConfigParseColors(const std::string& in, DirectX::XMVECTORF32& out);
         static void ConfigParseScale(const std::string& in, DirectX::XMFLOAT2A& out);
         static void ConfigParseVector2(const std::string& in, DirectX::XMFLOAT2A& out);
-        static void ConfigGetFlags(const std::string& in, uint32_t& out);
-        static uint32_t ConfigGetComboKey(int32_t param);
-
-        typedef stl::iunordered_map<std::string, uint32_t> ItemToFlag_T;
-        static ItemToFlag_T ItemToFlag;
+        static void ConfigGetFlags(const std::string& in, std::uint32_t& out);
+        static std::uint32_t ConfigGetComboKey(std::int32_t param);
 
         static const wchar_t* StatsRendererCallback_FPS();
         static const wchar_t* StatsRendererCallback_SimpleFPS();
@@ -186,8 +186,8 @@ namespace SDT
             long long lastUpdate;
             uint64_t lastFrameCount, frameCounter;
             volatile bool draw;
-            volatile uint32_t warmup;
-            uint32_t flags;
+            volatile std::uint32_t warmup;
+            std::uint32_t flags;
             long long interval;
             struct {
                 DirectX::XMVECTORF32 font;
@@ -199,20 +199,22 @@ namespace SDT
                 double fps;
                 double frametime;
             } cur;
-        } stats;
+        } m_stats;
 
-        KeyPressHandler inputEventHandler;
+        KeyPressHandler m_inputEventHandler;
 
-        wchar_t bufStats1[64];
-        wchar_t bufStats2[64];
-        wchar_t bufStats3[64];
-        wchar_t bufStats4[64];
+        wchar_t m_bufStats1[64];
+        wchar_t m_bufStats2[64];
+        wchar_t m_bufStats3[64];
+        wchar_t m_bufStats4[64];
 
-        std::unique_ptr<StatsRenderer> statsRenderer;
+        std::unique_ptr<StatsRenderer> m_statsRenderer;
 
         DRender* m_dRender;
 
         Microsoft::WRL::ComPtr<IDXGIAdapter3> m_adapter;
+
+        static itemToFlag_t m_itemToFlag;
 
         inline static auto presentAddr = IAL::Addr(AID::Present, Offsets::Present);
 

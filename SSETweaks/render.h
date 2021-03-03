@@ -2,11 +2,11 @@
 
 namespace SDT
 {
-    constexpr uint32_t DXGI_CAP_FLIP_DISCARD = 0x00000001U;
-    constexpr uint32_t DXGI_CAP_FLIP_SEQUENTIAL = 0x00000002U;
-    constexpr uint32_t DXGI_CAP_TEARING = 0x00000004U;
+    static constexpr std::uint32_t DXGI_CAP_FLIP_DISCARD = 0x00000001U;
+    static constexpr std::uint32_t DXGI_CAP_FLIP_SEQUENTIAL = 0x00000002U;
+    static constexpr std::uint32_t DXGI_CAP_TEARING = 0x00000004U;
 
-    constexpr uint32_t DXGI_CAPS_ALL = 0xFFFFFFFFU;
+    static constexpr std::uint32_t DXGI_CAPS_ALL = 0xFFFFFFFFU;
 
     struct MenuFramerateLimitDescriptor
     {
@@ -60,24 +60,24 @@ namespace SDT
         static inline constexpr auto ID = DRIVER_ID::RENDER;
 
         typedef void(*RTProcR) (void);
-        typedef void(*PhysCalcR) (void*, int32_t);
+        typedef void(*PhysCalcR) (void*, std::int32_t);
 
         struct {
-            uint8_t fullscreen;
-            uint8_t borderless;
+            std::uint8_t fullscreen;
+            std::uint8_t borderless;
             bool upscale;
             bool upscale_select_primary_monitor;
             bool disablebufferresize;
             bool disabletargetresize;
             bool vsync_on;
-            uint32_t vsync_present_interval;
+            std::uint32_t vsync_present_interval;
             int swap_effect;
             DXGI_MODE_SCALING scaling_mode;
-            int32_t max_rr;
-            int32_t buffer_count;
-            int32_t max_frame_latency;
+            std::int32_t max_rr;
+            std::int32_t buffer_count;
+            std::int32_t max_frame_latency;
             bool enable_tearing;
-            int32_t resolution[2];
+            std::int32_t resolution[2];
             float resolution_scale;
 
             struct {
@@ -113,8 +113,8 @@ namespace SDT
                 bool ui_tween_dv;
                 bool ui_sw_dv;
 
-                int32_t ui_loadscreenex;
-                int32_t ui_initialloadex;
+                std::int32_t ui_loadscreenex;
+                std::int32_t ui_initialloadex;
             } limits;
 
             bool adjust_ini;
@@ -127,9 +127,9 @@ namespace SDT
             IDXGISwapChain* a_swapChain,
             DXGI_QUERY_VIDEO_MEMORY_INFO& a_out) const;
 
-        FN_NAMEPROC("Render")
-        FN_ESSENTIAL(false)
-        FN_DRVDEF(2)
+        FN_NAMEPROC("Render");
+        FN_ESSENTIAL(false);
+        FN_DRVDEF(2);
     private:
         DRender();
 
@@ -147,7 +147,7 @@ namespace SDT
 
         bool ConfigTranslateSwapEffect(const std::string& param, int& out) const;
         bool ConfigTranslateScalingMode(const std::string& param, DXGI_MODE_SCALING& out) const;
-        static bool ConfigParseResolution(const std::string& in, int32_t(&a_out)[2]);
+        static bool ConfigParseResolution(const std::string& in, std::int32_t(&a_out)[2]);
 
         bool ValidateDisplayMode(const DXGI_SWAP_CHAIN_DESC* pSwapChainDesc) const;
         UINT GetRefreshRate(const DXGI_SWAP_CHAIN_DESC* pSwapChainDesc) const;
@@ -198,14 +198,14 @@ namespace SDT
         int fps_limit;
         bool has_swap_effect;
         bool has_scaling_mode;
-        uint32_t vsync;
+        std::uint32_t vsync;
         float fmt_max;
         float fmt_min;
         long long fps_max;
         bool tearing_enabled;
         long long current_fps_max, oo_current_fps_max, oo_expire_time;
         long long lslExtraTime, lslPostLoadExtraTime;
-        uint8_t gameLoadState;
+        std::uint8_t gameLoadState;
         bool has_fl_override;
         bool limiter_installed;
 
@@ -220,17 +220,20 @@ namespace SDT
                 pSwapChainDesc->SwapEffect == DXGI_SWAP_EFFECT_FLIP_DISCARD;
         }
 
-        UINT present_flags;
+        UINT m_present_flags;
 
-        uint8_t* bLockFramerate;
-        int32_t* iFPSClamp;
-        int32_t* iSizeW;
-        int32_t* iSizeH;
+        struct
+        {
+            std::uint8_t* bLockFramerate;
+            std::int32_t* iFPSClamp;
+            std::int32_t* iSizeW;
+            std::int32_t* iSizeH;
+        } m_gv;
 
         IDXGIFactory* m_dxgiFactory;
 
-        PFN_D3D11_CREATE_DEVICE_AND_SWAP_CHAIN D3D11CreateDeviceAndSwapChain_O;
-        CreateDXGIFactory_T CreateDXGIFactory_O;
+        PFN_D3D11_CREATE_DEVICE_AND_SWAP_CHAIN m_D3D11CreateDeviceAndSwapChain_O;
+        CreateDXGIFactory_T m_createDXGIFactory_O;
 
         inline static auto CreateDXGIFactory_C = IAL::Addr(AID::D3D11Create, Offsets::CreateDXGIFactory_C);
         inline static auto D3D11CreateDeviceAndSwapChain_C = IAL::Addr(AID::D3D11Create, Offsets::D3D11CreateDeviceAndSwapChain_C);
@@ -252,17 +255,17 @@ namespace SDT
         inline static auto ResizeTarget = IAL::Addr(AID::WindowSwapChain2, Offsets::ResizeTarget);
 
         struct {
-            uint32_t width;
-            uint32_t height;
-            uint32_t flags;
-        }swapchain;
+            std::uint32_t width;
+            std::uint32_t height;
+            std::uint32_t flags;
+        }m_swapchain;
 
         DXGI_MODE_DESC modeDesc;
 
         struct
         {
-            uint32_t caps;
-        } dxgi;
+            std::uint32_t caps;
+        } m_dxgi;
 
         TaskQueue m_afTasks;
 

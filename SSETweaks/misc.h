@@ -9,9 +9,9 @@ namespace SDT
     public:
         static inline constexpr auto ID = DRIVER_ID::MISC;
 
-        FN_NAMEPROC("Miscellaneous")
-        FN_ESSENTIAL(false)
-        FN_DRVDEF(6)
+        FN_NAMEPROC("Miscellaneous");
+        FN_ESSENTIAL(false);
+        FN_DRVDEF(6);
     private:
         DMisc() = default;
 

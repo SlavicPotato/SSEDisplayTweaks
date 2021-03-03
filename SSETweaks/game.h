@@ -4,6 +4,6 @@ namespace SDT
 {
     namespace Game
     {
-        extern float* frameTimer;
+        extern const float* g_frameTimer;
     }
 }

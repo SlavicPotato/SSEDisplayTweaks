@@ -9,6 +9,7 @@ namespace SDT
         switch (a_event)
         {
         case KeyEvent::KeyDown:
+
             if (m_comboKey && a_keyCode == m_comboKey)
             {
                 m_comboKeyDown = true;
@@ -39,18 +40,18 @@ namespace SDT
 
     void DInput::RegisterForKeyEvents(KeyEventHandler* const h)
     {
-        m_Instance.callbacks.push_back(h);
+        m_Instance.m_handlers.emplace_back(h);
     }
 
-    void DInput::MessageHandler(Event m_code, void* args)
+    void DInput::MessageHandler(Event m_code, void* a_args)
     {
-        auto message = reinterpret_cast<SKSEMessagingInterface::Message*>(args);
+        auto message = static_cast<SKSEMessagingInterface::Message*>(a_args);
 
         switch (message->type)
         {
         case SKSEMessagingInterface::kMessage_InputLoaded:
         {
-            if (m_Instance.callbacks.empty()) {
+            if (m_Instance.m_handlers.empty()) {
                 break;
             }
 
@@ -69,7 +70,7 @@ namespace SDT
 
     void DInput::DispatchKeyEvent(KeyEvent ev, UInt32 key)
     {
-        for (const auto& h : callbacks) {
+        for (const auto& h : m_handlers) {
             h->ReceiveEvent(ev, key);
         }
     }
@@ -81,28 +82,29 @@ namespace SDT
             return kEvent_Continue;
         }
 
-        for (InputEvent* e = *evns; e; e = e->next)
+        for (auto inputEvent = *evns; inputEvent; inputEvent = inputEvent->next)
         {
-            if (e->eventType == InputEvent::kEventType_Button)
+            if (inputEvent->eventType == InputEvent::kEventType_Button)
             {
-                auto t = RTTI<ButtonEvent>::Cast(e);
+                auto buttonEvent = RTTI<ButtonEvent>::Cast(inputEvent);
+                if (!buttonEvent)
+                    continue;
 
-                UInt32 deviceType = t->deviceType;
-
-                if (deviceType != kDeviceType_Keyboard) {
+                if (buttonEvent->deviceType != kDeviceType_Keyboard) {
                     continue;
                 }
 
-                UInt32 keyCode = t->keyMask;
+                UInt32 keyCode = buttonEvent->keyMask;
 
                 if (keyCode >= InputMap::kMaxMacros)
                     continue;
 
-                if (t->flags != 0 && t->timer == 0.0f)
+                if (buttonEvent->flags != 0)
                 {
-                    m_Instance.DispatchKeyEvent(KeyEvent::KeyDown, keyCode);
+                    if (buttonEvent->timer == 0.0f)
+                        m_Instance.DispatchKeyEvent(KeyEvent::KeyDown, keyCode);
                 }
-                else if (t->flags == 0)
+                else
                 {
                     m_Instance.DispatchKeyEvent(KeyEvent::KeyUp, keyCode);
                 }

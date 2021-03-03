@@ -44,16 +44,11 @@ namespace SDT
             }
 
             if (m_conf.fmt_max > 0.0f) {
-                if (m_conf.fmt_max < HAVOK_MAXTIME_MIN) {
-                    m_conf.fmt_max = HAVOK_MAXTIME_MIN;
-                }
-
+                m_conf.fmt_max = std::max(m_conf.fmt_max, HAVOK_MAXTIME_MIN);
                 fmt_min = 1.0f / m_conf.fmt_max;
             }
 
-            if (m_conf.fmt_min < HAVOK_MAXTIME_MIN) {
-                m_conf.fmt_min = HAVOK_MAXTIME_MIN;
-            }
+            m_conf.fmt_min = std::max(m_conf.fmt_min, HAVOK_MAXTIME_MIN);
 
             fmt_max = 1.0f / m_conf.fmt_min;
 
@@ -77,15 +72,15 @@ namespace SDT
 
                 bool regOSDEvent;
 
-                uintptr_t hf;
+                std::uintptr_t hf;
                 if (m_OSDDriver && m_OSDDriver->IsOK() && m_OSDDriver->m_conf.enabled && m_conf.stats_enabled)
                 {
                     regOSDEvent = true;
-                    hf = reinterpret_cast<uintptr_t>(hookRTHStats);
+                    hf = reinterpret_cast<std::uintptr_t>(hookRTHStats);
                 }
                 else {
                     regOSDEvent = false;
-                    hf = reinterpret_cast<uintptr_t>(hookRTH);
+                    hf = reinterpret_cast<std::uintptr_t>(hookRTH);
                 }
 
                 if (!Hook::Call5(PhysCalcMaxTime, hf, PhysCalcMaxTime_O))
@@ -104,23 +99,23 @@ namespace SDT
 
     bool DHavok::Prepare()
     {
-        fMaxTime = ISKSE::GetINISettingAddr<float>("fMaxTime:HAVOK");
-        if (!fMaxTime) {
+        m_gv.fMaxTime = ISKSE::GetINISettingAddr<float>("fMaxTime:HAVOK");
+        if (!m_gv.fMaxTime) {
             return false;
         }
 
-        fMaxTimeComplex = ISKSE::GetINISettingAddr<float>("fMaxTimeComplex:HAVOK");
-        if (!fMaxTimeComplex) {
+        m_gv.fMaxTimeComplex = ISKSE::GetINISettingAddr<float>("fMaxTimeComplex:HAVOK");
+        if (!m_gv.fMaxTimeComplex) {
             return false;
         }
 
-        uMaxNumPhysicsStepsPerUpdate = ISKSE::GetINISettingAddr<uint32_t>("uMaxNumPhysicsStepsPerUpdate:HAVOK");
-        if (!uMaxNumPhysicsStepsPerUpdate) {
+        m_gv.uMaxNumPhysicsStepsPerUpdate = ISKSE::GetINISettingAddr<std::uint32_t>("uMaxNumPhysicsStepsPerUpdate:HAVOK");
+        if (!m_gv.uMaxNumPhysicsStepsPerUpdate) {
             return false;
         }
 
-        uMaxNumPhysicsStepsPerUpdateComplex = ISKSE::GetINISettingAddr<uint32_t>("uMaxNumPhysicsStepsPerUpdateComplex:HAVOK");
-        if (!uMaxNumPhysicsStepsPerUpdateComplex) {
+        m_gv.uMaxNumPhysicsStepsPerUpdateComplex = ISKSE::GetINISettingAddr<std::uint32_t>("uMaxNumPhysicsStepsPerUpdateComplex:HAVOK");
+        if (!m_gv.uMaxNumPhysicsStepsPerUpdateComplex) {
             return false;
         }
 
@@ -129,18 +124,19 @@ namespace SDT
 
     void DHavok::CalculateHavokValues(bool a_isComplex) const
     {
-        float interval = std::clamp(*Game::frameTimer, fmt_min, fmt_max);
+        float interval = std::clamp(*Game::g_frameTimer, fmt_min, fmt_max);
 
-        *fMaxTime = interval;
+        *m_gv.fMaxTime = interval;
 
-        if (a_isComplex)
-            *fMaxTimeComplex = 1.0f / std::max(1.0f / interval - m_conf.fmtc_offset, HAVOK_MAXTIME_MIN);
+        if (a_isComplex) {
+            *m_gv.fMaxTimeComplex = 1.0f / std::max(1.0f / interval - m_conf.fmtc_offset, HAVOK_MAXTIME_MIN);
+        }
     }
 
     void DHavok::UpdateHavokStats() const
     {
-        m_Instance.m_stats_counters[0].accum(static_cast<double>(*fMaxTime));
-        m_Instance.m_stats_counters[1].accum(static_cast<double>(*fMaxTimeComplex));
+        m_Instance.m_stats_counters[0].accum(static_cast<double>(*m_gv.fMaxTime));
+        m_Instance.m_stats_counters[1].accum(static_cast<double>(*m_gv.fMaxTimeComplex));
     }
 
     float DHavok::AutoGetMaxTime(const DXGI_SWAP_CHAIN_DESC* pSwapChainDesc, float def) const
@@ -148,7 +144,7 @@ namespace SDT
         auto rd = IDDispatcher::GetDriver<DRender>();
 
         float maxt = rd->GetMaxFramerate(pSwapChainDesc);
-        if (maxt > 0.0f) {
+        if (maxt > std::numeric_limits<float>::epsilon()) {
             maxt = 1.0f / maxt;
         }
         else {
@@ -202,8 +198,8 @@ namespace SDT
 
             float maxtc = 1.0f / std::max(1.0f / maxt - m_conf.fmtc_offset, HAVOK_MAXTIME_MIN);
 
-            *fMaxTime = maxt;
-            *fMaxTimeComplex = maxtc;
+            *m_gv.fMaxTime = maxt;
+            *m_gv.fMaxTimeComplex = maxtc;
 
             Message("(STATIC) fMaxTime=%.6g fMaxTimeComplex=%.6g (Max FPS = %.6g)", maxt, maxtc, 1.0f / maxt);
         }
@@ -212,28 +208,28 @@ namespace SDT
             Warning("With the current configuration frame times could fall below fMaxTime. You may experience physics issues.");
         }
 
-        if (!*uMaxNumPhysicsStepsPerUpdate) {
-            *uMaxNumPhysicsStepsPerUpdate = 3;
+        if (!*m_gv.uMaxNumPhysicsStepsPerUpdate) {
+            *m_gv.uMaxNumPhysicsStepsPerUpdate = 3;
             Warning("uMaxNumPhysicsStepsPerUpdate is 0, adjusting to 3");
         }
-        else if (*uMaxNumPhysicsStepsPerUpdate != 3) {
+        else if (*m_gv.uMaxNumPhysicsStepsPerUpdate != 3) {
             if (m_conf.adjust_ini) {
                 m_Instance.Message("Setting uMaxNumPhysicsStepsPerUpdate=3");
-                *uMaxNumPhysicsStepsPerUpdate = 3;
+                *m_gv.uMaxNumPhysicsStepsPerUpdate = 3;
             }
             else {
                 Warning("uMaxNumPhysicsStepsPerUpdate != 3, recommend resetting to default");
             }
         }
 
-        if (!*uMaxNumPhysicsStepsPerUpdateComplex) {
-            *uMaxNumPhysicsStepsPerUpdateComplex = 1;
+        if (!*m_gv.uMaxNumPhysicsStepsPerUpdateComplex) {
+            *m_gv.uMaxNumPhysicsStepsPerUpdateComplex = 1;
             Warning("uMaxNumPhysicsStepsPerUpdateComplex is 0, adjusting to 1");
         }
-        else if (*uMaxNumPhysicsStepsPerUpdateComplex != 1) {
+        else if (*m_gv.uMaxNumPhysicsStepsPerUpdateComplex != 1) {
             if (m_conf.adjust_ini) {
                 m_Instance.Message("Setting uMaxNumPhysicsStepsPerUpdateComplex=1");
-                *uMaxNumPhysicsStepsPerUpdateComplex = 1;
+                *m_gv.uMaxNumPhysicsStepsPerUpdateComplex = 1;
             }
             else {
                 Warning("uMaxNumPhysicsStepsPerUpdateComplex != 1, recommend resetting to default");
@@ -241,13 +237,13 @@ namespace SDT
         }
     }
 
-    void DHavok::hookRTH(float a_time, bool a_isComplex, uint8_t a_unk0)
+    void DHavok::hookRTH(float a_time, bool a_isComplex, std::uint8_t a_unk0)
     {
         m_Instance.CalculateHavokValues(a_isComplex);
         m_Instance.PhysCalcMaxTime_O(a_time, a_isComplex, a_unk0);
     }
 
-    void DHavok::hookRTHStats(float a_time, bool a_isComplex, uint8_t a_unk0)
+    void DHavok::hookRTHStats(float a_time, bool a_isComplex, std::uint8_t a_unk0)
     {
         m_Instance.CalculateHavokValues(a_isComplex);
         m_Instance.UpdateHavokStats();

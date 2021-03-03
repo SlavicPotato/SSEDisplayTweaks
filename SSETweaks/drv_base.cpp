@@ -34,12 +34,12 @@ namespace SDT
     };
 
 
-    void IHook::RegisterHook(uintptr_t target, uintptr_t hook)
+    void IHook::RegisterHook(std::uintptr_t target, std::uintptr_t hook)
     {
         m_hooks.emplace_back(target, hook, HookDescriptor::HookType::kWR5Call);
     }
 
-    void IHook::RegisterHook(uintptr_t target, uintptr_t hook, HookDescriptor::HookType type)
+    void IHook::RegisterHook(std::uintptr_t target, std::uintptr_t hook, HookDescriptor::HookType type)
     {
         m_hooks.emplace_back(target, hook, type);
     }

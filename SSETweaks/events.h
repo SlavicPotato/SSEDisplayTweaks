@@ -2,7 +2,7 @@
 
 namespace SDT
 {
-    enum class Event : uint32_t
+    enum class Event : std::uint32_t
     {
         OnConfigLoad,
         OnD3D11PreCreate,
@@ -20,7 +20,7 @@ namespace SDT
         OnExit
     };
 
-    enum class MenuEvent : uint32_t
+    enum class MenuEvent : std::uint32_t
     {
         OnAnyMenu,
         OnUnknownMenu,
@@ -165,9 +165,9 @@ namespace SDT
 
         static MenuEvent GetMenuEventCode(const BSFixedString& a_str);
 
-        FN_NAMEPROC("Events")
-        FN_ESSENTIAL(true)
-        FN_DRVDEF(0)
+        FN_NAMEPROC("Events");
+        FN_ESSENTIAL(true);
+        FN_DRVDEF(0);
     private:
         IEvents() = default;
 

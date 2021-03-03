@@ -23,19 +23,19 @@ namespace SDT
     static constexpr const char* CKEY_COMBOKEY = "ComboKey";
     static constexpr const char* CKEY_SCALETOWINDOW = "ScaleToWindow";
 
-    static constexpr uint32_t F_SHOW_FPS = 1U << 0;
-    static constexpr uint32_t F_SHOW_FPS_SIMPLE = 1U << 2;
-    static constexpr uint32_t F_SHOW_FRAMETIME = 1U << 3;
-    static constexpr uint32_t F_SHOW_FRAMETIME_SIMPLE = 1U << 4;
-    static constexpr uint32_t F_SHOW_COUNTER = 1U << 5;
-    static constexpr uint32_t F_SHOW_VRAM_USAGE = 1U << 6;
-    static constexpr uint32_t F_SHOW_ALL = (F_SHOW_FPS | F_SHOW_FRAMETIME | F_SHOW_COUNTER | F_SHOW_VRAM_USAGE);
+    static constexpr std::uint32_t F_SHOW_FPS = 1U << 0;
+    static constexpr std::uint32_t F_SHOW_FPS_SIMPLE = 1U << 2;
+    static constexpr std::uint32_t F_SHOW_FRAMETIME = 1U << 3;
+    static constexpr std::uint32_t F_SHOW_FRAMETIME_SIMPLE = 1U << 4;
+    static constexpr std::uint32_t F_SHOW_COUNTER = 1U << 5;
+    static constexpr std::uint32_t F_SHOW_VRAM_USAGE = 1U << 6;
+    static constexpr std::uint32_t F_SHOW_ALL = (F_SHOW_FPS | F_SHOW_FRAMETIME | F_SHOW_COUNTER | F_SHOW_VRAM_USAGE);
 
     using namespace DirectX;
 
     DOSD DOSD::m_Instance;
 
-    DOSD::ItemToFlag_T DOSD::ItemToFlag = {
+    DOSD::itemToFlag_t DOSD::m_itemToFlag = {
         {"fps", F_SHOW_FPS},
         {"bare_fps", F_SHOW_FPS_SIMPLE},
         {"frametime", F_SHOW_FRAMETIME},
@@ -47,16 +47,16 @@ namespace SDT
 
     DOSD::DOSD()
     {
-        bufStats1[0] = 0x0;
-        bufStats2[0] = 0x0;
-        bufStats3[0] = 0x0;
-        bufStats4[0] = 0x0;
+        m_bufStats1[0] = 0x0;
+        m_bufStats2[0] = 0x0;
+        m_bufStats3[0] = 0x0;
+        m_bufStats4[0] = 0x0;
 
-        stats.lastUpdate = PerfCounter::Query();
-        stats.frameCounter = 0;
-        stats.lastFrameCount = 0;
-        stats.draw = false;
-        stats.warmup = 0;
+        m_stats.lastUpdate = IPerfCounter::Query();
+        m_stats.frameCounter = 0;
+        m_stats.lastFrameCount = 0;
+        m_stats.draw = false;
+        m_stats.warmup = 0;
     }
 
     void DOSD::LoadConfig()
@@ -68,8 +68,8 @@ namespace SDT
         m_conf.font_color = GetConfigValue(CKEY_STATSFONTCOLOR, "255 255 255");
         m_conf.font_outline_color = GetConfigValue(CKEY_STATSFONTOUTLINECOLOR, "0 0 0");
         m_conf.outline_size = GetConfigValue(CKEY_STATSOUTLINESIZE, 1.0f);
-        m_conf.combo_key = ConfigGetComboKey(GetConfigValue<int32_t>(CKEY_COMBOKEY, 1));
-        m_conf.key = GetConfigValue<uint32_t>(CKEY_STATSKEY, DIK_INSERT);
+        m_conf.combo_key = ConfigGetComboKey(GetConfigValue<std::int32_t>(CKEY_COMBOKEY, 1));
+        m_conf.key = GetConfigValue<std::uint32_t>(CKEY_STATSKEY, DIK_INSERT);
         m_conf.align = ConfigGetStatsRendererAlignment(GetConfigValue(CKEY_STATSALIGN, 1));
         m_conf.offset = GetConfigValue(CKEY_STATSOFFSET, "4 4");
         m_conf.font_scale = GetConfigValue(CKEY_STATSSCALE, "1 1");
@@ -94,18 +94,18 @@ namespace SDT
                 m_conf.key = DIK_INSERT;
             }
 
-            stats.draw = m_conf.initial;
-            stats.interval = static_cast<long long>(m_conf.interval * 1000000.0f);
+            m_stats.draw = m_conf.initial;
+            m_stats.interval = static_cast<long long>(m_conf.interval * 1000000.0f);
 
             if (!m_conf.font || m_conf.font >= Font::FontMax) {
                 m_conf.font = Font::DroidSans;
             }
 
-            ConfigGetFlags(m_conf.items, stats.flags);
-            ConfigParseColors(m_conf.font_color, stats.colors.font);
-            ConfigParseColors(m_conf.font_outline_color, stats.colors.outline);
-            ConfigParseScale(m_conf.font_scale, stats.scale);
-            ConfigParseVector2(m_conf.offset, stats.offset);
+            ConfigGetFlags(m_conf.items, m_stats.flags);
+            ConfigParseColors(m_conf.font_color, m_stats.colors.font);
+            ConfigParseColors(m_conf.font_outline_color, m_stats.colors.outline);
+            ConfigParseScale(m_conf.font_scale, m_stats.scale);
+            ConfigParseVector2(m_conf.offset, m_stats.offset);
 
             m_dRender = rd;
         }
@@ -118,11 +118,11 @@ namespace SDT
             IEvents::RegisterForEvent(Event::OnD3D11PostCreate, OnD3D11PostCreate_OSD);
             IEvents::RegisterForEvent(Event::OnD3D11PostPostCreate, OnD3D11PostPostCreate_OSD);
 
-            inputEventHandler.SetKeys(m_conf.combo_key, m_conf.key);
-            DInput::RegisterForKeyEvents(&inputEventHandler);
+            m_inputEventHandler.SetKeys(m_conf.combo_key, m_conf.key);
+            DInput::RegisterForKeyEvents(&m_inputEventHandler);
 
             struct PresentHook : JITASM::JITASM {
-                PresentHook(uintptr_t targetAddr
+                PresentHook(std::uintptr_t targetAddr
                 ) : JITASM()
                 {
                     Xbyak::Label callLabel;
@@ -136,7 +136,7 @@ namespace SDT
                     dq(targetAddr + 0x7);
 
                     L(callLabel);
-                    dq(uintptr_t(StatsPresent_Hook));
+                    dq(std::uintptr_t(StatsPresent_Hook));
                 }
             };
 
@@ -145,7 +145,7 @@ namespace SDT
                 PresentHook code(presentAddr);
                 g_branchTrampoline.Write6Branch(presentAddr, code.get());
 
-                Patching::safe_write<uint8_t>(presentAddr + 0x6, 0xCC);
+                Patching::safe_write<std::uint8_t>(presentAddr + 0x6, 0xCC);
             }
             LogPatchEnd("Present wrapper");
         }
@@ -161,7 +161,7 @@ namespace SDT
         return IDR_DROIDSANS;
     }
 
-    StatsRenderer::Align DOSD::ConfigGetStatsRendererAlignment(int32_t param)
+    StatsRenderer::Align DOSD::ConfigGetStatsRendererAlignment(std::int32_t param)
     {
         switch (param)
         {
@@ -178,7 +178,7 @@ namespace SDT
         }
     }
 
-    uint32_t DOSD::ConfigGetComboKey(int32_t param)
+    std::uint32_t DOSD::ConfigGetComboKey(std::int32_t param)
     {
         switch (param)
         {
@@ -257,15 +257,15 @@ namespace SDT
         }
     }
 
-    void DOSD::ConfigGetFlags(const std::string& in, uint32_t& out)
+    void DOSD::ConfigGetFlags(const std::string& in, std::uint32_t& out)
     {
         out = 0U;
 
         stl::vector<std::string> items;
         StrHelpers::SplitString(in, ',', items);
         for (auto& s : items) {
-            auto it = ItemToFlag.find(s);
-            if (it != ItemToFlag.end()) {
+            auto it = m_itemToFlag.find(s);
+            if (it != m_itemToFlag.end()) {
                 out |= it->second;
             }
         }
@@ -325,17 +325,17 @@ namespace SDT
 
     bool StatsRenderer::Load(int resource)
     {
-        HRSRC hRes = ::FindResource(ISKSE::g_moduleHandle, MAKEINTRESOURCE(resource), RT_RCDATA);
+        HRSRC hRes = ::FindResource(ISKSE::moduleHandle, MAKEINTRESOURCE(resource), RT_RCDATA);
         if (hRes == nullptr) {
             return false;
         }
 
-        HGLOBAL hData = ::LoadResource(ISKSE::g_moduleHandle, hRes);
+        HGLOBAL hData = ::LoadResource(ISKSE::moduleHandle, hRes);
         if (hData == nullptr) {
             return false;
         }
 
-        DWORD dSize = ::SizeofResource(ISKSE::g_moduleHandle, hRes);
+        DWORD dSize = ::SizeofResource(ISKSE::moduleHandle, hRes);
 
         LPVOID pData = ::LockResource(hData);
         if (pData == nullptr) {
@@ -344,7 +344,7 @@ namespace SDT
 
         try
         {
-            m_font = std::make_unique<SpriteFont>(m_pDevice, reinterpret_cast<uint8_t* const>(pData), dSize);
+            m_font = std::make_unique<SpriteFont>(m_pDevice, reinterpret_cast<std::uint8_t* const>(pData), dSize);
         }
         catch (std::exception& e)
         {
@@ -481,58 +481,58 @@ namespace SDT
 
     void DOSD::KeyPressHandler::OnKeyPressed()
     {
-        if (!m_Instance.stats.draw) {
-            m_Instance.stats.warmup = 2;
-            m_Instance.stats.draw = true;
+        if (!m_Instance.m_stats.draw) {
+            m_Instance.m_stats.warmup = 2;
+            m_Instance.m_stats.draw = true;
         }
         else {
-            m_Instance.stats.draw = false;
+            m_Instance.m_stats.draw = false;
         }
     }
 
     const wchar_t* DOSD::StatsRendererCallback_FPS()
     {
-        ::_snwprintf_s(m_Instance.bufStats1, _TRUNCATE,
+        ::_snwprintf_s(m_Instance.m_bufStats1, _TRUNCATE,
             L"FPS: %.1f",
-            1.0 / (m_Instance.stats.cur.frametime / 1000000.0));
+            1.0 / (m_Instance.m_stats.cur.frametime / 1000000.0));
 
-        return m_Instance.bufStats1;
+        return m_Instance.m_bufStats1;
     }
 
     const wchar_t* DOSD::StatsRendererCallback_SimpleFPS()
     {
-        ::_snwprintf_s(m_Instance.bufStats1, _TRUNCATE,
+        ::_snwprintf_s(m_Instance.m_bufStats1, _TRUNCATE,
             L"%.1f",
-            1.0 / (m_Instance.stats.cur.frametime / 1000000.0));
+            1.0 / (m_Instance.m_stats.cur.frametime / 1000000.0));
 
-        return m_Instance.bufStats1;
+        return m_Instance.m_bufStats1;
     }
 
     const wchar_t* DOSD::StatsRendererCallback_Frametime()
     {
-        ::_snwprintf_s(m_Instance.bufStats2, _TRUNCATE,
+        ::_snwprintf_s(m_Instance.m_bufStats2, _TRUNCATE,
             L"Frametime: %.2f ms",
-            m_Instance.stats.cur.frametime / 1000.0);
+            m_Instance.m_stats.cur.frametime / 1000.0);
 
-        return m_Instance.bufStats2;
+        return m_Instance.m_bufStats2;
     }
 
     const wchar_t* DOSD::StatsRendererCallback_SimpleFrametime()
     {
-        ::_snwprintf_s(m_Instance.bufStats2, _TRUNCATE,
+        ::_snwprintf_s(m_Instance.m_bufStats2, _TRUNCATE,
             L"%.2f",
-            m_Instance.stats.cur.frametime / 1000.0);
+            m_Instance.m_stats.cur.frametime / 1000.0);
 
-        return m_Instance.bufStats2;
+        return m_Instance.m_bufStats2;
     }
 
     const wchar_t* DOSD::StatsRendererCallback_Counter()
     {
-        ::_snwprintf_s(m_Instance.bufStats3, _TRUNCATE,
+        ::_snwprintf_s(m_Instance.m_bufStats3, _TRUNCATE,
             L"Frames: %llu",
-            m_Instance.stats.frameCounter);
+            m_Instance.m_stats.frameCounter);
 
-        return m_Instance.bufStats3;
+        return m_Instance.m_bufStats3;
     }
 
     const wchar_t* DOSD::StatsRendererCallback_VRAM()
@@ -540,16 +540,16 @@ namespace SDT
         DXGI_QUERY_VIDEO_MEMORY_INFO info;
         if (SUCCEEDED(m_Instance.m_adapter->QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_LOCAL, std::addressof(info))))
         {
-            ::_snwprintf_s(m_Instance.bufStats4, _TRUNCATE,
+            ::_snwprintf_s(m_Instance.m_bufStats4, _TRUNCATE,
                 L"VRAM: %llu/%llu",
                 info.CurrentUsage / (1024 * 1024),
                 info.Budget / (1024 * 1024));
         }
         else {
-            ::_snwprintf_s(m_Instance.bufStats4, _TRUNCATE, L"VRAM: QUERY ERROR");
+            ::_snwprintf_s(m_Instance.m_bufStats4, _TRUNCATE, L"VRAM: QUERY ERROR");
         }
 
-        return m_Instance.bufStats4;
+        return m_Instance.m_bufStats4;
     }
 
     HRESULT STDMETHODCALLTYPE DOSD::StatsPresent_Hook(
@@ -557,38 +557,38 @@ namespace SDT
         UINT SyncInterval,
         UINT PresentFlags)
     {
-        if (m_Instance.stats.draw) {
-            if (!m_Instance.stats.warmup)
-                m_Instance.statsRenderer->DrawStrings();
+        if (m_Instance.m_stats.draw) {
+            if (!m_Instance.m_stats.warmup)
+                m_Instance.m_statsRenderer->DrawStrings();
         }
 
         HRESULT hr = pSwapChain->Present(SyncInterval, PresentFlags);
 
-        m_Instance.stats.frameCounter++;
+        m_Instance.m_stats.frameCounter++;
 
-        if (m_Instance.stats.draw)
+        if (m_Instance.m_stats.draw)
         {
-            auto e = PerfCounter::Query();
-            auto deltaT = PerfCounter::delta_us(m_Instance.stats.lastUpdate, e);
+            auto e = IPerfCounter::Query();
+            auto deltaT = IPerfCounter::delta_us(m_Instance.m_stats.lastUpdate, e);
 
-            if (m_Instance.stats.warmup || deltaT >= m_Instance.stats.interval)
+            if (m_Instance.m_stats.warmup || deltaT >= m_Instance.m_stats.interval)
             {
                 auto deltaFC =
-                    m_Instance.stats.frameCounter -
-                    m_Instance.stats.lastFrameCount;
+                    m_Instance.m_stats.frameCounter -
+                    m_Instance.m_stats.lastFrameCount;
 
-                m_Instance.stats.cur.frametime =
+                m_Instance.m_stats.cur.frametime =
                     static_cast<double>(deltaT) / static_cast<double>(deltaFC);
 
-                m_Instance.stats.lastFrameCount =
-                    m_Instance.stats.frameCounter;
-                m_Instance.stats.lastUpdate = e;
+                m_Instance.m_stats.lastFrameCount =
+                    m_Instance.m_stats.frameCounter;
+                m_Instance.m_stats.lastUpdate = e;
 
-                if (m_Instance.stats.warmup) {
-                    m_Instance.stats.warmup--;
+                if (m_Instance.m_stats.warmup) {
+                    m_Instance.m_stats.warmup--;
                 }
 
-                m_Instance.statsRenderer->Update();
+                m_Instance.m_statsRenderer->Update();
             }
         }
 
@@ -612,21 +612,21 @@ namespace SDT
                 float ws = bw / ww;
                 float hs = bh / wh;
 
-                m_Instance.stats.scale.x *= ws;
-                m_Instance.stats.scale.y *= hs;
+                m_Instance.m_stats.scale.x *= ws;
+                m_Instance.m_stats.scale.y *= hs;
             }
         }
 
-        m_Instance.statsRenderer = std::make_unique<StatsRenderer>(
+        m_Instance.m_statsRenderer = std::make_unique<StatsRenderer>(
             info->m_pDevice, info->m_pImmediateContext,
             info->m_pSwapChainDesc->BufferDesc.Width,
             info->m_pSwapChainDesc->BufferDesc.Height,
-            m_Instance.stats.offset,
+            m_Instance.m_stats.offset,
             m_Instance.m_conf.outline_size,
             m_Instance.m_conf.align,
-            m_Instance.stats.scale,
-            m_Instance.stats.colors.font,
-            m_Instance.stats.colors.outline);
+            m_Instance.m_stats.scale,
+            m_Instance.m_stats.colors.font,
+            m_Instance.m_stats.colors.outline);
 
         bool res = false;
         bool isCustom = false;
@@ -641,7 +641,7 @@ namespace SDT
 
             m_Instance.Debug("Loading OSD font from '%s'", StrHelpers::ToNative(file).c_str());
 
-            if (!(res = m_Instance.statsRenderer->Load(file.c_str()))) {
+            if (!(res = m_Instance.m_statsRenderer->Load(file.c_str()))) {
                 m_Instance.Warning("Couldn't load font, falling back to built-in");
             }
             else {
@@ -650,31 +650,31 @@ namespace SDT
         }
 
         if (!res) {
-            res = m_Instance.statsRenderer->Load(
+            res = m_Instance.m_statsRenderer->Load(
                 ConfigGetFontResource(m_Instance.m_conf.font));
         }
 
         if (res)
         {
-            if (m_Instance.stats.flags & F_SHOW_FPS_SIMPLE) {
+            if (m_Instance.m_stats.flags & F_SHOW_FPS_SIMPLE) {
                 m_Instance.AddStatsCallback(StatsRendererCallback_SimpleFPS);
             }
-            else if (m_Instance.stats.flags & F_SHOW_FPS) {
+            else if (m_Instance.m_stats.flags & F_SHOW_FPS) {
                 m_Instance.AddStatsCallback(StatsRendererCallback_FPS);
             }
 
-            if (m_Instance.stats.flags & F_SHOW_FRAMETIME_SIMPLE) {
+            if (m_Instance.m_stats.flags & F_SHOW_FRAMETIME_SIMPLE) {
                 m_Instance.AddStatsCallback(StatsRendererCallback_SimpleFrametime);
             }
-            else if (m_Instance.stats.flags & F_SHOW_FRAMETIME) {
+            else if (m_Instance.m_stats.flags & F_SHOW_FRAMETIME) {
                 m_Instance.AddStatsCallback(StatsRendererCallback_Frametime);
             }
 
-            if (m_Instance.stats.flags & F_SHOW_COUNTER) {
+            if (m_Instance.m_stats.flags & F_SHOW_COUNTER) {
                 m_Instance.AddStatsCallback(StatsRendererCallback_Counter);
             }
 
-            if (m_Instance.stats.flags & F_SHOW_VRAM_USAGE)
+            if (m_Instance.m_stats.flags & F_SHOW_VRAM_USAGE)
             {
                 if (SUCCEEDED(info->m_pAdapter->QueryInterface(IID_PPV_ARGS(m_Instance.m_adapter.GetAddressOf())))) {
                     m_Instance.AddStatsCallback(StatsRendererCallback_VRAM);
@@ -685,7 +685,7 @@ namespace SDT
             }
 
             if (!isCustom) {
-                m_Instance.statsRenderer->MulScale(XMFLOAT2A(1.0f, 0.9f));
+                m_Instance.m_statsRenderer->MulScale(XMFLOAT2A(1.0f, 0.9f));
             }
 
         }
@@ -698,17 +698,17 @@ namespace SDT
     {
         auto info = static_cast<D3D11CreateEventPost*>(data);
 
-        if (!m_Instance.statsRenderer->IsLoaded())
+        if (!m_Instance.m_statsRenderer->IsLoaded())
             return;
 
         if (m_Instance.m_conf.font_autoscale)
         {
-            auto numCallbacks = m_Instance.statsRenderer->GetNumCallbacks();
+            auto numCallbacks = m_Instance.m_statsRenderer->GetNumCallbacks();
             if (numCallbacks > 2) {
-                m_Instance.statsRenderer->MulScale(0.6f);
+                m_Instance.m_statsRenderer->MulScale(0.6f);
             }
             else if (numCallbacks > 1) {
-                m_Instance.statsRenderer->MulScale(0.7f);
+                m_Instance.m_statsRenderer->MulScale(0.7f);
             }
         }
     }

@@ -4,6 +4,6 @@ namespace SDT
 {
     namespace Game
     {
-        float* frameTimer = IAL::Addr<float*>(SDT::AID::FrameTimerNoSlow);
+        const float* g_frameTimer = IAL::Addr<const float*>(AID::FrameTimerNoSlow);
     }
 }

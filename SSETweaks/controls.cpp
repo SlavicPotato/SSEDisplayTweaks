@@ -24,8 +24,8 @@ namespace SDT
 
     bool DControls::Prepare()
     {
-        fMouseHeadingXScale = ISKSE::GetINISettingAddr<float>("fMouseHeadingXScale:Controls");
-        fMouseHeadingSensitivity = ISKSE::GetINIPrefSettingAddr<float>("fMouseHeadingSensitivity:Controls");
+        m_gv.fMouseHeadingXScale = ISKSE::GetINISettingAddr<float>("fMouseHeadingXScale:Controls");
+        m_gv.fMouseHeadingSensitivity = ISKSE::GetINIPrefSettingAddr<float>("fMouseHeadingSensitivity:Controls");
 
         return true;
     }
@@ -35,7 +35,7 @@ namespace SDT
         if (m_conf.damping_fix)
         {
             struct MovementThresholdInject : JITASM::JITASM {
-                MovementThresholdInject(uintptr_t retnAddr, float* maxvAddr)
+                MovementThresholdInject(std::uintptr_t retnAddr, float* maxvAddr)
                     : JITASM()
                 {
                     Xbyak::Label maxvLabel;
@@ -66,10 +66,10 @@ namespace SDT
 
         if (m_conf.fp_mount_horiz_sens)
         {
-            if (fMouseHeadingXScale && fMouseHeadingSensitivity)
+            if (m_gv.fMouseHeadingXScale && m_gv.fMouseHeadingSensitivity)
             {
                 struct FirstPersonSitHorizontal : JITASM::JITASM {
-                    FirstPersonSitHorizontal(uintptr_t retnAddr, uintptr_t callAddr)
+                    FirstPersonSitHorizontal(std::uintptr_t retnAddr, std::uintptr_t callAddr)
                         : JITASM()
                     {
                         Xbyak::Label retnLabel;
@@ -90,7 +90,7 @@ namespace SDT
 
                 LogPatchBegin(CKEY_FSHS);
                 {
-                    FirstPersonSitHorizontal code(FMHS_Inject + 0x17, uintptr_t(MouseSens_Hook));
+                    FirstPersonSitHorizontal code(FMHS_Inject + 0x17, std::uintptr_t(MouseSens_Hook));
                     g_branchTrampoline.Write6Branch(FMHS_Inject, code.get());
                 }
                 LogPatchEnd(CKEY_FSHS);
@@ -103,12 +103,12 @@ namespace SDT
 
     void DControls::MouseSens_Hook(PlayerControls* a_controls, FirstPersonState* a_fpState)
     {
-        float interval = *Game::frameTimer;
+        float interval = *Game::g_frameTimer;
 
         if (interval < std::numeric_limits<float>::epsilon())
             return;
 
-        auto f = *m_Instance.fMouseHeadingXScale * *m_Instance.fMouseHeadingSensitivity;
+        auto f = *m_Instance.m_gv.fMouseHeadingXScale * *m_Instance.m_gv.fMouseHeadingSensitivity;
         auto d = f / interval;
 
         if (d < std::numeric_limits<float>::epsilon())

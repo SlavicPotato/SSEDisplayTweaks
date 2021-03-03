@@ -2,15 +2,15 @@
 
 namespace SDT
 {
-    constexpr uint32_t MIN_MESSAGING_INTERFACE_VER = 2U;
+    static inline constexpr UInt32 MIN_MESSAGING_INTERFACE_VER = 2U;
 
-    HMODULE ISKSE::g_moduleHandle = nullptr;
-    PluginHandle ISKSE::g_pluginHandle = kPluginHandle_Invalid;
+    HMODULE ISKSE::moduleHandle = nullptr;
+    PluginHandle ISKSE::pluginHandle = kPluginHandle_Invalid;
 
-    SKSEMessagingInterface* ISKSE::g_messaging;
+    SKSEMessagingInterface* ISKSE::messaging;
 
-    size_t ISKSE::branchTrampolineSize;
-    size_t ISKSE::localTrampolineSize;
+    std::size_t ISKSE::branchTrampolineSize;
+    std::size_t ISKSE::localTrampolineSize;
 
     bool ISKSE::Query(const SKSEInterface* skse, PluginInfo* info)
     {
@@ -43,32 +43,34 @@ namespace SDT
             return false;
         }
 
-        g_pluginHandle = skse->GetPluginHandle();
+        pluginHandle = skse->GetPluginHandle();
 
         return true;
     }
 
     bool ISKSE::Initialize(const SKSEInterface* skse)
     {
-        g_messaging = reinterpret_cast<SKSEMessagingInterface*>(skse->QueryInterface(kInterface_Messaging));
-        if (g_messaging == nullptr) {
+        messaging = static_cast<SKSEMessagingInterface*>(skse->QueryInterface(kInterface_Messaging));
+        if (messaging == nullptr) {
             gLog.FatalError("Could not get messaging interface");
             return false;
         }
 
-        if (g_messaging->interfaceVersion < MIN_MESSAGING_INTERFACE_VER) {
+        if (messaging->interfaceVersion < MIN_MESSAGING_INTERFACE_VER) {
             gLog.FatalError("Messaging interface too old (%u expected >= %u)",
-                g_messaging->interfaceVersion, MIN_MESSAGING_INTERFACE_VER);
+                messaging->interfaceVersion, MIN_MESSAGING_INTERFACE_VER);
             return false;
         }
 
-        branchTrampolineSize = Hook::InitBranchTrampoline(skse, MAX_TRAMPOLINE_BRANCH);
+        auto iface = static_cast<SKSETrampolineInterface*>(skse->QueryInterface(kInterface_Trampoline));
+
+        branchTrampolineSize = Hook::InitBranchTrampoline(skse, iface, MAX_TRAMPOLINE_BRANCH);
         if (!branchTrampolineSize) {
             gLog.FatalError("Could not create branch trampoline.");
             return false;
         }
 
-        localTrampolineSize = Hook::InitLocalTrampoline(skse, MAX_TRAMPOLINE_CODEGEN);
+        localTrampolineSize = Hook::InitLocalTrampoline(skse, iface, MAX_TRAMPOLINE_CODEGEN);
         if (!localTrampolineSize) {
             gLog.FatalError("Could not create codegen trampoline.");
             return false;

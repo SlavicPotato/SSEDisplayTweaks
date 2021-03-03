@@ -5,18 +5,18 @@ namespace SDT
     class HookDescriptor
     {
     public:
-        enum class HookType : uint8_t {
+        enum class HookType : std::uint8_t {
             kWR5Call,
             kWR6Call
         };
 
-        HookDescriptor(uintptr_t target, uintptr_t hook, HookType type) :
+        HookDescriptor(std::uintptr_t target, std::uintptr_t hook, HookType type) :
             wc_target(target), wc_hook(hook), type(type)
         {
         }
 
-        uintptr_t wc_target;
-        uintptr_t wc_hook;
+        std::uintptr_t wc_target;
+        std::uintptr_t wc_hook;
 
         HookType type;
     };
@@ -28,8 +28,8 @@ namespace SDT
         IHook() = default;
         virtual ~IHook() noexcept = default;
 
-        void RegisterHook(uintptr_t target, uintptr_t hook);
-        void RegisterHook(uintptr_t target, uintptr_t hook, HookDescriptor::HookType type);
+        void RegisterHook(std::uintptr_t target, std::uintptr_t hook);
+        void RegisterHook(std::uintptr_t target, std::uintptr_t hook, HookDescriptor::HookType type);
         void RegisterHook(const HookDescriptor & hdesc);
         void RegisterHook(HookDescriptor&& hdesc);
         bool InstallHooks();
@@ -52,9 +52,9 @@ namespace SDT
         IDriver& operator=(const IDriver&) = delete;
         void operator=(IDriver&&) = delete;
 
-        FN_NAMEPROC("IDriver")
-        FN_ESSENTIAL(false)
-        FN_DRVDEF(-1)
+        FN_NAMEPROC("IDriver");
+        FN_ESSENTIAL(false);
+        FN_DRVDEF(-1);
     protected:
         IDriver();
         virtual ~IDriver() noexcept = default;

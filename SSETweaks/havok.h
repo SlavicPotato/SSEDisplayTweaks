@@ -8,13 +8,13 @@ namespace SDT
         public IDriver,
         IConfig
     {
-        typedef void(*RTProcR) (float a_time, bool a_isComplex, uint8_t a_unk0);
+        typedef void(*RTProcR) (float a_time, bool a_isComplex, std::uint8_t a_unk0);
     public:
         static inline constexpr auto ID = DRIVER_ID::HAVOK;
 
-        FN_NAMEPROC("HAVOK")
-        FN_ESSENTIAL(false)
-        FN_DRVDEF(4)
+        FN_NAMEPROC("HAVOK");
+        FN_ESSENTIAL(false);
+        FN_DRVDEF(4);
     private:
         DHavok();
 
@@ -30,8 +30,8 @@ namespace SDT
         SKMP_FORCEINLINE void CalculateHavokValues(bool a_isComplex) const;
         SKMP_FORCEINLINE void UpdateHavokStats() const;
 
-        static void hookRTH(float a_time, bool a_isComplex, uint8_t a_unk0);
-        static void hookRTHStats(float a_time, bool a_isComplex, uint8_t a_unk0);
+        static void hookRTH(float a_time, bool a_isComplex, std::uint8_t a_unk0);
+        static void hookRTHStats(float a_time, bool a_isComplex, std::uint8_t a_unk0);
 
         static const wchar_t* StatsRendererCallback();
 
@@ -51,17 +51,20 @@ namespace SDT
         float fmt_max;
         float fmt_min;
 
-        float* fMaxTime;
-        float* fMaxTimeComplex;
-        uint32_t* uMaxNumPhysicsStepsPerUpdate;
-        uint32_t* uMaxNumPhysicsStepsPerUpdateComplex;
+        struct 
+        {
+            float* fMaxTime;
+            float* fMaxTimeComplex;
+            std::uint32_t* uMaxNumPhysicsStepsPerUpdate;
+            std::uint32_t* uMaxNumPhysicsStepsPerUpdateComplex;
+        } m_gv;
 
         RTProcR PhysCalcMaxTime_O;
 
         inline static auto RTUnk0_GM_C = IAL::Addr(AID::RT0, Offsets::RTUnk0_GM_C);
         inline static auto RTUnk0_UI_C = IAL::Addr(AID::RT0, Offsets::RTUnk0_UI_C);
         inline static auto PhysCalcMaxTime = IAL::Addr(AID::FMTProc, Offsets::PhysCalcHT);
-        inline static auto isComplex = IAL::Addr<uint32_t*>(AID::IsComplex);
+        inline static auto isComplex = IAL::Addr<std::uint32_t*>(AID::IsComplex);
 
         DOSD* m_OSDDriver;
 

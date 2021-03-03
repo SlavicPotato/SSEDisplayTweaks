@@ -14,13 +14,13 @@ namespace SDT
         {
             num = 0;
             fval = 0.0;
-            s = PerfCounter::Query();
+            s = IPerfCounter::Query();
         }
 
         SKMP_FORCEINLINE bool update(long long m, long long& out)
         {
-            auto e = PerfCounter::Query();
-            auto delta = PerfCounter::delta_us(s, e);
+            auto e = IPerfCounter::Query();
+            auto delta = IPerfCounter::delta_us(s, e);
 
             num++;
 

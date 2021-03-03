@@ -63,7 +63,7 @@ namespace SDT
         public IDriver,
         IConfig
     {
-        typedef HWND (WINAPI* CreateWindowExA_T)(
+        typedef HWND (WINAPI* CreateWindowExA_fn_t)(
             _In_ DWORD dwExStyle,
             _In_opt_ LPCSTR lpClassName,
             _In_opt_ LPCSTR lpWindowName,
@@ -77,12 +77,17 @@ namespace SDT
             _In_opt_ HINSTANCE hInstance,
             _In_opt_ LPVOID lpParam);
 
+        typedef BOOL
+        (WINAPI* GetClientRect_fn_t)(
+            _In_ HWND hWnd,
+            _Out_ LPRECT lpRect);
+
     public:
         static inline constexpr auto ID = DRIVER_ID::WINDOW;
 
-        FN_NAMEPROC("Window")
-        FN_ESSENTIAL(false)
-        FN_DRVDEF(4)
+        FN_NAMEPROC("Window");
+        FN_ESSENTIAL(false);
+        FN_DRVDEF(4);
     private:
         DWindow();
 
@@ -105,7 +110,8 @@ namespace SDT
             _In_opt_ HINSTANCE hInstance,
             _In_opt_ LPVOID lpParam);
 
-        static CreateWindowExA_T CreateWindowExA_O;
+        CreateWindowExA_fn_t m_createWindowExA_O;
+        GetClientRect_fn_t m_getClientRect_O;
 
         virtual void LoadConfig() override;
         virtual void PostLoadConfig() override;
@@ -119,9 +125,10 @@ namespace SDT
         void CaptureCursor(HWND hwnd, bool sw);
 
         struct {
+            bool resized;
             HWND hWnd;
             RECT MonitorRes, resolution;
-        } upscaling;
+        } m_upscaling;
 
         WNDPROC pfnWndProc;
         static void OnD3D11PreCreate_Upscale(Event code, void* data);
@@ -144,13 +151,15 @@ namespace SDT
             bool upscale;
         }m_conf;
 
-        MsgProc mp;
+        MsgProc m_mp;
 
-        inline static uintptr_t CreateWindowEx_C = IAL::Addr(AID::WindowCreate, Offsets::WindowCreate);
-        inline static uintptr_t GetClientRect1 = IAL::Addr(AID::WinFunc0, Offsets::GetClientRect1);
+        inline static std::uintptr_t CreateWindowEx_C = IAL::Addr(AID::WindowCreate, Offsets::WindowCreate);
+        inline static std::uintptr_t GetClientRect1_C = IAL::Addr(AID::WinFunc0, Offsets::GetClientRect1);
 
-        int* iLocationX;
-        int* iLocationY;
+        struct {
+            int* iLocationX;
+            int* iLocationY;
+        }m_gv;
 
         static DWindow m_Instance;
     };
