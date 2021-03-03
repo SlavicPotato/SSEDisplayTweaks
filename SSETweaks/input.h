@@ -36,8 +36,9 @@ namespace SDT
         }
 
         SKMP_FORCEINLINE void SetKeys(UInt32 a_comboKey, UInt32 a_key) {
-            m_comboKey = a_key;
+            m_comboKey = a_comboKey;
             m_key = a_key;
+            m_comboKeyDown = false;
         }
 
         virtual void OnKeyPressed() = 0;

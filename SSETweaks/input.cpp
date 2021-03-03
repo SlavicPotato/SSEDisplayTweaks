@@ -6,10 +6,8 @@ namespace SDT
 
     void ComboKeyPressHandler::ReceiveEvent(KeyEvent a_event, UInt32 a_keyCode)
     {
-        switch (a_event)
+        if (a_event == KeyEvent::KeyDown)
         {
-        case KeyEvent::KeyDown:
-
             if (m_comboKey && a_keyCode == m_comboKey)
             {
                 m_comboKeyDown = true;
@@ -19,14 +17,15 @@ namespace SDT
             {
                 OnKeyPressed();
             }
-
-        case KeyEvent::KeyUp:
-
+        }
+        else
+        {
             if (m_comboKey && a_keyCode == m_comboKey)
             {
                 m_comboKeyDown = false;
             }
         }
+
     };
     void DInput::RegisterHooks()
     {
