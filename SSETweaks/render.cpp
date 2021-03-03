@@ -1155,7 +1155,7 @@ namespace SDT
     {
         m_Instance.OnD3D11PreCreate(pAdapter, pSwapChainDesc);
 
-        auto evd_pre = D3D11CreateEventPre(pSwapChainDesc);
+        D3D11CreateEventPre evd_pre(pSwapChainDesc);
         IEvents::TriggerEvent(Event::OnD3D11PreCreate, reinterpret_cast<void*>(&evd_pre));
 
         HRESULT hr = m_Instance.m_D3D11CreateDeviceAndSwapChain_O(
@@ -1167,7 +1167,7 @@ namespace SDT
         if (hr == S_OK) {
             m_Instance.OnD3D11PostCreate(pSwapChainDesc, ppDevice);
 
-            auto evd_post = D3D11CreateEventPost(pSwapChainDesc, *ppDevice, *ppImmediateContext, *ppSwapChain, pAdapter);
+            D3D11CreateEventPost evd_post(pSwapChainDesc, *ppDevice, *ppImmediateContext, *ppSwapChain, pAdapter);
             IEvents::TriggerEvent(Event::OnD3D11PostCreate, reinterpret_cast<void*>(&evd_post));
             IEvents::TriggerEvent(Event::OnD3D11PostPostCreate, reinterpret_cast<void*>(&evd_post));
         }

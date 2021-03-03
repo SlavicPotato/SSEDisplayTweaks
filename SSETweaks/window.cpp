@@ -226,8 +226,7 @@ namespace SDT
         MONITORINFO mi;
         if (!GetMI(a_windowHandle, rd->m_conf.upscale_select_primary_monitor, std::addressof(mi)))
         {
-            Error(
-                "[0x%llX] [%s] GetMonitorInfo failed", a_windowHandle, __FUNCTION__);
+            Error("[0x%llX] [%s] GetMonitorInfo failed", a_windowHandle, __FUNCTION__);
             return;
         }
 
@@ -248,8 +247,7 @@ namespace SDT
 
         if (newX == X && newY == Y && monWidth == nWidth && monHeight == nHeight)
         {
-            Debug(
-                "[0x%llX] [%s] Window position and dimensions unchanged", a_windowHandle, __FUNCTION__);
+            Debug("[0x%llX] [%s] Window position and dimensions unchanged", a_windowHandle, __FUNCTION__);
             return;
         }
 
@@ -268,12 +266,10 @@ namespace SDT
 
             m_upscaling.resized = true;
 
-            Message(
-                "[0x%llX] Window stretched across the screen", a_windowHandle);
+            Message("[0x%llX] Window stretched across the screen", a_windowHandle);
         }
         else {
-            Error(
-                "[0x%llX] [%s] SetWindowPos failed", a_windowHandle, __FUNCTION__);
+            Error("[0x%llX] [%s] SetWindowPos failed", a_windowHandle, __FUNCTION__);
         }
     }
 
@@ -282,8 +278,7 @@ namespace SDT
         MONITORINFO mi;
         if (!GetMI(a_windowHandle, false, std::addressof(mi)))
         {
-            Error(
-                "[0x%llX] [%s] GetMonitorInfo failed", a_windowHandle, __FUNCTION__);
+            Error("[0x%llX] [%s] GetMonitorInfo failed", a_windowHandle, __FUNCTION__);
             return;
         }
 
@@ -295,8 +290,7 @@ namespace SDT
 
         if (newX == X && newY == Y)
         {
-            Debug(
-                "[0x%llX] [%s] Window position unchanged", a_windowHandle, __FUNCTION__);
+            Debug("[0x%llX] [%s] Window position unchanged", a_windowHandle, __FUNCTION__);
             return;
         }
 
@@ -311,12 +305,10 @@ namespace SDT
             X = newX;
             Y = newY;
 
-            Message(
-                "[0x%llX] Window centered", a_windowHandle);
+            Message("[0x%llX] Window centered", a_windowHandle);
         }
         else {
-            Error(
-                "[0x%llX] [%s] SetWindowPos failed", a_windowHandle, __FUNCTION__);
+            Error("[0x%llX] [%s] SetWindowPos failed", a_windowHandle, __FUNCTION__);
         }
     }
 
@@ -345,7 +337,8 @@ namespace SDT
             ::abort();
         }
 
-        if (m_Instance.m_mp.HasProcessors()) {
+        if (m_Instance.m_mp.HasProcessors()) 
+        {
             m_Instance.pfnWndProc = reinterpret_cast<WNDPROC>(
                 ::SetWindowLongPtrA(
                     hWnd,
@@ -353,8 +346,12 @@ namespace SDT
                     reinterpret_cast<LONG_PTR>(WndProc_Hook))
                 );
 
-            m_Instance.Debug(
-                "[0x%llX] Message hook installed", hWnd);
+            if (m_Instance.pfnWndProc != 0) {
+                m_Instance.Debug("[0x%llX] Message hook installed", hWnd);
+            }
+            else {
+                m_Instance.Error("[0x%llX] SetWindowLongPtrA failed, window event capture won't work", hWnd);
+            }
         }
 
         if (m_Instance.m_conf.upscale) {
