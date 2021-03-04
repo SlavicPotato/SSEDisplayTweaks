@@ -63,6 +63,7 @@ namespace SDT
 
         static inline constexpr unsigned long long FrameTimerNoSlow = 523661;
         static inline constexpr unsigned long long FrameTimerSlow = 523660;
+
     }
 
     namespace Offsets
@@ -84,6 +85,9 @@ namespace SDT
         static inline constexpr std::uintptr_t LoadPluginINI_C = 0x632;
         // 40574883EC5048C7442420FEFFFFFF48895C2468488D4C2438E8????????90488D4C2448  (35642)
         //static inline constexpr std::uintptr_t LoadPluginINI_O = 0x5B8F00;
+
+        // 40555356574156488DAC2440FFFFFF4881ECC001000048C74598FEFFFFFF8B0D????????65488B042558000000488B3CC8
+        static inline constexpr uintptr_t PopulateUIStringHolder = 0xA32;
 
         //static inline constexpr std::uintptr_t JMPT_D3D11CreateDevice = 0x1372F02;
 

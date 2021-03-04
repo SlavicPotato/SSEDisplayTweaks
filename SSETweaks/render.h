@@ -28,7 +28,7 @@ namespace SDT
     class MenuFramerateLimit :
         public MenuEventTrack
     {
-        //using data_t = stl::unordered_map<MenuEvent, MenuFramerateLimitDescriptor>;
+        //using data_t = std::unordered_map<MenuEvent, MenuFramerateLimitDescriptor>;
     public:
 
         using MenuEventTrack::MenuEventTrack;
@@ -48,10 +48,10 @@ namespace SDT
         public IDriver,
         IConfig
     {
-        typedef stl::iunordered_map<std::string, int> SEMap;
+        typedef stl::iunordered_map<std::string, int, std::allocator<std::pair<const std::string, int>>> SEMap;
         static SEMap cfgSwapEffectMap;
 
-        typedef stl::iunordered_map<std::string, DXGI_MODE_SCALING> SMMap;
+        typedef stl::iunordered_map<std::string, DXGI_MODE_SCALING, std::allocator<std::pair<const std::string, DXGI_MODE_SCALING>>> SMMap;
         static SMMap cfgScalingModeMap;
 
         typedef HRESULT(WINAPI* CreateDXGIFactory_T)(REFIID riid, _COM_Outptr_ void** ppFactory);

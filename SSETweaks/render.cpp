@@ -757,7 +757,7 @@ namespace SDT
 
     void DRender::MessageHandler(Event m_code, void* args)
     {
-        auto message = reinterpret_cast<SKSEMessagingInterface::Message*>(args);
+        auto message = static_cast<SKSEMessagingInterface::Message*>(args);
 
         switch (message->type)
         {
@@ -1186,7 +1186,7 @@ namespace SDT
         }
         else {
             m_Instance.FatalError("CreateDXGIFactory failed (%lX)", hr);
-            abort();
+            ::abort();
         }
         return hr;
     }

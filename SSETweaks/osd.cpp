@@ -320,6 +320,8 @@ namespace SDT
             break;
         }
 
+        m_outlinePos[3] = g_XMZero.v;
+
         AdjustOutline();
     }
 

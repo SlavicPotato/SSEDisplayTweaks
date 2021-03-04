@@ -176,11 +176,11 @@ namespace SDT
 
     void DWindow::PostConfigLoad(Event code, void* data)
     {
-        if (m_Instance.m_gv.iLocationX) {
+        if (m_Instance.m_conf.offset_x != 0 && m_Instance.m_gv.iLocationX) {
             *m_Instance.m_gv.iLocationX = m_Instance.m_conf.offset_x;
         }
 
-        if (m_Instance.m_gv.iLocationY) {
+        if (m_Instance.m_conf.offset_y != 0 && m_Instance.m_gv.iLocationY) {
             *m_Instance.m_gv.iLocationY = m_Instance.m_conf.offset_y;
         }
     }

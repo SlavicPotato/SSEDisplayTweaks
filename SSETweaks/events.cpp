@@ -61,6 +61,14 @@ namespace SDT
             return false;
         }
 
+        if (!Hook::Call5(
+            PopulateUIStringHolder_C,
+            reinterpret_cast<std::uintptr_t>(PopulateUIStringHolder_Hook),
+            m_Instance.PopulateUIStringHolder_O))
+        {
+            m_Instance.Error("Could not install PopulateUIStringHolder hook, menu event tracking won't work properly");
+        }
+
         m_Instance.Debug("Installed event hooks");
 
         ISKSE::messaging->RegisterListener(ISKSE::pluginHandle, "SKSE", MessageHandler);
@@ -126,37 +134,39 @@ namespace SDT
         m_Instance.TriggerEvent(Event::OnConfigLoad);
     }
 
+    UIStringHolder* IEvents::PopulateUIStringHolder_Hook(UIStringHolder* a_dst)
+    {
+        auto dst = m_Instance.PopulateUIStringHolder_O(a_dst);
+
+        m_Instance.CreateMSTCMap(dst);
+
+        return dst;
+    }
+
     void IEvents::MessageHandler(SKSEMessagingInterface::Message* a_message)
     {
-        if (a_message->type == SKSEMessagingInterface::kMessage_InputLoaded) {
+        if (a_message->type == SKSEMessagingInterface::kMessage_InputLoaded)
+        {
             auto mm = MenuManager::GetSingleton();
             if (mm)
             {
                 auto dispatcher = mm->MenuOpenCloseEventDispatcher();
-                dispatcher->AddEventSink(MenuOpenCloseEventInitializer::GetSingleton());
                 dispatcher->AddEventSink(MenuOpenCloseEventHandler::GetSingleton());
-                m_Instance.Debug("Added menu event sinks");
+                m_Instance.Debug("Added menu event sink");
             }
             else {
-                m_Instance.Error("Could not add menu open/close event sinks");
+                m_Instance.Error("Could not add menu open/close event sink");
             }
         }
 
         m_Instance.TriggerEvent(Event::OnMessage, static_cast<void*>(a_message));
     }
 
-    void IEvents::CreateMSTCMap()
+    void IEvents::CreateMSTCMap(UIStringHolder *a_holder)
     {
-        auto uiStrHolder = UIStringHolder::GetSingleton();
-
-        if (!uiStrHolder) {
-            m_Instance.Error("UIStringHolder not found, menu events won't fire");
-            return;
-        }
-
         for (auto& e : s_mstc_map_desc)
         {
-            auto& str = uiStrHolder->GetString(e.index);
+            auto& str = a_holder->GetString(e.index);
             m_mstc_map.emplace(str.data, e.event);
         }
 
@@ -171,14 +181,6 @@ namespace SDT
             IEvents::TriggerMenuEventAny(code, a_evn, a_dispatcher);
         }
 
-        return EventResult::kEvent_Continue;
-    }
-
-    auto MenuOpenCloseEventInitializer::ReceiveEvent(MenuOpenCloseEvent* evn, EventDispatcher<MenuOpenCloseEvent>* a_dispatcher)
-        -> EventResult
-    {
-        IEvents::m_Instance.CreateMSTCMap();
-        a_dispatcher->RemoveEventSink(this);
         return EventResult::kEvent_Continue;
     }
 

@@ -26,7 +26,8 @@ namespace SDT
             }
         }
 
-    };
+    }
+
     void DInput::RegisterHooks()
     {
         IEvents::RegisterForEvent(Event::OnMessage, MessageHandler);
@@ -83,31 +84,32 @@ namespace SDT
 
         for (auto inputEvent = *evns; inputEvent; inputEvent = inputEvent->next)
         {
-            if (inputEvent->eventType == InputEvent::kEventType_Button)
-            {
-                auto buttonEvent = RTTI<ButtonEvent>::Cast(inputEvent);
-                if (!buttonEvent)
-                    continue;
+            if (inputEvent->eventType != InputEvent::kEventType_Button)
+                continue;
 
-                if (buttonEvent->deviceType != kDeviceType_Keyboard) {
-                    continue;
-                }
+            auto buttonEvent = RTTI<ButtonEvent>::Cast(inputEvent);
+            if (!buttonEvent)
+                continue;
 
-                UInt32 keyCode = buttonEvent->keyMask;
-
-                if (keyCode >= InputMap::kMaxMacros)
-                    continue;
-
-                if (buttonEvent->flags != 0)
-                {
-                    if (buttonEvent->timer == 0.0f)
-                        m_Instance.DispatchKeyEvent(KeyEvent::KeyDown, keyCode);
-                }
-                else
-                {
-                    m_Instance.DispatchKeyEvent(KeyEvent::KeyUp, keyCode);
-                }
+            if (buttonEvent->deviceType != kDeviceType_Keyboard) {
+                continue;
             }
+
+            UInt32 keyCode = buttonEvent->keyMask;
+
+            if (keyCode >= InputMap::kMaxMacros)
+                continue;
+
+            if (buttonEvent->flags != 0)
+            {
+                if (buttonEvent->timer == 0.0f)
+                    m_Instance.DispatchKeyEvent(KeyEvent::KeyDown, keyCode);
+            }
+            else
+            {
+                m_Instance.DispatchKeyEvent(KeyEvent::KeyUp, keyCode);
+            }
+
         }
 
         return kEvent_Continue;

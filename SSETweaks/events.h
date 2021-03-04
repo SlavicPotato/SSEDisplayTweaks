@@ -69,19 +69,6 @@ namespace SDT
         Max
     };
 
-    class MenuOpenCloseEventInitializer : 
-        public BSTEventSink <MenuOpenCloseEvent>
-    {
-    public:
-        virtual EventResult	ReceiveEvent(MenuOpenCloseEvent* evn, EventDispatcher<MenuOpenCloseEvent>* dispatcher) override;
-
-        static MenuOpenCloseEventInitializer* GetSingleton()
-        {
-            static MenuOpenCloseEventInitializer menuEventInitializer;
-            return &menuEventInitializer;
-        }
-    };
-
     class MenuOpenCloseEventHandler :
         public BSTEventSink <MenuOpenCloseEvent>
     {
@@ -126,7 +113,7 @@ namespace SDT
 
     protected:
 
-        stl::vector<MenuEvent> m_stack;
+        std::vector<MenuEvent> m_stack;
         bool m_tracked[Enum::Underlying(MenuEvent::Max)];
     };
 
@@ -138,8 +125,9 @@ namespace SDT
         friend class MenuOpenCloseEventInitializer;
 
         typedef void(*inihookproc) (void);
+        typedef UIStringHolder* (*PopulateUIStringHolder_t) (UIStringHolder*);
 
-        using mstcMap_t = stl::unordered_map<const char*, MenuEvent>;
+        using mstcMap_t = std::unordered_map<const char*, MenuEvent>;
     public:
 
         static inline constexpr auto ID = DRIVER_ID::EVENTS;
@@ -172,16 +160,20 @@ namespace SDT
         IEvents() = default;
 
         static void PostLoadPluginINI_Hook();
+        static UIStringHolder* PopulateUIStringHolder_Hook(UIStringHolder* a_dest);
+
         static void MessageHandler(SKSEMessagingInterface::Message* a_message);
 
-        void CreateMSTCMap();
+        void CreateMSTCMap(UIStringHolder* a_holder);
 
-        stl::unordered_map<Event, stl::vector<_EventTriggerDescriptor>> m_events;
-        stl::unordered_map<MenuEvent, stl::vector<_MenuEventCallbackDescriptor>> m_menu_events;
+        std::unordered_map<Event, std::vector<_EventTriggerDescriptor>> m_events;
+        std::unordered_map<MenuEvent, std::vector<_MenuEventCallbackDescriptor>> m_menu_events;
 
         inihookproc LoadPluginINI_O;
+        PopulateUIStringHolder_t PopulateUIStringHolder_O;
 
         inline static auto LoadPluginINI_C = IAL::Addr(AID::Init0, Offsets::LoadPluginINI_C);
+        inline static auto PopulateUIStringHolder_C = IAL::Addr(AID::Init0, Offsets::PopulateUIStringHolder);
 
         MenuNameToCodeMap m_mstc_map;
 
