@@ -138,8 +138,6 @@ namespace SDT
             MenuEvent event;
         };
 
-        typedef stl::unordered_map<std::string, MenuEvent> MenuNameToCodeMap;
-
         typedef EventTriggerDescriptor<Event, EventCallback> _EventTriggerDescriptor;
         typedef EventTriggerDescriptor<MenuEvent, MenuEventCallback> _MenuEventCallbackDescriptor;
 
@@ -175,7 +173,7 @@ namespace SDT
         inline static auto LoadPluginINI_C = IAL::Addr(AID::Init0, Offsets::LoadPluginINI_C);
         inline static auto PopulateUIStringHolder_C = IAL::Addr(AID::Init0, Offsets::PopulateUIStringHolder);
 
-        MenuNameToCodeMap m_mstc_map;
+        mstcMap_t m_mstc_map;
 
         static IEvents m_Instance;
     };
