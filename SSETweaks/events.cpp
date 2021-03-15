@@ -137,9 +137,7 @@ namespace SDT
     UIStringHolder* IEvents::PopulateUIStringHolder_Hook(UIStringHolder* a_dst)
     {
         auto dst = m_Instance.PopulateUIStringHolder_O(a_dst);
-
         m_Instance.CreateMSTCMap(dst);
-
         return dst;
     }
 
@@ -167,10 +165,11 @@ namespace SDT
         for (auto& e : s_mstc_map_desc)
         {
             auto& str = a_holder->GetString(e.index);
-            m_mstc_map.emplace(str.data, e.event);
+            m_mstc_map.try_emplace(str.data, e.event);
         }
 
-        m_mstc_map[BSFixedString("CustomMenu").data] = MenuEvent::OnCustomMenu;
+        BSFixedString customMenu("CustomMenu");
+        m_mstc_map.try_emplace(customMenu.data, MenuEvent::OnCustomMenu);
     }
 
     auto MenuOpenCloseEventHandler::ReceiveEvent(MenuOpenCloseEvent* a_evn, EventDispatcher<MenuOpenCloseEvent>* a_dispatcher)

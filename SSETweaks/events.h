@@ -99,7 +99,7 @@ namespace SDT
 
     class MenuEventTrack
     {
-        using trackSet_t = stl::unordered_set<MenuEvent>;
+        using trackSet_t = std::unordered_set<MenuEvent>;
 
     public:
 
@@ -171,7 +171,7 @@ namespace SDT
         PopulateUIStringHolder_t PopulateUIStringHolder_O;
 
         inline static auto LoadPluginINI_C = IAL::Addr(AID::Init0, Offsets::LoadPluginINI_C);
-        inline static auto PopulateUIStringHolder_C = IAL::Addr(AID::Init0, Offsets::PopulateUIStringHolder);
+        inline static auto PopulateUIStringHolder_C = IAL::Addr(AID::Init0, Offsets::PopulateUIStringHolder_C);
 
         mstcMap_t m_mstc_map;
 

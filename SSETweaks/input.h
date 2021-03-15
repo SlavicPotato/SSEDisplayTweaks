@@ -88,7 +88,7 @@ namespace SDT
 
         void DispatchKeyEvent(KeyEvent ev, UInt32 key);
 
-        stl::vector<KeyEventHandler*> m_handlers;
+        std::vector<KeyEventHandler*> m_handlers;
 
         static DInput m_Instance;
     };

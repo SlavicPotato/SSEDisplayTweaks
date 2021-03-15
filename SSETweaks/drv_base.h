@@ -34,7 +34,7 @@ namespace SDT
         void RegisterHook(HookDescriptor&& hdesc);
         bool InstallHooks();
     private:
-        stl::vector<HookDescriptor> m_hooks;
+        std::vector<HookDescriptor> m_hooks;
     };
 
     class IDriver :

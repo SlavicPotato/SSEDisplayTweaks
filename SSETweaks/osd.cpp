@@ -205,7 +205,7 @@ namespace SDT
 
     void DOSD::ConfigParseColors(const std::string& in, XMVECTORF32& out)
     {
-        stl::vector<float> cols;
+        std::vector<float> cols;
         StrHelpers::SplitString<float>(in, ' ', cols);
         if (cols.size() > 2)
         {
@@ -226,7 +226,7 @@ namespace SDT
 
     void DOSD::ConfigParseScale(const std::string& in, DirectX::XMFLOAT2A& out)
     {
-        stl::vector<float> scale;
+        std::vector<float> scale;
         StrHelpers::SplitString<float>(in, ' ', scale);
         if (scale.size() > 0)
         {
@@ -247,7 +247,7 @@ namespace SDT
 
     void DOSD::ConfigParseVector2(const std::string& in, DirectX::XMFLOAT2A& out)
     {
-        stl::vector<float> v2;
+        std::vector<float> v2;
         StrHelpers::SplitString<float>(in, ' ', v2);
         if (v2.size() > 0) {
             out.x = v2[0];
@@ -261,7 +261,7 @@ namespace SDT
     {
         out = 0U;
 
-        stl::vector<std::string> items;
+        std::vector<std::string> items;
         StrHelpers::SplitString(in, ',', items);
         for (auto& s : items) {
             auto it = m_itemToFlag.find(s);
@@ -284,6 +284,7 @@ namespace SDT
     ) :
         m_isLoaded(false),
         m_pDevice(a_pDevice),
+        m_pDeviceContext(a_pDeviceContext),
         m_bufferSize(
             static_cast<float>(a_bufferX),
             static_cast<float>(a_bufferY)),
@@ -348,7 +349,7 @@ namespace SDT
         {
             m_font = std::make_unique<SpriteFont>(m_pDevice, reinterpret_cast<std::uint8_t* const>(pData), dSize);
         }
-        catch (std::exception& e)
+        catch (const std::exception& e)
         {
             m_lastException = e;
             goto finish;
@@ -357,7 +358,7 @@ namespace SDT
         m_isLoaded = true;
 
     finish:
-        FreeResource(pData);
+        FreeResource(hData);
 
         return m_isLoaded;
     }
@@ -368,7 +369,7 @@ namespace SDT
         {
             m_font = std::make_unique<SpriteFont>(m_pDevice, filename);
         }
-        catch (std::exception& e)
+        catch (const std::exception& e)
         {
             m_lastException = e;
             return false;
@@ -382,6 +383,8 @@ namespace SDT
         if (!m_isLoaded) {
             return;
         }
+
+        D3D11StateBackup _(m_pDeviceContext);
 
         try {
             auto text = m_drawString.c_str();
@@ -418,7 +421,7 @@ namespace SDT
 
     void StatsRenderer::UpdateStrings()
     {
-        stl::wostringstream ss;
+        std::wostringstream ss;
 
         for (const auto& f : m_callbacks) {
             auto buf = f();

@@ -76,8 +76,8 @@ namespace SDT
         except::descriptor m_lastException;
         bool m_isLoaded;
 
-        stl::vector<Callback> m_callbacks;
-        stl::wstring m_drawString;
+        std::vector<Callback> m_callbacks;
+        std::wstring m_drawString;
 
         DirectX::XMFLOAT2A m_offset, m_bufferSize;
         DirectX::XMVECTORF32 m_fontColor, m_outlineColor;
@@ -88,6 +88,8 @@ namespace SDT
         Align m_alignment;
 
         ID3D11Device* m_pDevice;
+        ID3D11DeviceContext* m_pDeviceContext;
+
         ID3D11BlendState* m_blendState;
     };
 
@@ -142,7 +144,7 @@ namespace SDT
         FN_DRVDEF(3);
     private:
 
-        using itemToFlag_t = stl::iunordered_map<std::string, std::uint32_t>;
+        using itemToFlag_t = stl::iunordered_map<std::string, std::uint32_t, std::allocator<std::pair<const std::string, std::uint32_t>>>;
 
         DOSD();
 

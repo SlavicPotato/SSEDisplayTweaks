@@ -87,7 +87,7 @@ namespace SDT
         //static inline constexpr std::uintptr_t LoadPluginINI_O = 0x5B8F00;
 
         // 40555356574156488DAC2440FFFFFF4881ECC001000048C74598FEFFFFFF8B0D????????65488B042558000000488B3CC8+A32 (35548)
-        static inline constexpr uintptr_t PopulateUIStringHolder = 0xA32;
+        static inline constexpr uintptr_t PopulateUIStringHolder_C = 0xA32;
 
         //static inline constexpr std::uintptr_t JMPT_D3D11CreateDevice = 0x1372F02;
 

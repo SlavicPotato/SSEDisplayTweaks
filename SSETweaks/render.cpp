@@ -377,7 +377,7 @@ namespace SDT
 
     bool DRender::ConfigParseResolution(const std::string& in, std::int32_t(&a_out)[2])
     {
-        stl::vector<std::int32_t> v2;
+        std::vector<std::int32_t> v2;
         StrHelpers::SplitString<std::int32_t>(in, 'x', v2);
 
         if (v2.size() < 2)
@@ -1135,9 +1135,9 @@ namespace SDT
         }
     }
 
-    void DRender::OnD3D11PostCreate(const DXGI_SWAP_CHAIN_DESC* pSwapChainDesc, ID3D11Device** ppDevice)
+    /*void DRender::OnD3D11PostCreate(const DXGI_SWAP_CHAIN_DESC* pSwapChainDesc, ID3D11Device** ppDevice)
     {
-    }
+    }*/
 
     HRESULT WINAPI DRender::D3D11CreateDeviceAndSwapChain_Hook(
         _In_opt_ IDXGIAdapter* pAdapter,
@@ -1165,7 +1165,7 @@ namespace SDT
             ppImmediateContext);
 
         if (hr == S_OK) {
-            m_Instance.OnD3D11PostCreate(pSwapChainDesc, ppDevice);
+            //m_Instance.OnD3D11PostCreate(pSwapChainDesc, ppDevice);
 
             D3D11CreateEventPost evd_post(pSwapChainDesc, *ppDevice, *ppImmediateContext, *ppSwapChain, pAdapter);
             IEvents::TriggerEvent(Event::OnD3D11PostCreate, reinterpret_cast<void*>(&evd_post));

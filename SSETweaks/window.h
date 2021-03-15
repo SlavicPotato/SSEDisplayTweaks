@@ -7,9 +7,9 @@ namespace SDT
     class MsgProc
     {
         typedef std::function<void(HWND, UINT, WPARAM, LPARAM)> MsgProcFunc;
-        typedef stl::unordered_map<UINT, stl::vector<MsgProcFunc>> MPMap;
+        typedef std::unordered_map<UINT, std::vector<MsgProcFunc>> MPMap;
     public:
-        typedef stl::vector<UINT> MsgList;
+        typedef std::vector<UINT> MsgList;
 
         void Add(UINT msg, const MsgProcFunc& f)
         {

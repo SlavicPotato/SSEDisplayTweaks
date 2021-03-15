@@ -21,8 +21,8 @@ namespace SDT
         void PreProcessDrivers();
         bool InitializeDrivers_Impl();
 
-        stl::vector<IDriver*> m_drivers;
-        stl::unordered_map<DRIVER_ID, IDriver*> m_drivermap;
+        std::vector<IDriver*> m_drivers;
+        std::unordered_map<DRIVER_ID, IDriver*> m_drivermap;
 
         static IDDispatcher m_Instance;
     };

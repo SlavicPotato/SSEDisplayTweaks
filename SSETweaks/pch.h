@@ -17,6 +17,7 @@
 #include <ext/JITASM.h>
 #include <ext/ITasks.h>
 #include <ext/StrHelpers.h>
+#include <ext/ID3D11.h>
 #include <skse64/GameData.h>
 #include <skse64/GameEvents.h>
 #include <skse64/GameMenus.h>
