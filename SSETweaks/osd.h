@@ -91,6 +91,8 @@ namespace SDT
         ID3D11DeviceContext* m_pDeviceContext;
 
         ID3D11BlendState* m_blendState;
+
+        D3D11StateBackupImpl m_backup;
     };
 
     class SKMP_ALIGN(16) DOSD :

@@ -384,7 +384,7 @@ namespace SDT
             return;
         }
 
-        D3D11StateBackup _(m_pDeviceContext);
+        D3D11StateBackup _(std::addressof(m_backup), m_pDeviceContext);
 
         try {
             auto text = m_drawString.c_str();
