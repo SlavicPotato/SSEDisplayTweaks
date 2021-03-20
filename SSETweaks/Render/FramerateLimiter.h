@@ -12,7 +12,7 @@ namespace SDT
             m_hTimer(nullptr)
         {
             if (ISysCall::NtWaitForSingleObject != nullptr) {
-                m_hTimer = ::CreateWaitableTimer(nullptr, FALSE, nullptr);
+                m_hTimer = ::CreateWaitableTimerA(nullptr, FALSE, nullptr);
             }
         }
 
@@ -51,7 +51,7 @@ namespace SDT
             dueTime.QuadPart =
                 -(dueTime.QuadPart * 10LL);
 
-            if (SetWaitableTimer(m_hTimer, &dueTime,
+            if (::SetWaitableTimer(m_hTimer, &dueTime,
                 0, nullptr, nullptr, TRUE) == FALSE)
             {
                 return;

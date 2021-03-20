@@ -628,43 +628,6 @@ namespace SDT
             LogPatchEnd("IDXGISwapChain::ResizeTarget");
         }
 
-        if (m_conf.fullscreen == 0 && m_conf.enable_tearing
-            && (!m_conf.vsync_on || limiter_installed))
-        {
-            struct PresentFlagsInject : JITASM::JITASM {
-                PresentFlagsInject(std::uintptr_t retnAddr, std::uintptr_t flagsAddr)
-                    : JITASM()
-                {
-                    Xbyak::Label flagsLabel;
-                    Xbyak::Label retnLabel;
-
-                    mov(rcx, ptr[rip + flagsLabel]);
-                    mov(r8d, ptr[rcx]);
-                    mov(rcx, ptr[rax + 0x18]);
-                    jmp(ptr[rip + retnLabel]);
-
-                    L(retnLabel);
-                    dq(retnAddr);
-
-                    L(flagsLabel);
-                    dq(flagsAddr);
-                }
-            };
-
-            LogPatchBegin("IDXGISwapChain::Present");
-            {
-                PresentFlagsInject code(
-                    Present_Flags_Inject + 0x7,
-                    std::uintptr_t(&m_present_flags));
-
-                g_branchTrampoline.Write6Branch(
-                    Present_Flags_Inject, code.get());
-
-                safe_write<std::uint8_t>(Present_Flags_Inject + 0x6, 0xCC);
-            }
-            LogPatchEnd("IDXGISwapChain::Present");
-        }
-
         {
             struct ResizeBuffersInjectArgs : JITASM::JITASM {
                 ResizeBuffersInjectArgs(std::uintptr_t retnAddr, std::uintptr_t swdAddr
@@ -757,18 +720,17 @@ namespace SDT
             }
         };
 
-        auto numPre = m_Instance.m_presentCallbacksPre.size();
-        auto numPost = m_Instance.m_presentCallbacksPost.size();
-
-        if (numPre || numPost)
+        LogPatchBegin("IDXGISwapChain::Present");
         {
             PresentHook code(presentAddr);
             g_branchTrampoline.Write6Branch(presentAddr, code.get());
-
-            safe_write<std::uint8_t>(presentAddr + 0x6, 0xCC);
-
-            Message("Installed present hook (pre:%zu post:%zu)", numPre, numPost);
         }
+        LogPatchBegin("IDXGISwapChain::Present");
+
+        auto numPre = m_Instance.m_presentCallbacksPre.size();
+        auto numPost = m_Instance.m_presentCallbacksPost.size();
+
+        Message("Installed present hook (pre:%zu post:%zu)", numPre, numPost);
     }
 
     bool DRender::Prepare()
@@ -961,7 +923,7 @@ namespace SDT
 
     }
 
-    void DRender::Throttle(IDXGISwapChain *)
+    void DRender::Throttle(IDXGISwapChain*)
     {
         m_Instance.m_afTasks.ProcessTasks();
 
@@ -1240,7 +1202,7 @@ namespace SDT
             f(pSwapChain);
         }
 
-        HRESULT hr = pSwapChain->Present(SyncInterval, PresentFlags);
+        HRESULT hr = pSwapChain->Present(SyncInterval, m_Instance.m_present_flags);
 
         for (const auto& f : m_Instance.m_presentCallbacksPost) {
             f(pSwapChain);
