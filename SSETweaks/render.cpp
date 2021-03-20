@@ -725,7 +725,7 @@ namespace SDT
             PresentHook code(presentAddr);
             g_branchTrampoline.Write6Branch(presentAddr, code.get());
         }
-        LogPatchBegin("IDXGISwapChain::Present");
+        LogPatchEnd("IDXGISwapChain::Present");
 
         auto numPre = m_Instance.m_presentCallbacksPre.size();
         auto numPost = m_Instance.m_presentCallbacksPost.size();
