@@ -19,6 +19,18 @@
     <Filter Include="Header Files\Drivers">
       <UniqueIdentifier>{1f7ffba1-4c10-4fd0-baaf-defa239285d3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\OS">
+      <UniqueIdentifier>{cb8e2f35-f321-482c-bcab-7deaf77ef2a7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\OS">
+      <UniqueIdentifier>{23c7ee6a-264d-4936-b7cc-38f99b405059}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Render">
+      <UniqueIdentifier>{79df51e2-9569-4a78-93c0-cb61ac5e60ac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Render">
+      <UniqueIdentifier>{8c169d72-0c27-45bb-8f14-39b7b3368b7b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -93,6 +105,12 @@
     <ClInclude Include="stats.h">
       <Filter>Resource Files</Filter>
     </ClInclude>
+    <ClInclude Include="OS\SysCall.h">
+      <Filter>Header Files\OS</Filter>
+    </ClInclude>
+    <ClInclude Include="Render\FramerateLimiter.h">
+      <Filter>Header Files\Render</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -142,6 +160,9 @@
     </ClCompile>
     <ClCompile Include="game.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="OS\SysCall.cpp">
+      <Filter>Source Files\OS</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

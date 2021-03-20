@@ -2,6 +2,8 @@
 
 #include <Src/PlatformHelpers.h>
 
+#include "Render/FramerateLimiter.h"
+
 using namespace Microsoft::WRL;
 
 namespace SDT
@@ -497,13 +499,8 @@ namespace SDT
             static_cast<std::uint32_t>(m_Instance.m_conf.fullscreen)
         );
 
-        if (HasLimits()) {
-            safe_write(
-                Present_Limiter + 0x6,
-                reinterpret_cast<const void*>(Payloads::nopjmp),
-                sizeof(Payloads::nopjmp)
-            );
-
+        if (HasLimits())
+        {
             limiter_installed = true;
         }
 
@@ -698,7 +695,7 @@ namespace SDT
     {
         if (!Hook::Call5(CreateDXGIFactory_C,
             reinterpret_cast<std::uintptr_t>(CreateDXGIFactory_Hook),
-            m_createDXGIFactory_O)) 
+            m_createDXGIFactory_O))
         {
             Warning("CreateDXGIFactory hook failed");
         }
@@ -712,14 +709,6 @@ namespace SDT
             return;
         }
 
-        if (HasLimits()) {
-            RegisterHook(
-                Present_Limiter,
-                reinterpret_cast<std::uintptr_t>(Throttle),
-                HookDescriptor::HookType::kWR6Call
-            );
-        }
-
         if (m_fl.HasLimits()) {
             IEvents::RegisterForEvent(MenuEvent::OnAnyMenu, OnMenuEvent);
             if (lslPostLoadExtraTime > 0) {
@@ -728,6 +717,45 @@ namespace SDT
         }
 
         IEvents::RegisterForEvent(Event::OnConfigLoad, OnConfigLoad);
+    }
+
+    void DRender::PostInit()
+    {
+        struct PresentHook : JITASM::JITASM {
+            PresentHook(std::uintptr_t targetAddr
+            ) : JITASM()
+            {
+                Xbyak::Label callLabel;
+                Xbyak::Label retnLabel;
+
+                mov(edx, dword[rax + 0x30]);
+                call(ptr[rip + callLabel]);
+                jmp(ptr[rip + retnLabel]);
+
+                L(retnLabel);
+                dq(targetAddr + 0x7);
+
+                L(callLabel);
+                dq(std::uintptr_t(Present_Hook));
+            }
+        };
+
+        auto numPre = m_Instance.m_presentCallbacksPre.size();
+        auto numPost = m_Instance.m_presentCallbacksPost.size();
+
+        if (numPre || numPost || limiter_installed)
+        {
+            PresentHook code(presentAddr);
+            g_branchTrampoline.Write6Branch(presentAddr, code.get());
+
+            safe_write<std::uint8_t>(presentAddr + 0x6, 0xCC);
+
+            Message("Installed present hook (pre:%zu post:%zu)", numPre, numPost);
+
+            if (limiter_installed) {
+                m_limiter = std::make_unique<FramerateLimiter>();
+            }
+        }
     }
 
     bool DRender::Prepare()
@@ -902,34 +930,32 @@ namespace SDT
         return m_Instance.HandleMenuEvent(a_code, a_evn);
     }
 
+    long long DRender::GetCurrentFramerateLimit()
+    {
+        if (m_Instance.oo_expire_time > 0)
+        {
+            if (IPerfCounter::Query() < m_Instance.oo_expire_time) {
+                return m_Instance.oo_current_fps_max;
+            }
+            else {
+                m_Instance.oo_expire_time = 0;
+                return m_Instance.current_fps_max;
+            }
+        }
+        else {
+            return m_Instance.current_fps_max;
+        }
+
+    }
+
     void DRender::Throttle()
     {
         m_Instance.m_afTasks.ProcessTasks();
 
-        auto e = IPerfCounter::Query();
-
-        long long limit;
-        if (m_Instance.oo_expire_time > 0) {
-            if (e < m_Instance.oo_expire_time) {
-                limit = m_Instance.oo_current_fps_max;
-            }
-            else {
-                m_Instance.oo_expire_time = 0;
-                limit = m_Instance.current_fps_max;
-            }
-        }
-        else {
-            limit = m_Instance.current_fps_max;
-        }
-
+        auto limit = GetCurrentFramerateLimit();
         if (limit > 0) {
-            while (IPerfCounter::delta_us(m_Instance.tts, e) < limit)
-            {
-                ::Sleep(0);
-                e = IPerfCounter::Query();
-            }
+            m_Instance.m_limiter->Wait(limit);
         }
-        m_Instance.tts = e;
     }
 
     bool DRender::ValidateDisplayMode(const DXGI_SWAP_CHAIN_DESC* pSwapChainDesc) const
@@ -1190,6 +1216,30 @@ namespace SDT
         }
         return hr;
     }
+
+
+    HRESULT STDMETHODCALLTYPE DRender::Present_Hook(
+        IDXGISwapChain* pSwapChain,
+        UINT SyncInterval,
+        UINT PresentFlags)
+    {
+        for (const auto& f : m_Instance.m_presentCallbacksPre) {
+            f(pSwapChain);
+        }
+
+        HRESULT hr = pSwapChain->Present(SyncInterval, PresentFlags);
+
+        if (m_Instance.limiter_installed) {
+            Throttle();
+        }
+
+        for (const auto& f : m_Instance.m_presentCallbacksPost) {
+            f(pSwapChain);
+        }
+
+        return hr;
+    };
+
 
     IDXGIFactory* DRender::DXGI_GetFactory() const
     {

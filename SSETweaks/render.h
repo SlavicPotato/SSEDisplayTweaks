@@ -44,6 +44,8 @@ namespace SDT
         bool m_hasLimits;
     };
 
+    class FramerateLimiter;
+
     class DRender :
         public IDriver,
         IConfig
@@ -55,6 +57,8 @@ namespace SDT
         static SMMap cfgScalingModeMap;
 
         typedef HRESULT(WINAPI* CreateDXGIFactory_T)(REFIID riid, _COM_Outptr_ void** ppFactory);
+
+        typedef void (*presentCallback_t)(IDXGISwapChain* pSwapChain);
 
     public:
         static inline constexpr auto ID = DRIVER_ID::RENDER;
@@ -127,6 +131,14 @@ namespace SDT
             IDXGISwapChain* a_swapChain,
             DXGI_QUERY_VIDEO_MEMORY_INFO& a_out) const;
 
+        SKMP_FORCEINLINE void AddPresentCallbackPre(presentCallback_t f) {
+            m_presentCallbacksPre.emplace_back(f);
+        }
+
+        SKMP_FORCEINLINE void AddPresentCallbackPost(presentCallback_t f) {
+            m_presentCallbacksPost.emplace_back(f);
+        }
+
         FN_NAMEPROC("Render");
         FN_ESSENTIAL(false);
         FN_DRVDEF(2);
@@ -138,6 +150,7 @@ namespace SDT
         virtual void Patch() override;
         virtual void RegisterHooks() override;
         virtual bool Prepare() override;
+        virtual void PostInit() override;
 
         static DXGI_SWAP_EFFECT GetSwapEffect(int a_code);
         static const char* GetMenuDescription(MenuEvent a_event);
@@ -155,6 +168,7 @@ namespace SDT
         DXGI_SWAP_EFFECT ManualGetSwapEffect(const DXGI_SWAP_CHAIN_DESC* pSwapChainDesc);
         void ApplyD3DSettings(DXGI_SWAP_CHAIN_DESC* pSwapChainDesc);
 
+        SKMP_FORCEINLINE static long long GetCurrentFramerateLimit();
         static void Throttle();
 
         static void OnD3D11PreCreate(IDXGIAdapter* pAdapter, const DXGI_SWAP_CHAIN_DESC* pSwapChainDesc);
@@ -174,11 +188,14 @@ namespace SDT
             _COM_Outptr_opt_ ID3D11DeviceContext** ppImmediateContext);
 
         static HRESULT WINAPI CreateDXGIFactory_Hook(REFIID riid, _COM_Outptr_ void** ppFactory);
+        static HRESULT STDMETHODCALLTYPE Present_Hook(
+            IDXGISwapChain* pSwapChain,
+            UINT SyncInterval,
+            UINT PresentFlags);
 
         IDXGIFactory *DXGI_GetFactory() const;
         void DXGI_GetCapabilities();
         bool HasWindowedHWCompositionSupport(IDXGIAdapter* adapter) const;
-
 
         static void MessageHandler(Event m_code, void* args);
         static void OnConfigLoad(Event m_code, void* args);
@@ -235,10 +252,13 @@ namespace SDT
         PFN_D3D11_CREATE_DEVICE_AND_SWAP_CHAIN m_D3D11CreateDeviceAndSwapChain_O;
         CreateDXGIFactory_T m_createDXGIFactory_O;
 
+        std::vector<presentCallback_t> m_presentCallbacksPre;
+        std::vector<presentCallback_t> m_presentCallbacksPost;
+
         inline static auto CreateDXGIFactory_C = IAL::Addr(AID::D3D11Create, Offsets::CreateDXGIFactory_C);
         inline static auto D3D11CreateDeviceAndSwapChain_C = IAL::Addr(AID::D3D11Create, Offsets::D3D11CreateDeviceAndSwapChain_C);
-        inline static auto Present_Limiter = IAL::Addr(AID::Present, Offsets::Present_Limiter);
         inline static auto Present_Flags_Inject = IAL::Addr(AID::Present, Offsets::Present_Flags_Inject);
+        inline static auto presentAddr = IAL::Addr(AID::Present, Offsets::Present);
 
         inline static auto bFullscreen_Patch = IAL::Addr(AID::Init0, Offsets::bFullscreen_Patch);
         inline static auto bBorderless_Patch = IAL::Addr(AID::Init0, Offsets::bBorderless_Patch);
@@ -268,6 +288,7 @@ namespace SDT
         } m_dxgi;
 
         TaskQueue m_afTasks;
+        std::unique_ptr<FramerateLimiter> m_limiter;
 
         static DRender m_Instance;
     };

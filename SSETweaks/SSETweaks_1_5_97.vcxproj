@@ -197,7 +197,7 @@
       <PreprocessorDefinitions>NOMINMAX;_DEBUG;SSEDISPLAYTWEAKS_EXPORTS;_WINDOWS;_USRDLL;TARGET_SKSE_RUNTIME_VERSION=0x01050610;NTDDI_VERSION=NTDDI_WIN7;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>false</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\..\sse-build-resources\;$(ProjectDir)..\..\DirectXTK\;$(ProjectDir)..\..\sse-build-resources\skse64\;$(ProjectDir)..\..\sse-build-resources\skse64\skse64\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..\sse-build-resources\;$(ProjectDir)..\..\DirectXTK\;$(ProjectDir)..\..\sse-build-resources\skse64\;$(ProjectDir)..\..\sse-build-resources\skse64\skse64\;$(ProjectDir)</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>common/IPrefix.h</ForcedIncludeFiles>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <LanguageStandard>stdcpplatest</LanguageStandard>
@@ -231,7 +231,7 @@
       <PreprocessorDefinitions>NOMINMAX;_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING;NDEBUG;SSEDISPLAYTWEAKS_EXPORTS;_WINDOWS;_USRDLL;TARGET_SKSE_RUNTIME_VERSION=0x01050610;NTDDI_VERSION=NTDDI_WIN7;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>false</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\..\sse-build-resources\;$(ProjectDir)..\..\DirectXTK\;$(ProjectDir)..\..\sse-build-resources\skse64\;$(ProjectDir)..\..\sse-build-resources\skse64\skse64\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..\sse-build-resources\;$(ProjectDir)..\..\DirectXTK\;$(ProjectDir)..\..\sse-build-resources\skse64\;$(ProjectDir)..\..\sse-build-resources\skse64\skse64\;$(ProjectDir)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <ForcedIncludeFiles>common/IPrefix.h</ForcedIncludeFiles>
       <LanguageStandard>stdcpplatest</LanguageStandard>
@@ -273,7 +273,7 @@
       <PreprocessorDefinitions>NOMINMAX;_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING;NDEBUG;SSEDISPLAYTWEAKS_EXPORTS;_WINDOWS;_USRDLL;TARGET_SKSE_RUNTIME_VERSION=0x01050610;NTDDI_VERSION=NTDDI_WIN7;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>false</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\..\sse-build-resources\;$(ProjectDir)..\..\DirectXTK\;$(ProjectDir)..\..\sse-build-resources\skse64\;$(ProjectDir)..\..\sse-build-resources\skse64\skse64\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..\sse-build-resources\;$(ProjectDir)..\..\DirectXTK\;$(ProjectDir)..\..\sse-build-resources\skse64\;$(ProjectDir)..\..\sse-build-resources\skse64\skse64\;$(ProjectDir)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <ForcedIncludeFiles>common/IPrefix.h</ForcedIncludeFiles>
       <LanguageStandard>stdcpplatest</LanguageStandard>
@@ -317,7 +317,7 @@
       <PreprocessorDefinitions>NOMINMAX;_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING;NDEBUG;SSEDISPLAYTWEAKS_EXPORTS;_WINDOWS;_USRDLL;TARGET_SKSE_RUNTIME_VERSION=0x01050610;NTDDI_VERSION=NTDDI_WIN7;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>false</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\..\sse-build-resources\;$(ProjectDir)..\..\DirectXTK\;$(ProjectDir)..\..\sse-build-resources\skse64\;$(ProjectDir)..\..\sse-build-resources\skse64\skse64\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..\sse-build-resources\;$(ProjectDir)..\..\DirectXTK\;$(ProjectDir)..\..\sse-build-resources\skse64\;$(ProjectDir)..\..\sse-build-resources\skse64\skse64\;$(ProjectDir)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <ForcedIncludeFiles>common/IPrefix.h</ForcedIncludeFiles>
       <LanguageStandard>stdcpplatest</LanguageStandard>
@@ -362,7 +362,7 @@
       <PreprocessorDefinitions>NOMINMAX;_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING;NDEBUG;SSEDISPLAYTWEAKS_EXPORTS;_WINDOWS;_USRDLL;TARGET_SKSE_RUNTIME_VERSION=0x01050610;NTDDI_VERSION=NTDDI_WIN7;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>false</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\..\sse-build-resources\;$(ProjectDir)..\..\DirectXTK\;$(ProjectDir)..\..\sse-build-resources\skse64\;$(ProjectDir)..\..\sse-build-resources\skse64\skse64\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..\sse-build-resources\;$(ProjectDir)..\..\DirectXTK\;$(ProjectDir)..\..\sse-build-resources\skse64\;$(ProjectDir)..\..\sse-build-resources\skse64\skse64\;$(ProjectDir)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <ForcedIncludeFiles>common/IPrefix.h</ForcedIncludeFiles>
       <LanguageStandard>stdcpplatest</LanguageStandard>
@@ -408,7 +408,7 @@
       <PreprocessorDefinitions>NOMINMAX;_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING;NDEBUG;SSEDISPLAYTWEAKS_EXPORTS;_WINDOWS;_USRDLL;TARGET_SKSE_RUNTIME_VERSION=0x01050610;NTDDI_VERSION=NTDDI_WIN7;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>false</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\..\sse-build-resources\;$(ProjectDir)..\..\DirectXTK\;$(ProjectDir)..\..\sse-build-resources\skse64\;$(ProjectDir)..\..\sse-build-resources\skse64\skse64\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..\sse-build-resources\;$(ProjectDir)..\..\DirectXTK\;$(ProjectDir)..\..\sse-build-resources\skse64\;$(ProjectDir)..\..\sse-build-resources\skse64\skse64\;$(ProjectDir)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <ForcedIncludeFiles>common/IPrefix.h</ForcedIncludeFiles>
       <LanguageStandard>stdcpplatest</LanguageStandard>
@@ -454,7 +454,7 @@
       <PreprocessorDefinitions>NOMINMAX;_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING;NDEBUG;SSEDISPLAYTWEAKS_EXPORTS;_WINDOWS;_USRDLL;TARGET_SKSE_RUNTIME_VERSION=0x01050610;NTDDI_VERSION=NTDDI_WIN7;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>false</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\..\sse-build-resources\;$(ProjectDir)..\..\DirectXTK\;$(ProjectDir)..\..\sse-build-resources\skse64\;$(ProjectDir)..\..\sse-build-resources\skse64\skse64\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..\sse-build-resources\;$(ProjectDir)..\..\DirectXTK\;$(ProjectDir)..\..\sse-build-resources\skse64\;$(ProjectDir)..\..\sse-build-resources\skse64\skse64\;$(ProjectDir)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <ForcedIncludeFiles>common/IPrefix.h</ForcedIncludeFiles>
       <LanguageStandard>stdcpplatest</LanguageStandard>
@@ -497,7 +497,7 @@
       <PreprocessorDefinitions>NOMINMAX;_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING;DEBUG;SSEDISPLAYTWEAKS_EXPORTS;_WINDOWS;_USRDLL;TARGET_SKSE_RUNTIME_VERSION=0x01050610;NTDDI_VERSION=NTDDI_WIN7;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>false</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\..\sse-build-resources\;$(ProjectDir)..\..\DirectXTK\;$(ProjectDir)..\..\sse-build-resources\skse64\;$(ProjectDir)..\..\sse-build-resources\skse64\skse64\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..\sse-build-resources\;$(ProjectDir)..\..\DirectXTK\;$(ProjectDir)..\..\sse-build-resources\skse64\;$(ProjectDir)..\..\sse-build-resources\skse64\skse64\;$(ProjectDir)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <ForcedIncludeFiles>common/IPrefix.h</ForcedIncludeFiles>
       <LanguageStandard>stdcpplatest</LanguageStandard>
@@ -548,10 +548,12 @@
     <ClInclude Include="macro_helpers.h" />
     <ClInclude Include="misc.h" />
     <ClInclude Include="osd.h" />
+    <ClInclude Include="OS\SysCall.h" />
     <ClInclude Include="papyrus.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="plugin.h" />
     <ClInclude Include="render.h" />
+    <ClInclude Include="Render\FramerateLimiter.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="skse.h" />
     <ClInclude Include="stats.h" />
@@ -569,6 +571,7 @@
     <ClCompile Include="input.cpp" />
     <ClCompile Include="misc.cpp" />
     <ClCompile Include="osd.cpp" />
+    <ClCompile Include="OS\SysCall.cpp" />
     <ClCompile Include="papyrus.cpp" />
     <ClCompile Include="render.cpp" />
     <ClCompile Include="pch.cpp">

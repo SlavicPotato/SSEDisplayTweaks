@@ -121,33 +121,8 @@ namespace SDT
             m_inputEventHandler.SetKeys(m_conf.combo_key, m_conf.key);
             DInput::RegisterForKeyEvents(&m_inputEventHandler);
 
-            struct PresentHook : JITASM::JITASM {
-                PresentHook(std::uintptr_t targetAddr
-                ) : JITASM()
-                {
-                    Xbyak::Label callLabel;
-                    Xbyak::Label retnLabel;
-
-                    mov(edx, dword[rax + 0x30]);
-                    call(ptr[rip + callLabel]);
-                    jmp(ptr[rip + retnLabel]);
-
-                    L(retnLabel);
-                    dq(targetAddr + 0x7);
-
-                    L(callLabel);
-                    dq(std::uintptr_t(StatsPresent_Hook));
-                }
-            };
-
-            LogPatchBegin("Present wrapper");
-            {
-                PresentHook code(presentAddr);
-                g_branchTrampoline.Write6Branch(presentAddr, code.get());
-
-                Patching::safe_write<std::uint8_t>(presentAddr + 0x6, 0xCC);
-            }
-            LogPatchEnd("Present wrapper");
+            m_dRender->AddPresentCallbackPre(Present_Pre);
+            m_dRender->AddPresentCallbackPost(Present_Post);
         }
     }
 
@@ -557,7 +532,51 @@ namespace SDT
         return m_Instance.m_bufStats4;
     }
 
-    HRESULT STDMETHODCALLTYPE DOSD::StatsPresent_Hook(
+
+    void DOSD::Present_Pre(IDXGISwapChain*)
+    {
+        if (!m_Instance.m_stats.draw)
+            return;
+
+        if (m_Instance.m_stats.warmup)
+            return;
+
+        m_Instance.m_statsRenderer->DrawStrings();
+    }
+
+    void DOSD::Present_Post(IDXGISwapChain* a_swapChain)
+    {
+        m_Instance.m_stats.frameCounter++;
+
+        if (!m_Instance.m_stats.draw) {
+            return;
+        }
+
+        auto e = IPerfCounter::Query();
+        auto deltaT = IPerfCounter::delta_us(m_Instance.m_stats.lastUpdate, e);
+
+        if (m_Instance.m_stats.warmup || deltaT >= m_Instance.m_stats.interval)
+        {
+            auto deltaFC =
+                m_Instance.m_stats.frameCounter -
+                m_Instance.m_stats.lastFrameCount;
+
+            m_Instance.m_stats.cur.frametime =
+                static_cast<long double>(deltaT) / static_cast<long double>(deltaFC);
+
+            m_Instance.m_stats.lastFrameCount =
+                m_Instance.m_stats.frameCounter;
+            m_Instance.m_stats.lastUpdate = e;
+
+            if (m_Instance.m_stats.warmup) {
+                m_Instance.m_stats.warmup--;
+            }
+
+            m_Instance.m_statsRenderer->Update();
+        }
+    }
+
+    /*HRESULT STDMETHODCALLTYPE DOSD::StatsPresent_Hook(
         IDXGISwapChain* pSwapChain,
         UINT SyncInterval,
         UINT PresentFlags)
@@ -598,7 +617,7 @@ namespace SDT
         }
 
         return hr;
-    };
+    };*/
 
     void DOSD::OnD3D11PostCreate_OSD(Event code, void* data)
     {

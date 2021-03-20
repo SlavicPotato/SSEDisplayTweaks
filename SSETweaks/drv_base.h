@@ -66,6 +66,7 @@ namespace SDT
         virtual void PostLoadConfig() {};
         virtual void Patch() {};
         virtual void RegisterHooks() {};
+        virtual void PostInit() {};
         [[nodiscard]] virtual bool Prepare() { return false; };
 
         [[nodiscard]] bool Initialize();

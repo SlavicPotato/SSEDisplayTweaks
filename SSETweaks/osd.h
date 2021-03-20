@@ -173,6 +173,9 @@ namespace SDT
         static void OnD3D11PostCreate_OSD(Event code, void* data);
         static void OnD3D11PostPostCreate_OSD(Event code, void* data);
 
+        static void Present_Pre(IDXGISwapChain* pSwapChain);
+        static void Present_Post(IDXGISwapChain* pSwapChain);
+
         static HRESULT STDMETHODCALLTYPE StatsPresent_Hook(
             IDXGISwapChain* pSwapChain,
             UINT SyncInterval,
@@ -219,8 +222,6 @@ namespace SDT
         Microsoft::WRL::ComPtr<IDXGIAdapter3> m_adapter;
 
         static itemToFlag_t m_itemToFlag;
-
-        inline static auto presentAddr = IAL::Addr(AID::Present, Offsets::Present);
 
         static DOSD m_Instance;
     };

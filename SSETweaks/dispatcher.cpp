@@ -83,6 +83,13 @@ namespace SDT
             count++;
         }
 
+        for (const auto& drv : m_drivers)
+        {
+            if (drv->IsOK()) {
+                drv->PostInit();
+            }
+        }
+
         Message("%zu driver(s) initialized", count);
 
         m_drivers.swap(decltype(m_drivers)());

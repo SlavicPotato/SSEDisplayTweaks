@@ -113,7 +113,7 @@ namespace SDT
 
         // 4883EC28B901000000E8????????803D????????007405E8????????488B05????????4533C0488B4818488B05????????4C8B098B5030  (75461)
         //static inline constexpr std::uintptr_t PresentPatchTarget = 0xD6A2B0;
-        static inline constexpr std::uintptr_t Present_Limiter = 0xE;
+        //static inline constexpr std::uintptr_t Present_Limiter = 0x3B;
         static inline constexpr std::uintptr_t Present_Flags_Inject = 0x23;
 
         // 488BC456574154415641574881EC6002000048C7442430FEFFFFFF4889581048896820488BD9488D5008+153  (35652)
