@@ -83,6 +83,7 @@ namespace SDT
             bool enable_tearing;
             std::int32_t resolution[2];
             float resolution_scale;
+            std::uint8_t limit_mode;
 
             struct {
                 float game;
@@ -169,7 +170,7 @@ namespace SDT
         void ApplyD3DSettings(DXGI_SWAP_CHAIN_DESC* pSwapChainDesc);
 
         SKMP_FORCEINLINE static long long GetCurrentFramerateLimit();
-        static void Throttle();
+        static void Throttle(IDXGISwapChain *);
 
         static void OnD3D11PreCreate(IDXGIAdapter* pAdapter, const DXGI_SWAP_CHAIN_DESC* pSwapChainDesc);
         //static void OnD3D11PostCreate(const DXGI_SWAP_CHAIN_DESC* pSwapChainDesc, ID3D11Device** ppDevice);

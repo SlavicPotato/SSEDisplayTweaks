@@ -26,6 +26,7 @@ namespace SDT
     static constexpr const char* CKEY_ENABLETEARING = "EnableTearing";
 
     static constexpr const char* CKEY_FPSLIMIT = "FramerateLimit";
+    static constexpr const char* CKEY_FPSLIMIT_MODE = "FramerateLimitMode";
 
     static constexpr const char* CKEY_LOADSCRFPSLIMIT = "LoadingScreenFramerateLimit";
     static constexpr const char* CKEY_LOADSCRFPSLIMITEX = "LoadingScreenLimitExtraTime";
@@ -308,6 +309,8 @@ namespace SDT
         }
         m_conf.enable_tearing = GetConfigValue(CKEY_ENABLETEARING, true);
 
+        m_conf.limit_mode = std::clamp<std::uint8_t>(GetConfigValue<std::uint8_t>(CKEY_FPSLIMIT_MODE, 0), 0, 1);
+
         m_conf.limits.game = GetConfigValue(CKEY_FPSLIMIT, -1.0f);
 
         m_conf.limits.ui = GetConfigValue(CKEY_UIFPSLIMIT, 0.0f);
@@ -502,6 +505,19 @@ namespace SDT
         if (HasLimits())
         {
             limiter_installed = true;
+
+            m_limiter = std::make_unique<FramerateLimiter>();
+
+            if (m_conf.limit_mode == 0)
+            {
+                AddPresentCallbackPre(Throttle);
+            }
+            else
+            {
+                AddPresentCallbackPost(Throttle);
+            }
+
+            Debug("Framerate limiter installed, mode: %s", m_conf.limit_mode == 0 ? "pre" : "post");
         }
 
         if (m_conf.max_frame_latency > 0) {
@@ -511,6 +527,7 @@ namespace SDT
             );
             Message("Maximum frame latency: %d", m_conf.max_frame_latency);
         }
+
 
         if (!m_conf.fullscreen)
         {
@@ -743,7 +760,7 @@ namespace SDT
         auto numPre = m_Instance.m_presentCallbacksPre.size();
         auto numPost = m_Instance.m_presentCallbacksPost.size();
 
-        if (numPre || numPost || limiter_installed)
+        if (numPre || numPost)
         {
             PresentHook code(presentAddr);
             g_branchTrampoline.Write6Branch(presentAddr, code.get());
@@ -751,10 +768,6 @@ namespace SDT
             safe_write<std::uint8_t>(presentAddr + 0x6, 0xCC);
 
             Message("Installed present hook (pre:%zu post:%zu)", numPre, numPost);
-
-            if (limiter_installed) {
-                m_limiter = std::make_unique<FramerateLimiter>();
-            }
         }
     }
 
@@ -948,7 +961,7 @@ namespace SDT
 
     }
 
-    void DRender::Throttle()
+    void DRender::Throttle(IDXGISwapChain *)
     {
         m_Instance.m_afTasks.ProcessTasks();
 
@@ -1228,10 +1241,6 @@ namespace SDT
         }
 
         HRESULT hr = pSwapChain->Present(SyncInterval, PresentFlags);
-
-        if (m_Instance.limiter_installed) {
-            Throttle();
-        }
 
         for (const auto& f : m_Instance.m_presentCallbacksPost) {
             f(pSwapChain);
