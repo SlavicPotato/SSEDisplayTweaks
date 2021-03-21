@@ -8,6 +8,7 @@
 
 static inline constexpr const char* PLUGIN_LOG_PATH = "My Games\\Skyrim Special Edition\\SKSE\\" PLUGIN_NAME ".log";
 static inline constexpr const char* PLUGIN_INI_FILE = PLUGIN_BASE_PATH PLUGIN_NAME ".ini";
+static inline constexpr const char* PLUGIN_INI_CUSTOM_FILE = PLUGIN_BASE_PATH PLUGIN_NAME "_custom.ini";
 static inline constexpr const wchar_t* OSD_FONT_PATH = PLUGIN_BASE_PATHW L"SDTFonts\\";
 
 #include "version.h"

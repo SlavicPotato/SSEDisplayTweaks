@@ -10,7 +10,6 @@
 #include <skse64/PluginAPI.h>
 #include <xbyak/xbyak.h>
 
-#include <ext/INIReader.h>
 #include <ext/ICommon.h>
 #include <ext/IHook.h>
 #include <ext/Patching.h>
@@ -18,6 +17,7 @@
 #include <ext/ITasks.h>
 #include <ext/StrHelpers.h>
 #include <ext/ID3D11.h>
+#include <ext/INIReader.h>
 #include <skse64/GameData.h>
 #include <skse64/GameEvents.h>
 #include <skse64/GameMenus.h>
