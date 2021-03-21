@@ -170,6 +170,7 @@
     <None Include="SSEDisplayTweaks.ini" />
     <None Include="cpp.hint" />
     <None Include="..\README.md" />
+    <None Include="..\LICENSE" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="SSETweaks.rc">
