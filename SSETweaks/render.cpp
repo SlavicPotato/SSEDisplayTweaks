@@ -279,10 +279,34 @@ namespace SDT
         m_swapchain.height = 0;
     }
 
+    std::uint8_t DRender::GetScreenModeSetting(
+        const IConfigGame &a_gameConfig,
+        const char* a_key,
+        const char* a_prefkey,
+        bool a_default)
+    {
+        if (!HasConfigValue(a_key))
+        {
+            bool result;
+            if (a_gameConfig.Get("Display", a_prefkey, a_default, result)) 
+            {
+                Debug("%s: Using game setting (%s): %hhu", a_key, a_prefkey, result);
+
+                return static_cast<std::uint8_t>(result);
+            }
+
+            return static_cast<std::uint8_t>(a_default);
+        }
+
+        return static_cast<std::uint8_t>(GetConfigValue(a_key, a_default));
+    }
+
     void DRender::LoadConfig()
     {
-        m_conf.fullscreen = static_cast<std::uint8_t>(GetConfigValue(CKEY_FULLSCREEN, false));
-        m_conf.borderless = static_cast<std::uint8_t>(GetConfigValue(CKEY_BORDERLESS, true));
+        IConfigGame gameConfig(SKYRIM_PREFS_INI_FILE);
+
+        m_conf.fullscreen = GetScreenModeSetting(gameConfig, CKEY_FULLSCREEN, "bFull Screen", false);
+        m_conf.borderless = GetScreenModeSetting(gameConfig, CKEY_BORDERLESS, "bBorderless", false);
         m_conf.upscale = GetConfigValue(CKEY_UPSCALE, false);
         m_conf.upscale_select_primary_monitor = GetConfigValue(CKEY_UPSCALE_PRIMARY_MON, true);
         m_conf.disablebufferresize = GetConfigValue(CKEY_DISABLEBUFFERRESIZE, false);

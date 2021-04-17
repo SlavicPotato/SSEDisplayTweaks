@@ -31,6 +31,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <functional>
+#include <filesystem>
 
 #include <shlobj.h>
 #include <d3d11.h>

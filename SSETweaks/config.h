@@ -34,6 +34,11 @@ namespace SDT
             return static_cast<T>(GetValue(key, static_cast<long>(default)));
         }
 
+        SKMP_FORCEINLINE bool HasConfigValue(const std::string& key) const
+        {
+            return Exists(key);
+        }
+
         virtual const char* ModuleName() const noexcept = 0;
 
     private:
@@ -52,6 +57,19 @@ namespace SDT
             }
 
             return m_confReader.Get(mod, a_key, a_default);
+        }
+
+        bool Exists(const std::string& a_key) const
+        {
+            std::string mod(ModuleName());
+
+            if (m_confReaderCustom.ParseError() == 0)
+            {
+                if (m_confReaderCustom.Exists(mod, a_key))
+                    return true;
+            }
+
+            return m_confReader.Exists(mod, a_key);
         }
 
         static INIReader m_confReader;
@@ -75,4 +93,55 @@ namespace SDT
     private:
         std::string m_sectionName;
     };
+
+    class IConfigGame
+    {
+    public:
+        IConfigGame(const char* a_path)
+        {
+            auto base = std::make_unique_for_overwrite<char[]>(MAX_PATH);
+
+            HRESULT hr = ::SHGetFolderPathA(
+                nullptr,
+                CSIDL_MYDOCUMENTS | CSIDL_FLAG_CREATE,
+                nullptr,
+                SHGFP_TYPE_CURRENT,
+                base.get());
+
+            if (SUCCEEDED(hr))
+            {
+                std::filesystem::path file;
+
+                file = base.get();
+                file /= a_path;
+
+                m_reader.Load(file.string());
+            }
+
+        }
+
+        template <class T>
+        bool Get(const std::string& a_section, const std::string& a_key, T a_default, T& a_out) const
+        {
+            if (m_reader.ParseError() != 0) {
+                return false;
+            }
+
+            auto valstr = m_reader.Get(a_section, a_key);
+            if (valstr)
+            {
+                a_out = m_reader.ParseValue(valstr, a_default);
+                return true;
+            }
+
+            return false;
+        }
+
+
+    private:
+
+        INIReader m_reader;
+    };
+
+
 }
