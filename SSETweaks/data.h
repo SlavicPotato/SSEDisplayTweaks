@@ -64,6 +64,8 @@ namespace SDT
         static inline constexpr unsigned long long FrameTimerNoSlow = 523661;
         static inline constexpr unsigned long long FrameTimerSlow = 523660;
 
+        static inline constexpr unsigned long long MapLookHandler_ProcessButton = 52170;
+
     }
 
     namespace Offsets
@@ -145,6 +147,12 @@ namespace SDT
         static inline constexpr std::uintptr_t ScriptUpdateBudgetUI = 0x90;
 
         static inline constexpr std::uintptr_t Present = 0x34;
+
+        static inline constexpr std::uintptr_t MapLookHandler_ProcessButton_Up = 0xB7;
+        static inline constexpr std::uintptr_t MapLookHandler_ProcessButton_Down = 0xE3;
+        static inline constexpr std::uintptr_t MapLookHandler_ProcessButton_Left = 0x113;
+        static inline constexpr std::uintptr_t MapLookHandler_ProcessButton_Right = 0x140;
+        static inline constexpr std::uintptr_t MapLookHandler_ProcessButton_Add = 0x155;
     }
 
     namespace Payloads
