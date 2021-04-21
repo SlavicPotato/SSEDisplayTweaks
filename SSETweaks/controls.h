@@ -47,11 +47,7 @@ namespace SDT
         inline static auto UnkFloat0 = IAL::Addr<float*>(AID::UnkFloat0);
         inline static auto FMHS_Inject = IAL::Addr(AID::UnkMM0, Offsets::FMHS_Inject);
 
-        inline static auto MapLookHandler_ProcessButton_Up = IAL::Addr(AID::MapLookHandler_ProcessButton, Offsets::MapLookHandler_ProcessButton_Up);
-        inline static auto MapLookHandler_ProcessButton_Down = IAL::Addr(AID::MapLookHandler_ProcessButton, Offsets::MapLookHandler_ProcessButton_Down);
-        inline static auto MapLookHandler_ProcessButton_Left = IAL::Addr(AID::MapLookHandler_ProcessButton, Offsets::MapLookHandler_ProcessButton_Left);
-        inline static auto MapLookHandler_ProcessButton_Right = IAL::Addr(AID::MapLookHandler_ProcessButton, Offsets::MapLookHandler_ProcessButton_Right);
-        inline static auto MapLookHandler_ProcessButton_Add = IAL::Addr(AID::MapLookHandler_ProcessButton, Offsets::MapLookHandler_ProcessButton_Add);
+        inline static auto MapLookHandler_ProcessButton = IAL::Addr<std::uintptr_t>(AID::MapLookHandler_ProcessButton);
 
         static DControls m_Instance;
     };

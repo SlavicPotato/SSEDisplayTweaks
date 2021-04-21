@@ -5,8 +5,12 @@ namespace SDT
     class IConfig
     {
     public:
-        static int Load();
-        static void Clear();
+        static int LoadConfiguration();
+        static void ClearConfiguration();
+
+        SKMP_FORCEINLINE static bool IsCustomLoaded() {
+            return m_confReaderCustom.ParseError() == 0;
+        }
 
         SKMP_FORCEINLINE const char* GetConfigValue(const std::string& key, const char* default) const
         {
@@ -97,34 +101,28 @@ namespace SDT
     class IConfigGame
     {
     public:
-        IConfigGame(const char* a_path)
+        IConfigGame(const char* a_path) :
+            m_path(a_path),
+            m_attemptedLoad(false)
         {
-            auto base = std::make_unique_for_overwrite<char[]>(MAX_PATH);
-
-            HRESULT hr = ::SHGetFolderPathA(
-                nullptr,
-                CSIDL_MYDOCUMENTS | CSIDL_FLAG_CREATE,
-                nullptr,
-                SHGFP_TYPE_CURRENT,
-                base.get());
-
-            if (SUCCEEDED(hr))
-            {
-                std::filesystem::path file;
-
-                file = base.get();
-                file /= a_path;
-
-                m_reader.Load(file.string());
-            }
-
         }
 
         template <class T>
-        bool Get(const std::string& a_section, const std::string& a_key, T a_default, T& a_out) const
-        {
-            if (m_reader.ParseError() != 0) {
-                return false;
+        bool Get(const std::string& a_section, const std::string& a_key, T a_default, T& a_out)
+        {            
+            if (m_reader.ParseError() != 0) 
+            {
+                if (!m_attemptedLoad) {
+                    m_attemptedLoad = true;
+                    Load();
+
+                    if (m_reader.ParseError() != 0) {
+                        return false;
+                    }
+                }
+                else {
+                    return false;
+                }
             }
 
             auto valstr = m_reader.Get(a_section, a_key);
@@ -140,6 +138,30 @@ namespace SDT
 
     private:
 
+        void Load()
+        {
+            auto base = std::make_unique_for_overwrite<char[]>(MAX_PATH);
+
+            HRESULT hr = ::SHGetFolderPathA(
+                nullptr,
+                CSIDL_MYDOCUMENTS | CSIDL_FLAG_CREATE,
+                nullptr,
+                SHGFP_TYPE_CURRENT,
+                base.get());
+
+            if (SUCCEEDED(hr))
+            {
+                std::filesystem::path file;
+
+                file = base.get();
+                file /= m_path;
+
+                m_reader.Load(file.string());
+            }
+        }
+
+        std::string m_path;
+        bool m_attemptedLoad;
         INIReader m_reader;
     };
 

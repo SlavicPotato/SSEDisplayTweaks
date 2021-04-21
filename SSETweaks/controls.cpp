@@ -108,10 +108,10 @@ namespace SDT
         {
             LogPatchBegin(CKEY_MAP_KB_MOVEMENT);
 
-            WriteKBMovementPatchDir(MapLookHandler_ProcessButton_Up, true);
-            WriteKBMovementPatchDir(MapLookHandler_ProcessButton_Down, true);
-            WriteKBMovementPatchDir(MapLookHandler_ProcessButton_Left);
-            WriteKBMovementPatchDir(MapLookHandler_ProcessButton_Right);
+            WriteKBMovementPatchDir(MapLookHandler_ProcessButton + Offsets::MapLookHandler_ProcessButton_Up, true);
+            WriteKBMovementPatchDir(MapLookHandler_ProcessButton + Offsets::MapLookHandler_ProcessButton_Down, true);
+            WriteKBMovementPatchDir(MapLookHandler_ProcessButton + Offsets::MapLookHandler_ProcessButton_Left);
+            WriteKBMovementPatchDir(MapLookHandler_ProcessButton + Offsets::MapLookHandler_ProcessButton_Right);
 
             LogPatchEnd(CKEY_MAP_KB_MOVEMENT);
         }
@@ -122,7 +122,7 @@ namespace SDT
         if (m_conf.map_kb_movement)
         {
             if (!Hook::Call5(
-                MapLookHandler_ProcessButton_Add,
+                MapLookHandler_ProcessButton + Offsets::MapLookHandler_ProcessButton_Add,
                 std::uintptr_t(AddMapCameraPos_Hook),
                 addCameraPos_o))
             {

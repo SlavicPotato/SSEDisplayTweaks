@@ -154,7 +154,7 @@ namespace SDT
         virtual bool Prepare() override;
         virtual void PostInit() override;
 
-        std::uint8_t GetScreenModeSetting(const IConfigGame& a_gameConfig, const char* a_key, const char* a_prefkey, bool a_default);
+        std::uint8_t GetScreenModeSetting(IConfigGame& a_gameConfig, const char* a_key, const char* a_prefkey, bool a_default);
 
         static DXGI_SWAP_EFFECT GetSwapEffect(int a_code);
         static const char* GetMenuDescription(MenuEvent a_event);

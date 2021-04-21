@@ -280,7 +280,7 @@ namespace SDT
     }
 
     std::uint8_t DRender::GetScreenModeSetting(
-        const IConfigGame &a_gameConfig,
+        IConfigGame &a_gameConfig,
         const char* a_key,
         const char* a_prefkey,
         bool a_default)

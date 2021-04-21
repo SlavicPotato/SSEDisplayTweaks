@@ -1,43 +1,66 @@
 #include "pch.h"
 
-namespace SDT {
+namespace SDT 
+{
     static constexpr const char* CONF_SECT_MAIN = "Main";
     static constexpr const char* CONF_MAIN_KEY_LOGGING = "LogLevel";
 
-    static bool Initialize(const SKSEInterface* skse)
+    class Initializer :
+        IConfig
     {
-        int result = IConfig::Load();
-        if (result != 0) {
-            gLog.Warning(
-                "WARNING: Unable to load the configuration file (%d)", result);
-        }
-        else {
+    public:
+        bool Run(const SKSEInterface* a_skse)
+        {
+            int result = LoadConfiguration();
+            if (result != 0) {
+                gLog.Warning("Unable to load main configuration file (%d)", result);
+            }
+
             gLog.SetLogLevel(ILog::TranslateLogLevel(
-                SDT::IConfigS(CONF_SECT_MAIN).GetConfigValue(CONF_MAIN_KEY_LOGGING, "debug")));
+                GetConfigValue(CONF_MAIN_KEY_LOGGING, "debug")));
+
+            if (IsCustomLoaded()) {
+                gLog.Message("Custom configuration loaded");
+            }
+
+            bool result = Initialize(a_skse);
+
+            if (result)
+            {
+                gLog.Debug("[Trampoline] branch: %zu/%zu, codegen: %zu/%u",
+                    ISKSE::branchTrampolineSize - g_branchTrampoline.Remain(),
+                    ISKSE::branchTrampolineSize,
+                    ISKSE::localTrampolineSize - g_localTrampoline.Remain(),
+                    ISKSE::localTrampolineSize);
+            }
+
+            ClearConfiguration();
+
+            return result;
         }
 
-        if (!ISKSE::Initialize(skse)) {
-            return false;
+    private:
+
+        bool Initialize(const SKSEInterface* a_skse)
+        {
+            if (!ISKSE::Initialize(a_skse)) {
+                return false;
+            }
+
+            if (!IEvents::Initialize()) {
+                return false;
+            }
+
+            if (!IDDispatcher::InitializeDrivers()) {
+                return false;
+            }
+
         }
 
-        if (!IEvents::Initialize()) {
-            return false;
+        virtual const char* ModuleName() const noexcept {
+            return CONF_SECT_MAIN;
         }
-
-        if (!IDDispatcher::InitializeDrivers()) {
-            return false;
-        }
-
-        gLog.Debug("[Trampoline] branch: %zu/%zu, codegen: %zu/%u",
-            ISKSE::branchTrampolineSize - g_branchTrampoline.Remain(),
-            ISKSE::branchTrampolineSize,
-            ISKSE::localTrampolineSize - g_localTrampoline.Remain(),
-            ISKSE::localTrampolineSize);
-
-        IConfig::Clear();
-
-        return true;
-    }
+    };
 }
 
 extern "C"
@@ -72,7 +95,7 @@ extern "C"
 
         timer.Start();
 
-        bool result = SDT::Initialize(skse);
+        bool result = SDT::Initializer().Run(skse);
 
         auto tInit = timer.Stop();
 
