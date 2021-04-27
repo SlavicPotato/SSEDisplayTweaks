@@ -1085,12 +1085,7 @@ namespace SDT
         }
 
         if (m_conf.buffer_count == 0) {
-            if (flip_model) {
-                pSwapChainDesc->BufferCount = 3;
-            }
-            else {
-                pSwapChainDesc->BufferCount = 2;
-            }
+            pSwapChainDesc->BufferCount = 2;
         }
         else if (m_conf.buffer_count > 0) {
             pSwapChainDesc->BufferCount = static_cast<UINT>(m_conf.buffer_count);
