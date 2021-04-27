@@ -331,7 +331,7 @@ namespace SDT
         if (m_conf.max_frame_latency > 0) {
             m_conf.max_frame_latency = std::min(m_conf.max_frame_latency, 16);
         }
-        m_conf.enable_tearing = GetConfigValue(CKEY_ENABLETEARING, true);
+        m_conf.enable_tearing = GetConfigValue(CKEY_ENABLETEARING, false);
 
         m_conf.limit_mode = std::clamp<std::uint8_t>(GetConfigValue<std::uint8_t>(CKEY_FPSLIMIT_MODE, 0), 0, 1);
 
