@@ -549,6 +549,7 @@
     <ClInclude Include="misc.h" />
     <ClInclude Include="osd.h" />
     <ClInclude Include="OS\SysCall.h" />
+    <ClInclude Include="OS\WinAPI.h" />
     <ClInclude Include="papyrus.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="plugin.h" />

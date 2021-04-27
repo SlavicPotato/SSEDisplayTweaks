@@ -1,5 +1,7 @@
 #include "pch.h"
 
+#include "OS/WinAPI.h"
+
 namespace SDT 
 {
     static constexpr const char* CONF_SECT_MAIN = "Main";
@@ -9,7 +11,7 @@ namespace SDT
         IConfig
     {
     public:
-        bool Run(const SKSEInterface* a_skse)
+        int Run(const SKSEInterface* a_skse)
         {
             int result = LoadConfiguration();
             if (result != 0) {
@@ -23,9 +25,9 @@ namespace SDT
                 gLog.Message("Custom configuration loaded");
             }
 
-            bool result = Initialize(a_skse);
+            result = Initialize(a_skse);
 
-            if (result)
+            if (result == 0)
             {
                 gLog.Debug("[Trampoline] branch: %zu/%zu, codegen: %zu/%u",
                     ISKSE::branchTrampolineSize - g_branchTrampoline.Remain(),
@@ -41,20 +43,21 @@ namespace SDT
 
     private:
 
-        bool Initialize(const SKSEInterface* a_skse)
+        int Initialize(const SKSEInterface* a_skse)
         {
             if (!ISKSE::Initialize(a_skse)) {
-                return false;
+                return 1;
             }
 
             if (!IEvents::Initialize()) {
-                return false;
+                return 1;
             }
 
             if (!IDDispatcher::InitializeDrivers()) {
-                return false;
+                return -1;
             }
 
+            return 0;
         }
 
         virtual const char* ModuleName() const noexcept {
@@ -95,7 +98,22 @@ extern "C"
 
         timer.Start();
 
-        bool result = SDT::Initializer().Run(skse);
+        bool ok(false); 
+        
+        int result = SDT::Initializer().Run(skse);
+        if (result == 0) {
+            ok = true;
+        }
+        else if (result == -1)
+        {
+            WinApi::MessageBoxError(
+                "An unrecoverable error has occured during plugin initialization.\n\n"
+                "Some patches have already been applied before this error occured."
+                "The game process will be terminated to avoid issues.\n\n"
+                "See the log for more info."
+            );
+            std::_Exit(1);
+        }
 
         auto tInit = timer.Stop();
 
@@ -105,12 +123,12 @@ extern "C"
 
         auto tUnload = timer.Stop();
 
-        if (result) {
+        if (ok) {
             gLog.Debug("[%s] db load: %.3f ms, init: %.3f ms, db unload: %.3f ms", __FUNCTION__,
                 IAL::GetLoadTime() * 1000.0f, tInit * 1000.0f, tUnload * 1000.0f);
         }
 
-        return result;
+        return ok;
     }
 };
 

@@ -3,7 +3,7 @@
 namespace SDT
 {
     static inline constexpr std::size_t MAX_TRAMPOLINE_BRANCH = 256;
-    static inline constexpr std::size_t MAX_TRAMPOLINE_CODEGEN = 512;
+    static inline constexpr std::size_t MAX_TRAMPOLINE_CODEGEN = 580;
 
     class ISKSE
     {
@@ -21,7 +21,7 @@ namespace SDT
                 return reinterpret_cast<type*>(&setting->data);
             }
 
-            return reinterpret_cast<type*>(nullptr);
+            return static_cast<type*>(nullptr);
         };
 
         template <typename T>
@@ -34,7 +34,7 @@ namespace SDT
                 return reinterpret_cast<type*>(&setting->data);
             }
 
-            return reinterpret_cast<type*>(nullptr);
+            return static_cast<type*>(nullptr);
         };
 
         static HMODULE moduleHandle;

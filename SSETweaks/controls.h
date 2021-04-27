@@ -26,8 +26,9 @@ namespace SDT
             bool damping_fix;
             float tcpf_threshold;
             float fp_mount_horiz_sens;
-            float map_kb_movement;
+            bool map_kb_movement;
             float map_kb_movement_speedmult;
+            bool auto_vanity_camera;
         } m_conf;
 
         void WriteKBMovementPatchDir(std::uintptr_t a_address, bool a_isY = false);
@@ -46,8 +47,8 @@ namespace SDT
 
         inline static auto UnkFloat0 = IAL::Addr<float*>(AID::UnkFloat0);
         inline static auto FMHS_Inject = IAL::Addr(AID::UnkMM0, Offsets::FMHS_Inject);
-
         inline static auto MapLookHandler_ProcessButton = IAL::Addr<std::uintptr_t>(AID::MapLookHandler_ProcessButton);
+        inline static auto AutoVanityState_Update = IAL::Addr<std::uintptr_t>(AID::AutoVanityState_Update);
 
         static DControls m_Instance;
     };

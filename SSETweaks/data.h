@@ -66,6 +66,7 @@ namespace SDT
 
         static inline constexpr unsigned long long MapLookHandler_ProcessButton = 52170;
 
+        static inline constexpr unsigned long long AutoVanityState_Update = 49781;
     }
 
     namespace Offsets
@@ -153,6 +154,8 @@ namespace SDT
         static inline constexpr std::uintptr_t MapLookHandler_ProcessButton_Left = 0x113;
         static inline constexpr std::uintptr_t MapLookHandler_ProcessButton_Right = 0x140;
         static inline constexpr std::uintptr_t MapLookHandler_ProcessButton_Add = 0x155;
+
+        static inline constexpr std::uintptr_t AutoVanityState_Update_IncrementAngle = 0xE2;
     }
 
     namespace Payloads

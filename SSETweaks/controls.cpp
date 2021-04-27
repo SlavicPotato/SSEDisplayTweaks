@@ -7,6 +7,7 @@ namespace SDT
     static constexpr const char* CKEY_FSHS = "SittingHorizontalLookSensitivityFix";
     static constexpr const char* CKEY_MAP_KB_MOVEMENT = "MapMoveKeyboardSpeedFix";
     static constexpr const char* CKEY_MAP_KB_MOVEMENT_SPEED = "MapMoveKeyboardSpeedMult";
+    static constexpr const char* CKEY_AUTO_VANITY_CAMERA = "AutoVanityCameraSpeedFix";
 
     DControls DControls::m_Instance;
 
@@ -17,6 +18,7 @@ namespace SDT
         m_conf.fp_mount_horiz_sens = GetConfigValue(CKEY_FSHS, true);
         m_conf.map_kb_movement = GetConfigValue(CKEY_MAP_KB_MOVEMENT, true);
         m_conf.map_kb_movement_speedmult = std::clamp(GetConfigValue(CKEY_MAP_KB_MOVEMENT_SPEED, 1.0f), -20.0f, 20.0f);
+        m_conf.auto_vanity_camera = GetConfigValue(CKEY_AUTO_VANITY_CAMERA, true);
     }
 
     void DControls::PostLoadConfig()
@@ -114,6 +116,58 @@ namespace SDT
             WriteKBMovementPatchDir(MapLookHandler_ProcessButton + Offsets::MapLookHandler_ProcessButton_Right);
 
             LogPatchEnd(CKEY_MAP_KB_MOVEMENT);
+        }
+
+        if (m_conf.auto_vanity_camera)
+        {
+            auto fAutoVanityIncrement = ISKSE::GetINISettingAddr<float>("fAutoVanityIncrement:Camera");
+
+            if (fAutoVanityIncrement)
+            {
+                struct AutoVanityStateUpdate : JITASM::JITASM {
+                    AutoVanityStateUpdate(
+                        std::uintptr_t a_targetAddr,
+                        std::uintptr_t a_fAutoVanityIncrementAddr)
+                        : JITASM()
+                    {
+                        Xbyak::Label retnLabel;
+                        Xbyak::Label timerLabel;
+                        Xbyak::Label magicLabel;
+                        Xbyak::Label fAutoVanityIncrementLabel;
+
+                        mov(rcx, ptr[rip + fAutoVanityIncrementLabel]);
+                        movss(xmm1, dword[rcx]);
+                        mulss(xmm1, dword[rip + magicLabel]);
+                        mov(rcx, ptr[rip + timerLabel]);
+                        mulss(xmm1, dword[rcx]);
+                        subss(xmm0, xmm1);
+                        jmp(ptr[rip + retnLabel]);
+
+                        L(retnLabel);
+                        dq(a_targetAddr + 0x8);
+
+                        L(timerLabel);
+                        dq(std::uintptr_t(Game::g_frameTimer));
+
+                        L(magicLabel);
+                        dd(0x42700000); // 60.0f
+
+                        L(fAutoVanityIncrementLabel);
+                        dq(a_fAutoVanityIncrementAddr);
+                    }
+                };
+
+                LogPatchBegin(CKEY_AUTO_VANITY_CAMERA);
+
+                auto addr(AutoVanityState_Update + Offsets::AutoVanityState_Update_IncrementAngle);
+                AutoVanityStateUpdate code(addr, std::uintptr_t(fAutoVanityIncrement));
+                g_branchTrampoline.Write6Branch(addr, code.get());
+
+                LogPatchEnd(CKEY_AUTO_VANITY_CAMERA);
+            }
+            else {
+                Error("%s: could not apply patch", CKEY_AUTO_VANITY_CAMERA);
+            }
         }
     }
 
