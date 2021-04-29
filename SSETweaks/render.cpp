@@ -173,7 +173,7 @@ namespace SDT
         else {
             m_limits[Enum::Underlying(code)] = MenuFramerateLimitDescriptor(
                 disable_vsync,
-                static_cast<long long>((1.0 / static_cast<double>(limit)) * 1000000.0)
+                static_cast<long long>((1.0L / static_cast<long double>(limit)) * 1000000.0L)
             );
         }
 
@@ -247,6 +247,8 @@ namespace SDT
         gameLoadState(0),
         m_dxgiFactory(nullptr),
         m_swapchain{ 0, 0, 0 },
+        m_vsync_present_interval(0),
+        m_current_vsync_present_interval(0),
         m_fl({
             MenuEvent::OnJournalMenu,
             MenuEvent::OnMainMenu,
@@ -446,10 +448,10 @@ namespace SDT
             }
         }
 
-        vsync = m_conf.vsync_on ? m_conf.vsync_present_interval : 0;
+        m_current_vsync_present_interval = m_vsync_present_interval = m_conf.vsync_on ? m_conf.vsync_present_interval : 0;
 
         if (m_conf.limits.game > 0.0f) {
-            current_fps_max = fps_max = static_cast<long long>((1.0 / static_cast<double>(m_conf.limits.game)) * 1000000.0);
+            current_fps_max = fps_max = static_cast<long long>((1.0L / static_cast<long double>(m_conf.limits.game)) * 1000000.0L);
             fps_limit = 1;
             Message("Framerate limit (game): %.6g", m_conf.limits.game);
         }
@@ -802,9 +804,7 @@ namespace SDT
 
     void DRender::OnConfigLoad(Event m_code, void* args)
     {
-        if (m_Instance.limiter_installed || m_Instance.fps_limit == 0) {
-            *m_Instance.m_gv.bLockFramerate = 0;
-        }
+        *m_Instance.m_gv.bLockFramerate = 0;
 
         if (m_Instance.m_conf.adjust_ini) {
             if (*m_Instance.m_gv.iFPSClamp != 0)
@@ -819,13 +819,13 @@ namespace SDT
     {
         if (m_conf.vsync_on) {
             if (disable_vsync) {
-                (*DXGIData)->SyncInterval = 0;
+                m_current_vsync_present_interval = 0;
                 if (tearing_enabled) {
                     m_present_flags |= DXGI_PRESENT_ALLOW_TEARING;
                 }
             }
             else {
-                (*DXGIData)->SyncInterval = vsync;
+                m_current_vsync_present_interval = m_vsync_present_interval;
                 if (tearing_enabled) {
                     m_present_flags &= ~DXGI_PRESENT_ALLOW_TEARING;
                 }
@@ -849,7 +849,7 @@ namespace SDT
         }
 
         if (m_conf.vsync_on) {
-            (*DXGIData)->SyncInterval = vsync;
+            m_current_vsync_present_interval = m_vsync_present_interval;
             if (tearing_enabled) {
                 m_present_flags &= ~DXGI_PRESENT_ALLOW_TEARING;
             }
@@ -1042,8 +1042,6 @@ namespace SDT
 
     void DRender::ApplyD3DSettings(DXGI_SWAP_CHAIN_DESC* pSwapChainDesc)
     {
-        (*DXGIData)->SyncInterval = static_cast<UInt32>(vsync);
-
         if (pSwapChainDesc->Windowed == TRUE) {
             DXGI_GetCapabilities();
         }
@@ -1085,7 +1083,12 @@ namespace SDT
         }
 
         if (m_conf.buffer_count == 0) {
-            pSwapChainDesc->BufferCount = 2;
+            if (flip_model) {
+                pSwapChainDesc->BufferCount = 3;
+            }
+            else {
+                pSwapChainDesc->BufferCount = 2;
+            }
         }
         else if (m_conf.buffer_count > 0) {
             pSwapChainDesc->BufferCount = static_cast<UINT>(m_conf.buffer_count);
@@ -1129,7 +1132,7 @@ namespace SDT
             "[D3D] Requesting mode: %ux%u@%u | VSync: %u | Windowed: %d",
             pSwapChainDesc->BufferDesc.Width, pSwapChainDesc->BufferDesc.Height,
             m_Instance.GetRefreshRate(pSwapChainDesc),
-            m_Instance.vsync, pSwapChainDesc->Windowed);
+            m_Instance.m_vsync_present_interval, pSwapChainDesc->Windowed);
 
         m_Instance.Debug("[D3D] SwapEffect: %s | SwapBufferCount: %u | Tearing: %d | Flags: 0x%.8X",
             GetSwapEffectOption(pSwapChainDesc->SwapEffect), pSwapChainDesc->BufferCount,
@@ -1213,7 +1216,7 @@ namespace SDT
 
 
     HRESULT STDMETHODCALLTYPE DRender::Present_Hook(
-        IDXGISwapChain* pSwapChain,
+        IDXGISwapChain4* pSwapChain,
         UINT SyncInterval,
         UINT PresentFlags)
     {
@@ -1221,7 +1224,7 @@ namespace SDT
             f(pSwapChain);
         }
 
-        HRESULT hr = pSwapChain->Present(SyncInterval, m_Instance.m_present_flags);
+        HRESULT hr = pSwapChain->Present(m_Instance.m_current_vsync_present_interval, m_Instance.m_present_flags);
 
         for (const auto& f : m_Instance.m_presentCallbacksPost) {
             f(pSwapChain);

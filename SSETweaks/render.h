@@ -193,7 +193,7 @@ namespace SDT
 
         static HRESULT WINAPI CreateDXGIFactory_Hook(REFIID riid, _COM_Outptr_ void** ppFactory);
         static HRESULT STDMETHODCALLTYPE Present_Hook(
-            IDXGISwapChain* pSwapChain,
+            IDXGISwapChain4* pSwapChain,
             UINT SyncInterval,
             UINT PresentFlags);
 
@@ -219,7 +219,6 @@ namespace SDT
         int fps_limit;
         bool has_swap_effect;
         bool has_scaling_mode;
-        std::uint32_t vsync;
         float fmt_max;
         float fmt_min;
         long long fps_max;
@@ -241,6 +240,8 @@ namespace SDT
                 pSwapChainDesc->SwapEffect == DXGI_SWAP_EFFECT_FLIP_DISCARD;
         }
 
+        UINT m_vsync_present_interval;
+        UINT m_current_vsync_present_interval;
         UINT m_present_flags;
 
         struct
@@ -270,7 +271,7 @@ namespace SDT
         inline static auto iSizeH_Patch = IAL::Addr(AID::Init0, Offsets::iSizeH_Patch);
         inline static auto DisplayRefreshRate = IAL::Addr(AID::Init0, Offsets::DisplayRefreshRate);
 
-        inline static auto DXGIData = IAL::Addr<Structures::IDXGIData**>(AID::DXGIData);
+        //inline static auto DXGIData = IAL::Addr<Structures::IDXGIData**>(AID::DXGIData);
 
         inline static auto MaxFrameLatency = IAL::Addr(AID::D3DInit, Offsets::MaxFrameLatency);
         inline static auto ResizeBuffers_Inject = IAL::Addr(AID::WindowSwapChainAdjust, Offsets::ResizeBuffers_Inject);

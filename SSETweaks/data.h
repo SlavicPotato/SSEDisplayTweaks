@@ -223,7 +223,7 @@ namespace SDT
             UInt32 unk36;
             UInt32 unk40;
             UInt32 unk44;
-            UInt32 SyncInterval;
+            UInt32 _SyncInterval;
             UInt32 unk52;
             UInt32 unk56;
             UInt32 unk60;
