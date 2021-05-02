@@ -10,6 +10,7 @@ namespace SDT
     static constexpr const char* CKEY_MINFPS = "MinimumFramerate";
     static constexpr const char* CKEY_FMTCOFFSET = "MaxTimeComplexOffset";
     static constexpr const char* CKEY_STATSON = "OSDStatsEnabled";
+    static constexpr const char* CKEY_PERFMODE = "PerformanceMode";
 
     static constexpr const char* CKEY_ADJUSTINICFG = "AdjustGameSettings";
 
@@ -28,6 +29,7 @@ namespace SDT
         m_conf.fmt_max = GetConfigValue(CKEY_MAXFPS, 0.0f);
         m_conf.fmtc_offset = std::clamp(GetConfigValue(CKEY_FMTCOFFSET, 30.0f), 0.0f, 30.0f);
         m_conf.stats_enabled = GetConfigValue(CKEY_STATSON, false);
+        m_conf.perf_mode = GetConfigValue(CKEY_PERFMODE, false);
 
         m_conf.adjust_ini = IConfigS(SECTION_GENERAL).GetConfigValue(CKEY_ADJUSTINICFG, true);
     }
@@ -58,12 +60,17 @@ namespace SDT
                     m_conf.havok_on = false;
                 }
             }
+
+            if (m_conf.perf_mode) {
+                Message("Performance mode enabled");
+            }
         }
     }
 
     void DHavok::RegisterHooks()
     {
-        if (m_conf.havok_enabled) {
+        if (m_conf.havok_enabled) 
+        {
             IEvents::RegisterForEvent(Event::OnD3D11PreCreate, OnD3D11PreCreate_Havok);
 
             if (m_conf.havok_on) {
@@ -122,14 +129,32 @@ namespace SDT
         return true;
     }
 
+    float DHavok::GetMaxTimeComplex(float a_interval)
+    {
+        return 1.0f / std::max(1.0f / a_interval - m_Instance.m_conf.fmtc_offset, HAVOK_MAXTIME_MIN);
+    }
+
     void DHavok::CalculateHavokValues(bool a_isComplex) const
     {
         float interval = std::clamp(*Game::g_frameTimer, fmt_min, fmt_max);
 
-        *m_gv.fMaxTime = interval;
+        if (m_conf.perf_mode) 
+        {
+            auto fmtc = GetMaxTimeComplex(interval);
 
-        if (a_isComplex) {
-            *m_gv.fMaxTimeComplex = 1.0f / std::max(1.0f / interval - m_conf.fmtc_offset, HAVOK_MAXTIME_MIN);
+            *m_gv.fMaxTime = fmtc;
+
+            if (a_isComplex) {
+                *m_gv.fMaxTimeComplex = fmtc;
+            }
+        }
+        else 
+        {
+            *m_gv.fMaxTime = interval;
+
+            if (a_isComplex) {
+                *m_gv.fMaxTimeComplex = GetMaxTimeComplex(interval);
+            }
         }
     }
 
@@ -198,7 +223,13 @@ namespace SDT
 
             float maxtc = 1.0f / std::max(1.0f / maxt - m_conf.fmtc_offset, HAVOK_MAXTIME_MIN);
 
-            *m_gv.fMaxTime = maxt;
+            if (m_conf.perf_mode) {
+                *m_gv.fMaxTime = maxtc;
+            }
+            else {
+                *m_gv.fMaxTime = maxt;
+            }
+            
             *m_gv.fMaxTimeComplex = maxtc;
 
             Message("(STATIC) fMaxTime=%.6g fMaxTimeComplex=%.6g (Max FPS = %.6g)", maxt, maxtc, 1.0f / maxt);
@@ -208,17 +239,23 @@ namespace SDT
             Warning("With the current configuration frame times could fall below fMaxTime. You may experience physics issues.");
         }
 
-        if (!*m_gv.uMaxNumPhysicsStepsPerUpdate) {
-            *m_gv.uMaxNumPhysicsStepsPerUpdate = 3;
-            Warning("uMaxNumPhysicsStepsPerUpdate is 0, adjusting to 3");
+        if (m_conf.perf_mode) {
+            *m_gv.uMaxNumPhysicsStepsPerUpdate = 1;
         }
-        else if (*m_gv.uMaxNumPhysicsStepsPerUpdate != 3) {
-            if (m_conf.adjust_ini) {
-                m_Instance.Message("Setting uMaxNumPhysicsStepsPerUpdate=3");
+        else {
+            if (!*m_gv.uMaxNumPhysicsStepsPerUpdate) {
                 *m_gv.uMaxNumPhysicsStepsPerUpdate = 3;
+                Warning("uMaxNumPhysicsStepsPerUpdate is 0, adjusting to 3");
             }
-            else {
-                Warning("uMaxNumPhysicsStepsPerUpdate != 3, recommend resetting to default");
+            else if (*m_gv.uMaxNumPhysicsStepsPerUpdate != 3)
+            {
+                if (m_conf.adjust_ini) {
+                    m_Instance.Message("Setting uMaxNumPhysicsStepsPerUpdate=3");
+                    *m_gv.uMaxNumPhysicsStepsPerUpdate = 3;
+                }
+                else {
+                    Warning("uMaxNumPhysicsStepsPerUpdate != 3, recommend resetting to default");
+                }
             }
         }
 

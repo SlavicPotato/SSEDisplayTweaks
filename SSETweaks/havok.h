@@ -27,6 +27,7 @@ namespace SDT
         void ApplyHavokSettings(const DXGI_SWAP_CHAIN_DESC* pSwapChainDesc);
         float AutoGetMaxTime(const DXGI_SWAP_CHAIN_DESC* pSwapChainDesc, float def) const;
 
+        SKMP_FORCEINLINE static float GetMaxTimeComplex(float a_interval);
         SKMP_FORCEINLINE void CalculateHavokValues(bool a_isComplex) const;
         SKMP_FORCEINLINE void UpdateHavokStats() const;
 
@@ -45,6 +46,7 @@ namespace SDT
             float fmt_min;
             float fmtc_offset;
             bool stats_enabled;
+            bool perf_mode;
             bool adjust_ini;
         } m_conf;
 
