@@ -308,7 +308,7 @@ namespace SDT
         IConfigGame gameConfig(SKYRIM_PREFS_INI_FILE);
 
         m_conf.fullscreen = GetScreenModeSetting(gameConfig, CKEY_FULLSCREEN, "bFull Screen", false);
-        m_conf.borderless = GetScreenModeSetting(gameConfig, CKEY_BORDERLESS, "bBorderless", false);
+        m_conf.borderless = GetScreenModeSetting(gameConfig, CKEY_BORDERLESS, "bBorderless", true);
         m_conf.upscale = GetConfigValue(CKEY_UPSCALE, false);
         m_conf.upscale_select_primary_monitor = GetConfigValue(CKEY_UPSCALE_PRIMARY_MON, true);
         m_conf.disablebufferresize = GetConfigValue(CKEY_DISABLEBUFFERRESIZE, false);
@@ -1085,9 +1085,6 @@ namespace SDT
         if (m_conf.buffer_count == 0) {
             if (flip_model) {
                 pSwapChainDesc->BufferCount = 3;
-            }
-            else {
-                pSwapChainDesc->BufferCount = 2;
             }
         }
         else if (m_conf.buffer_count > 0) {
