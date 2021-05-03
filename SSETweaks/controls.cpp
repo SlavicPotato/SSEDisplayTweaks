@@ -9,6 +9,7 @@ namespace SDT
     static constexpr const char* CKEY_MAP_KB_MOVEMENT_SPEED = "MapMoveKeyboardSpeedMult";
     static constexpr const char* CKEY_AUTO_VANITY_CAMERA = "AutoVanityCameraSpeedFix";
     static constexpr const char* CKEY_PC_DIALOGUE_LOOK = "DialogueLookSpeedFix";
+    static constexpr const char* CKEY_GP_CURSOR = "GamepadCursorSpeedFix";
 
     DControls DControls::m_Instance;
 
@@ -21,6 +22,7 @@ namespace SDT
         m_conf.map_kb_movement_speedmult = std::clamp(GetConfigValue(CKEY_MAP_KB_MOVEMENT_SPEED, 1.0f), -20.0f, 20.0f);
         m_conf.auto_vanity_camera = GetConfigValue(CKEY_AUTO_VANITY_CAMERA, true);
         m_conf.dialogue_look = GetConfigValue(CKEY_PC_DIALOGUE_LOOK, true);
+        m_conf.gamepad_cursor_speed = GetConfigValue(CKEY_GP_CURSOR, true);
     }
 
     void DControls::PostLoadConfig()
@@ -225,6 +227,48 @@ namespace SDT
                 Error("Could not apply patch: %s", CKEY_PC_DIALOGUE_LOOK);
             }
         }
+
+
+        if (m_conf.gamepad_cursor_speed)
+        {
+            struct GamepadCursorSpeed : JITASM::JITASM {
+                GamepadCursorSpeed(
+                    std::uintptr_t a_targetAddr)
+                    : JITASM()
+                {
+                    Xbyak::Label retnLabel;
+                    Xbyak::Label timerLabel;
+                    Xbyak::Label magicLabel;
+
+                    mulss(xmm4, dword[rcx + 0x1C]);
+                    mulss(xmm4, dword[rip + magicLabel]);
+                    mov(rax, ptr[rip + timerLabel]);
+                    mulss(xmm4, dword[rax]);
+                    jmp(ptr[rip + retnLabel]);
+
+                    L(retnLabel);
+                    dq(a_targetAddr + 0x6);
+
+                    L(timerLabel);
+                    dq(std::uintptr_t(Game::g_frameTimer));
+
+                    L(magicLabel);
+                    dd(0x42700000); // 60.0f
+                }
+            };
+
+            LogPatchBegin(CKEY_GP_CURSOR);
+
+            auto addr(
+                CursorMenu_MenuEventHandler_ProcessThumbstick_Sub140ED3120 +
+                Offsets::CursorMenu_MenuEventHandler_ProcessThumbstick_MulCS);
+
+            GamepadCursorSpeed code(addr);
+            g_branchTrampoline.Write6Branch(addr, code.get());
+
+            Message("%s patch done", CKEY_GP_CURSOR);
+        }
+
     }
 
     void DControls::RegisterHooks()
