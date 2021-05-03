@@ -29,6 +29,7 @@ namespace SDT
             bool map_kb_movement;
             float map_kb_movement_speedmult;
             bool auto_vanity_camera;
+            bool dialogue_look;
         } m_conf;
 
         void WriteKBMovementPatchDir(std::uintptr_t a_address, bool a_isY = false);
@@ -49,6 +50,7 @@ namespace SDT
         inline static auto FMHS_Inject = IAL::Addr(AID::UnkMM0, Offsets::FMHS_Inject);
         inline static auto MapLookHandler_ProcessButton = IAL::Addr<std::uintptr_t>(AID::MapLookHandler_ProcessButton);
         inline static auto AutoVanityState_Update = IAL::Addr<std::uintptr_t>(AID::AutoVanityState_Update);
+        inline static auto PlayerControls_InputEvent_ProcessEvent = IAL::Addr<std::uintptr_t>(AID::PlayerControls_InputEvent_ProcessEvent);
 
         static DControls m_Instance;
     };

@@ -3,7 +3,7 @@
 namespace SDT
 {
     static inline constexpr std::size_t MAX_TRAMPOLINE_BRANCH = 256;
-    static inline constexpr std::size_t MAX_TRAMPOLINE_CODEGEN = 580;
+    static inline constexpr std::size_t MAX_TRAMPOLINE_CODEGEN = 644;
 
     class ISKSE
     {
