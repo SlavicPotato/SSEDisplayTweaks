@@ -10,6 +10,7 @@ namespace SDT
     static constexpr const char* CKEY_AUTO_VANITY_CAMERA = "AutoVanityCameraSpeedFix";
     static constexpr const char* CKEY_PC_DIALOGUE_LOOK = "DialogueLookSpeedFix";
     static constexpr const char* CKEY_GP_CURSOR = "GamepadCursorSpeedFix";
+    static constexpr const char* CKEY_LOCKPICK_ROTATION = "LockpickRotationSpeedFix";
 
     DControls DControls::m_Instance;
 
@@ -23,6 +24,7 @@ namespace SDT
         m_conf.auto_vanity_camera = GetConfigValue(CKEY_AUTO_VANITY_CAMERA, true);
         m_conf.dialogue_look = GetConfigValue(CKEY_PC_DIALOGUE_LOOK, true);
         m_conf.gamepad_cursor_speed = GetConfigValue(CKEY_GP_CURSOR, true);
+        m_conf.lockpick_rotation = GetConfigValue(CKEY_LOCKPICK_ROTATION, true);
     }
 
     void DControls::PostLoadConfig()
@@ -266,7 +268,42 @@ namespace SDT
             GamepadCursorSpeed code(addr);
             g_branchTrampoline.Write6Branch(addr, code.get());
 
-            Message("%s patch done", CKEY_GP_CURSOR);
+            LogPatchEnd(CKEY_GP_CURSOR);
+        }
+
+        if (m_conf.lockpick_rotation)
+        {
+            // TODO: check ProcessThumbstick too
+
+            struct LockpickRotationSpeedMouse : JITASM::JITASM {
+                LockpickRotationSpeedMouse(
+                    std::uintptr_t a_targetAddr)
+                    : JITASM()
+                {
+                    Xbyak::Label retnLabel;
+                    Xbyak::Label magicLabel;
+
+                    mulss(xmm1, dword[rip + magicLabel]);
+                    jmp(ptr[rip + retnLabel]);
+
+                    L(retnLabel);
+                    dq(a_targetAddr + 0x8);
+
+                    L(magicLabel);
+                    dd(0x3c88893b); // 0.016667f
+                }
+            };
+
+            LogPatchBegin(CKEY_LOCKPICK_ROTATION);
+
+            auto addr(
+                LockpickingMenu_ProcessMouseMove + 
+                Offsets::LockpickingMenu_ProcessMouseMove_MulFT);
+
+            LockpickRotationSpeedMouse code(addr);
+            g_branchTrampoline.Write6Branch(addr, code.get());
+
+            LogPatchEnd(CKEY_LOCKPICK_ROTATION);
         }
 
     }

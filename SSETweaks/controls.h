@@ -31,6 +31,7 @@ namespace SDT
             bool auto_vanity_camera;
             bool dialogue_look;
             bool gamepad_cursor_speed;
+            bool lockpick_rotation;
         } m_conf;
 
         void WriteKBMovementPatchDir(std::uintptr_t a_address, bool a_isY = false);
@@ -53,6 +54,7 @@ namespace SDT
         inline static auto AutoVanityState_Update = IAL::Addr<std::uintptr_t>(AID::AutoVanityState_Update);
         inline static auto PlayerControls_InputEvent_ProcessEvent = IAL::Addr<std::uintptr_t>(AID::PlayerControls_InputEvent_ProcessEvent);
         inline static auto CursorMenu_MenuEventHandler_ProcessThumbstick_Sub140ED3120 = IAL::Addr<std::uintptr_t>(AID::CursorMenu_MenuEventHandler_ProcessThumbstick_Sub140ED3120);
+        inline static auto LockpickingMenu_ProcessMouseMove = IAL::Addr<std::uintptr_t>(AID::LockpickingMenu_ProcessMouseMove);
 
         static DControls m_Instance;
     };

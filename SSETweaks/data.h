@@ -71,6 +71,8 @@ namespace SDT
         static inline constexpr unsigned long long PlayerControls_InputEvent_ProcessEvent = 41259;
 
         static inline constexpr unsigned long long CursorMenu_MenuEventHandler_ProcessThumbstick_Sub140ED3120 = 80428;
+
+        static inline constexpr unsigned long long LockpickingMenu_ProcessMouseMove = 51076;
     }
 
     namespace Offsets
@@ -164,6 +166,8 @@ namespace SDT
         static inline constexpr std::uintptr_t PlayerControls_InputEvent_ProcessEvent_LoadDLSpeed = 0x1CC;
 
         static inline constexpr std::uintptr_t CursorMenu_MenuEventHandler_ProcessThumbstick_MulCS = 0x4A;
+
+        static inline constexpr std::uintptr_t LockpickingMenu_ProcessMouseMove_MulFT = 0x42;
     }
 
     namespace Payloads
