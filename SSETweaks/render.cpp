@@ -938,12 +938,10 @@ namespace SDT
             }
             else {
                 m_Instance.oo_expire_time = 0;
-                return m_Instance.current_fps_max;
             }
         }
-        else {
-            return m_Instance.current_fps_max;
-        }
+
+        return m_Instance.current_fps_max;
 
     }
 
@@ -1233,11 +1231,11 @@ namespace SDT
 
     IDXGIFactory* DRender::DXGI_GetFactory() const
     {
-        HMODULE hModule = LoadLibraryA("dxgi.dll");
+        HMODULE hModule = ::LoadLibraryA("dxgi.dll");
         if (!hModule)
             return nullptr;
 
-        auto func = reinterpret_cast<CreateDXGIFactory_T>(GetProcAddress(hModule, "CreateDXGIFactory"));
+        auto func = reinterpret_cast<CreateDXGIFactory_T>(::GetProcAddress(hModule, "CreateDXGIFactory"));
         if (!func)
             return nullptr;
 

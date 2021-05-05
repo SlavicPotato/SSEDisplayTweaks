@@ -44,268 +44,33 @@ namespace SDT
 
     void DControls::Patch()
     {
-        if (m_conf.damping_fix)
-        {
-            struct MovementThresholdInject : JITASM::JITASM {
-                MovementThresholdInject(std::uintptr_t retnAddr, float* maxvAddr)
-                    : JITASM()
-                {
-                    Xbyak::Label maxvLabel;
-                    Xbyak::Label retnLabel;
-
-                    movss(xmm9, dword[rip + maxvLabel]);
-                    mov(dword[rsp + 0x30], 0x7F7FFFFF);
-
-                    jmp(ptr[rip + retnLabel]);
-
-                    L(retnLabel);
-                    dq(retnAddr);
-
-                    L(maxvLabel);
-                    db(reinterpret_cast<Xbyak::uint8*>(maxvAddr), sizeof(float));
-                }
-            };
-
-            LogPatchBegin(CKEY_DAMPINGFIX);
-            {
-                MovementThresholdInject code(MT_Inject + 0x8, &m_conf.tcpf_threshold);
-                g_branchTrampoline.Write6Branch(MT_Inject, code.get());
-
-                Patching::safe_memset(MT_Inject + 0x6, 0xCC, 0x2);
-            }
-            LogPatchEnd(CKEY_DAMPINGFIX);
+        if (m_conf.damping_fix) {
+            Patch_Damping();
         }
 
-        if (m_conf.fp_mount_horiz_sens)
-        {
-            if (m_gv.fMouseHeadingXScale && m_gv.fMouseHeadingSensitivity)
-            {
-                struct FirstPersonSitHorizontal : JITASM::JITASM {
-                    FirstPersonSitHorizontal(std::uintptr_t retnAddr, std::uintptr_t callAddr)
-                        : JITASM()
-                    {
-                        Xbyak::Label retnLabel;
-                        Xbyak::Label callLabel;
-
-                        mov(rcx, rax); // PlayerControls
-                        mov(rdx, rbx); // FirstPersonState
-                        call(ptr[rip + callLabel]);
-                        jmp(ptr[rip + retnLabel]);
-
-                        L(retnLabel);
-                        dq(retnAddr);
-
-                        L(callLabel);
-                        dq(callAddr);
-                    }
-                };
-
-                LogPatchBegin(CKEY_FSHS);
-                {
-                    FirstPersonSitHorizontal code(FMHS_Inject + 0x17, std::uintptr_t(MouseSens_Hook));
-                    g_branchTrampoline.Write6Branch(FMHS_Inject, code.get());
-                }
-                LogPatchEnd(CKEY_FSHS);
-            }
-            else {
-                Error("%s: could not apply patch", CKEY_FSHS);
-            }
+        if (m_conf.fp_mount_horiz_sens) {
+            Patch_FPMountHorizontalSens();
         }
 
-        if (m_conf.map_kb_movement)
-        {
-            LogPatchBegin(CKEY_MAP_KB_MOVEMENT);
-
-            WriteKBMovementPatchDir(MapLookHandler_ProcessButton + Offsets::MapLookHandler_ProcessButton_Up, true);
-            WriteKBMovementPatchDir(MapLookHandler_ProcessButton + Offsets::MapLookHandler_ProcessButton_Down, true);
-            WriteKBMovementPatchDir(MapLookHandler_ProcessButton + Offsets::MapLookHandler_ProcessButton_Left);
-            WriteKBMovementPatchDir(MapLookHandler_ProcessButton + Offsets::MapLookHandler_ProcessButton_Right);
-
-            LogPatchEnd(CKEY_MAP_KB_MOVEMENT);
+        if (m_conf.map_kb_movement) {
+            Patch_MapKBMovement();
         }
 
-        if (m_conf.auto_vanity_camera)
-        {
-            auto fAutoVanityIncrement = ISKSE::GetINISettingAddr<float>("fAutoVanityIncrement:Camera");
-
-            if (fAutoVanityIncrement)
-            {
-                struct AutoVanityStateUpdate : JITASM::JITASM {
-                    AutoVanityStateUpdate(
-                        std::uintptr_t a_targetAddr,
-                        std::uintptr_t a_fAutoVanityIncrementAddr)
-                        : JITASM()
-                    {
-                        Xbyak::Label retnLabel;
-                        Xbyak::Label timerLabel;
-                        Xbyak::Label magicLabel;
-                        Xbyak::Label fAutoVanityIncrementLabel;
-
-                        mov(rcx, ptr[rip + fAutoVanityIncrementLabel]);
-                        movss(xmm1, dword[rcx]);
-                        mulss(xmm1, dword[rip + magicLabel]);
-                        mov(rcx, ptr[rip + timerLabel]);
-                        mulss(xmm1, dword[rcx]);
-                        subss(xmm0, xmm1);
-                        jmp(ptr[rip + retnLabel]);
-
-                        L(retnLabel);
-                        dq(a_targetAddr + 0x8);
-
-                        L(timerLabel);
-                        dq(std::uintptr_t(Game::g_frameTimer));
-
-                        L(magicLabel);
-                        dd(0x42700000); // 60.0f
-
-                        L(fAutoVanityIncrementLabel);
-                        dq(a_fAutoVanityIncrementAddr);
-                    }
-                };
-
-                LogPatchBegin(CKEY_AUTO_VANITY_CAMERA);
-
-                auto addr(AutoVanityState_Update + Offsets::AutoVanityState_Update_IncrementAngle);
-                AutoVanityStateUpdate code(addr, std::uintptr_t(fAutoVanityIncrement));
-                g_branchTrampoline.Write6Branch(addr, code.get());
-
-                LogPatchEnd(CKEY_AUTO_VANITY_CAMERA);
-            }
-            else {
-                Error("%s: could not apply patch", CKEY_AUTO_VANITY_CAMERA);
-            }
+        if (m_conf.auto_vanity_camera) {
+            Patch_AutoVanityCamera();
         }
 
-        if (m_conf.dialogue_look)
-        {
-            auto fPCDialogueLookSpeed = ISKSE::GetINISettingAddr<float>("fPCDialogueLookSpeed:Controls");
-
-            if (fPCDialogueLookSpeed)
-            {
-                struct DialogueLookSpeedUpdate : JITASM::JITASM {
-                    DialogueLookSpeedUpdate(
-                        std::uintptr_t a_targetAddr,
-                        std::uintptr_t a_fPCDialogueLookSpeedAddr)
-                        : JITASM::JITASM()
-                    {
-                        Xbyak::Label retnLabel;
-                        Xbyak::Label timerLabel;
-                        Xbyak::Label magicLabel;
-                        Xbyak::Label fPCDialogueLookSpeedLabel;
-
-                        mov(rcx, ptr[rip + fPCDialogueLookSpeedLabel]);
-                        movss(xmm1, dword[rcx]);
-                        mulss(xmm1, dword[rip + magicLabel]);
-                        mov(rcx, ptr[rip + timerLabel]);
-                        mulss(xmm1, dword[rcx]);
-                        jmp(ptr[rip + retnLabel]);
-
-                        L(retnLabel);
-                        dq(a_targetAddr + 0x8);
-
-                        L(timerLabel);
-                        dq(std::uintptr_t(Game::g_frameTimer));
-
-                        L(magicLabel);
-                        dd(0x42700000); // 60.0f
-
-                        L(fPCDialogueLookSpeedLabel);
-                        dq(a_fPCDialogueLookSpeedAddr);
-                    }
-                };
-
-                LogPatchBegin(CKEY_PC_DIALOGUE_LOOK);
-
-                auto addr(
-                    PlayerControls_InputEvent_ProcessEvent +
-                    Offsets::PlayerControls_InputEvent_ProcessEvent_LoadDLSpeed);
-
-                DialogueLookSpeedUpdate code(addr, std::uintptr_t(fPCDialogueLookSpeed));
-                g_branchTrampoline.Write6Branch(addr, code.get());
-
-                LogPatchEnd(CKEY_PC_DIALOGUE_LOOK);
-            }
-            else {
-                Error("Could not apply patch: %s", CKEY_PC_DIALOGUE_LOOK);
-            }
+        if (m_conf.dialogue_look) {
+            Patch_DialogueLook();
         }
 
-
-        if (m_conf.gamepad_cursor_speed)
-        {
-            struct GamepadCursorSpeed : JITASM::JITASM {
-                GamepadCursorSpeed(
-                    std::uintptr_t a_targetAddr)
-                    : JITASM()
-                {
-                    Xbyak::Label retnLabel;
-                    Xbyak::Label timerLabel;
-                    Xbyak::Label magicLabel;
-
-                    mulss(xmm4, dword[rcx + 0x1C]);
-                    mulss(xmm4, dword[rip + magicLabel]);
-                    mov(rax, ptr[rip + timerLabel]);
-                    mulss(xmm4, dword[rax]);
-                    jmp(ptr[rip + retnLabel]);
-
-                    L(retnLabel);
-                    dq(a_targetAddr + 0x6);
-
-                    L(timerLabel);
-                    dq(std::uintptr_t(Game::g_frameTimer));
-
-                    L(magicLabel);
-                    dd(0x42700000); // 60.0f
-                }
-            };
-
-            LogPatchBegin(CKEY_GP_CURSOR);
-
-            auto addr(
-                CursorMenu_MenuEventHandler_ProcessThumbstick_Sub140ED3120 +
-                Offsets::CursorMenu_MenuEventHandler_ProcessThumbstick_MulCS);
-
-            GamepadCursorSpeed code(addr);
-            g_branchTrampoline.Write6Branch(addr, code.get());
-
-            LogPatchEnd(CKEY_GP_CURSOR);
+        if (m_conf.gamepad_cursor_speed) {
+            Patch_GamepadCursor();
         }
 
-        if (m_conf.lockpick_rotation)
-        {
-            // TODO: check ProcessThumbstick too
-
-            struct LockpickRotationSpeedMouse : JITASM::JITASM {
-                LockpickRotationSpeedMouse(
-                    std::uintptr_t a_targetAddr)
-                    : JITASM()
-                {
-                    Xbyak::Label retnLabel;
-                    Xbyak::Label magicLabel;
-
-                    mulss(xmm1, dword[rip + magicLabel]);
-                    jmp(ptr[rip + retnLabel]);
-
-                    L(retnLabel);
-                    dq(a_targetAddr + 0x8);
-
-                    L(magicLabel);
-                    dd(0x3c88893b); // 0.016667f
-                }
-            };
-
-            LogPatchBegin(CKEY_LOCKPICK_ROTATION);
-
-            auto addr(
-                LockpickingMenu_ProcessMouseMove + 
-                Offsets::LockpickingMenu_ProcessMouseMove_MulFT);
-
-            LockpickRotationSpeedMouse code(addr);
-            g_branchTrampoline.Write6Branch(addr, code.get());
-
-            LogPatchEnd(CKEY_LOCKPICK_ROTATION);
+        if (m_conf.lockpick_rotation) {
+            Patch_LockpickRotation();
         }
-
     }
 
     void DControls::RegisterHooks()
@@ -320,6 +85,267 @@ namespace SDT
                 Warning("%s: cam pos normalization hook failed", CKEY_MAP_KB_MOVEMENT);
             }
         }
+    }
+
+    void DControls::Patch_Damping()
+    {
+        struct MovementThresholdInject : JITASM::JITASM {
+            MovementThresholdInject(std::uintptr_t retnAddr, float* maxvAddr)
+                : JITASM()
+            {
+                Xbyak::Label maxvLabel;
+                Xbyak::Label retnLabel;
+
+                movss(xmm9, dword[rip + maxvLabel]);
+                mov(dword[rsp + 0x30], 0x7F7FFFFF);
+
+                jmp(ptr[rip + retnLabel]);
+
+                L(retnLabel);
+                dq(retnAddr);
+
+                L(maxvLabel);
+                db(reinterpret_cast<Xbyak::uint8*>(maxvAddr), sizeof(float));
+            }
+        };
+
+        LogPatchBegin(CKEY_DAMPINGFIX);
+        {
+            MovementThresholdInject code(MT_Inject + 0x8, &m_conf.tcpf_threshold);
+            g_branchTrampoline.Write6Branch(MT_Inject, code.get());
+
+            Patching::safe_memset(MT_Inject + 0x6, 0xCC, 0x2);
+        }
+        LogPatchEnd(CKEY_DAMPINGFIX);
+    }
+
+    void DControls::Patch_FPMountHorizontalSens()
+    {
+        if (m_gv.fMouseHeadingXScale && m_gv.fMouseHeadingSensitivity)
+        {
+            struct FirstPersonSitHorizontal : JITASM::JITASM {
+                FirstPersonSitHorizontal(std::uintptr_t retnAddr, std::uintptr_t callAddr)
+                    : JITASM()
+                {
+                    Xbyak::Label retnLabel;
+                    Xbyak::Label callLabel;
+
+                    mov(rcx, rax); // PlayerControls
+                    mov(rdx, rbx); // FirstPersonState
+                    call(ptr[rip + callLabel]);
+                    jmp(ptr[rip + retnLabel]);
+
+                    L(retnLabel);
+                    dq(retnAddr);
+
+                    L(callLabel);
+                    dq(callAddr);
+                }
+            };
+
+            LogPatchBegin(CKEY_FSHS);
+            {
+                FirstPersonSitHorizontal code(FMHS_Inject + 0x17, std::uintptr_t(MouseSens_Hook));
+                g_branchTrampoline.Write6Branch(FMHS_Inject, code.get());
+            }
+            LogPatchEnd(CKEY_FSHS);
+        }
+        else {
+            Error("%s: could not apply patch", CKEY_FSHS);
+        }
+    }
+
+    void DControls::Patch_MapKBMovement()
+    {
+        LogPatchBegin(CKEY_MAP_KB_MOVEMENT);
+
+        WriteKBMovementPatchDir(MapLookHandler_ProcessButton + Offsets::MapLookHandler_ProcessButton_Up, true);
+        WriteKBMovementPatchDir(MapLookHandler_ProcessButton + Offsets::MapLookHandler_ProcessButton_Down, true);
+        WriteKBMovementPatchDir(MapLookHandler_ProcessButton + Offsets::MapLookHandler_ProcessButton_Left);
+        WriteKBMovementPatchDir(MapLookHandler_ProcessButton + Offsets::MapLookHandler_ProcessButton_Right);
+
+        LogPatchEnd(CKEY_MAP_KB_MOVEMENT);
+    }
+
+    void DControls::Patch_AutoVanityCamera()
+    {
+        auto fAutoVanityIncrement = ISKSE::GetINISettingAddr<float>("fAutoVanityIncrement:Camera");
+
+        if (fAutoVanityIncrement)
+        {
+            struct AutoVanityStateUpdate : JITASM::JITASM {
+                AutoVanityStateUpdate(
+                    std::uintptr_t a_targetAddr,
+                    std::uintptr_t a_fAutoVanityIncrementAddr)
+                    : JITASM()
+                {
+                    Xbyak::Label retnLabel;
+                    Xbyak::Label timerLabel;
+                    Xbyak::Label magicLabel;
+                    Xbyak::Label fAutoVanityIncrementLabel;
+
+                    mov(rcx, ptr[rip + fAutoVanityIncrementLabel]);
+                    movss(xmm1, dword[rcx]);
+                    mulss(xmm1, dword[rip + magicLabel]);
+                    mov(rcx, ptr[rip + timerLabel]);
+                    mulss(xmm1, dword[rcx]);
+                    subss(xmm0, xmm1);
+                    jmp(ptr[rip + retnLabel]);
+
+                    L(retnLabel);
+                    dq(a_targetAddr + 0x8);
+
+                    L(timerLabel);
+                    dq(std::uintptr_t(Game::g_frameTimer));
+
+                    L(magicLabel);
+                    dd(0x42700000); // 60.0f
+
+                    L(fAutoVanityIncrementLabel);
+                    dq(a_fAutoVanityIncrementAddr);
+                }
+            };
+
+            LogPatchBegin(CKEY_AUTO_VANITY_CAMERA);
+            {
+                auto addr(AutoVanityState_Update + Offsets::AutoVanityState_Update_IncrementAngle);
+                AutoVanityStateUpdate code(addr, std::uintptr_t(fAutoVanityIncrement));
+                g_branchTrampoline.Write6Branch(addr, code.get());
+            }
+            LogPatchEnd(CKEY_AUTO_VANITY_CAMERA);
+        }
+        else {
+            Error("%s: could not apply patch", CKEY_AUTO_VANITY_CAMERA);
+        }
+    }
+
+    void DControls::Patch_DialogueLook()
+    {
+        auto fPCDialogueLookSpeed = ISKSE::GetINISettingAddr<float>("fPCDialogueLookSpeed:Controls");
+
+        if (fPCDialogueLookSpeed)
+        {
+            struct DialogueLookSpeedUpdate : JITASM::JITASM {
+                DialogueLookSpeedUpdate(
+                    std::uintptr_t a_targetAddr,
+                    std::uintptr_t a_fPCDialogueLookSpeedAddr)
+                    : JITASM::JITASM()
+                {
+                    Xbyak::Label retnLabel;
+                    Xbyak::Label timerLabel;
+                    Xbyak::Label magicLabel;
+                    Xbyak::Label fPCDialogueLookSpeedLabel;
+
+                    mov(rcx, ptr[rip + fPCDialogueLookSpeedLabel]);
+                    movss(xmm1, dword[rcx]);
+                    mulss(xmm1, dword[rip + magicLabel]);
+                    mov(rcx, ptr[rip + timerLabel]);
+                    mulss(xmm1, dword[rcx]);
+                    jmp(ptr[rip + retnLabel]);
+
+                    L(retnLabel);
+                    dq(a_targetAddr + 0x8);
+
+                    L(timerLabel);
+                    dq(std::uintptr_t(Game::g_frameTimer));
+
+                    L(magicLabel);
+                    dd(0x42700000); // 60.0f
+
+                    L(fPCDialogueLookSpeedLabel);
+                    dq(a_fPCDialogueLookSpeedAddr);
+                }
+            };
+
+            LogPatchBegin(CKEY_PC_DIALOGUE_LOOK);
+            {
+                auto addr(
+                    PlayerControls_InputEvent_ProcessEvent +
+                    Offsets::PlayerControls_InputEvent_ProcessEvent_LoadDLSpeed);
+
+                DialogueLookSpeedUpdate code(addr, std::uintptr_t(fPCDialogueLookSpeed));
+                g_branchTrampoline.Write6Branch(addr, code.get());
+            }
+            LogPatchEnd(CKEY_PC_DIALOGUE_LOOK);
+        }
+        else {
+            Error("Could not apply patch: %s", CKEY_PC_DIALOGUE_LOOK);
+        }
+    }
+
+    void DControls::Patch_GamepadCursor()
+    {
+        struct GamepadCursorSpeed : JITASM::JITASM {
+            GamepadCursorSpeed(
+                std::uintptr_t a_targetAddr)
+                : JITASM()
+            {
+                Xbyak::Label retnLabel;
+                Xbyak::Label timerLabel;
+                Xbyak::Label magicLabel;
+
+                mulss(xmm4, dword[rcx + 0x1C]);
+                mulss(xmm4, dword[rip + magicLabel]);
+                mov(rax, ptr[rip + timerLabel]);
+                mulss(xmm4, dword[rax]);
+                jmp(ptr[rip + retnLabel]);
+
+                L(retnLabel);
+                dq(a_targetAddr + 0x6);
+
+                L(timerLabel);
+                dq(std::uintptr_t(Game::g_frameTimer));
+
+                L(magicLabel);
+                dd(0x42700000); // 60.0f
+            }
+        };
+
+        LogPatchBegin(CKEY_GP_CURSOR);
+        {
+            auto addr(
+                CursorMenu_MenuEventHandler_ProcessThumbstick_Sub140ED3120 +
+                Offsets::CursorMenu_MenuEventHandler_ProcessThumbstick_MulCS);
+
+            GamepadCursorSpeed code(addr);
+            g_branchTrampoline.Write6Branch(addr, code.get());
+        }
+        LogPatchEnd(CKEY_GP_CURSOR);
+    }
+
+    void DControls::Patch_LockpickRotation()
+    {
+        // TODO: check ProcessThumbstick too
+
+        struct LockpickRotationSpeedMouse : JITASM::JITASM {
+            LockpickRotationSpeedMouse(
+                std::uintptr_t a_targetAddr)
+                : JITASM()
+            {
+                Xbyak::Label retnLabel;
+                Xbyak::Label magicLabel;
+
+                mulss(xmm1, dword[rip + magicLabel]);
+                jmp(ptr[rip + retnLabel]);
+
+                L(retnLabel);
+                dq(a_targetAddr + 0x8);
+
+                L(magicLabel);
+                dd(0x3c88893b); // 0.016667f
+            }
+        };
+
+        LogPatchBegin(CKEY_LOCKPICK_ROTATION);
+        {
+            auto addr(
+                LockpickingMenu_ProcessMouseMove +
+                Offsets::LockpickingMenu_ProcessMouseMove_MulFT);
+
+            LockpickRotationSpeedMouse code(addr);
+            g_branchTrampoline.Write6Branch(addr, code.get());
+        }
+        LogPatchEnd(CKEY_LOCKPICK_ROTATION);
     }
 
     void DControls::WriteKBMovementPatchDir(
@@ -409,5 +435,4 @@ namespace SDT
             a_camera->pos.y *= std::fabsf(a_camera->pos.y) * ps;
         }
     }
-
 }

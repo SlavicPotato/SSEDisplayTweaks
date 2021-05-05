@@ -34,6 +34,14 @@ namespace SDT
             bool lockpick_rotation;
         } m_conf;
 
+        void Patch_Damping();
+        void Patch_FPMountHorizontalSens();
+        void Patch_MapKBMovement();
+        void Patch_AutoVanityCamera();
+        void Patch_DialogueLook();
+        void Patch_GamepadCursor();
+        void Patch_LockpickRotation();
+
         void WriteKBMovementPatchDir(std::uintptr_t a_address, bool a_isY = false);
 
         static void MouseSens_Hook(PlayerControls* a_controls, FirstPersonState* a_fpState);
