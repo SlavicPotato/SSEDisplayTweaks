@@ -9,6 +9,7 @@ namespace SDT
     static constexpr const char* CKEY_MAP_KB_MOVEMENT_SPEED = "MapMoveKeyboardSpeedMult";
     static constexpr const char* CKEY_AUTO_VANITY_CAMERA = "AutoVanityCameraSpeedFix";
     static constexpr const char* CKEY_PC_DIALOGUE_LOOK = "DialogueLookSpeedFix";
+    static constexpr const char* CKEY_PC_DIALOGUE_LOOK_SE = "DialogueLookSmoothEdge";
     static constexpr const char* CKEY_GP_CURSOR = "GamepadCursorSpeedFix";
     static constexpr const char* CKEY_LOCKPICK_ROTATION = "LockpickRotationSpeedFix";
 
@@ -23,22 +24,17 @@ namespace SDT
         m_conf.map_kb_movement_speedmult = std::clamp(GetConfigValue(CKEY_MAP_KB_MOVEMENT_SPEED, 1.0f), -20.0f, 20.0f);
         m_conf.auto_vanity_camera = GetConfigValue(CKEY_AUTO_VANITY_CAMERA, true);
         m_conf.dialogue_look = GetConfigValue(CKEY_PC_DIALOGUE_LOOK, true);
+        m_conf.dialogue_look_se = GetConfigValue(CKEY_PC_DIALOGUE_LOOK_SE, false);
         m_conf.gamepad_cursor_speed = GetConfigValue(CKEY_GP_CURSOR, true);
         m_conf.lockpick_rotation = GetConfigValue(CKEY_LOCKPICK_ROTATION, true);
     }
 
     void DControls::PostLoadConfig()
     {
-        if (m_conf.damping_fix) {
-            Message("Third person movement threshold: %.6g", m_conf.tcpf_threshold);
-        }
     }
 
     bool DControls::Prepare()
     {
-        m_gv.fMouseHeadingXScale = ISKSE::GetINISettingAddr<float>("fMouseHeadingXScale:Controls");
-        m_gv.fMouseHeadingSensitivity = ISKSE::GetINIPrefSettingAddr<float>("fMouseHeadingSensitivity:Controls");
-
         return true;
     }
 
@@ -62,6 +58,10 @@ namespace SDT
 
         if (m_conf.dialogue_look) {
             Patch_DialogueLook();
+        }
+        
+        if (m_conf.dialogue_look_se) {
+            Patch_DialogueLook_Edge();
         }
 
         if (m_conf.gamepad_cursor_speed) {
@@ -121,6 +121,9 @@ namespace SDT
 
     void DControls::Patch_FPMountHorizontalSens()
     {
+        m_gv.fMouseHeadingXScale = ISKSE::GetINISettingAddr<float>("fMouseHeadingXScale:Controls");
+        m_gv.fMouseHeadingSensitivity = ISKSE::GetINIPrefSettingAddr<float>("fMouseHeadingSensitivity:Controls");
+
         if (m_gv.fMouseHeadingXScale && m_gv.fMouseHeadingSensitivity)
         {
             struct FirstPersonSitHorizontal : JITASM::JITASM {
@@ -273,6 +276,50 @@ namespace SDT
         }
     }
 
+    void DControls::Patch_DialogueLook_Edge()
+    {
+        m_gv.fPCDialogueLookStart = ISKSE::GetINISettingAddr<float>("fPCDialogueLookStart:Controls");
+
+        if (m_gv.fPCDialogueLookStart)
+        {
+            struct DialogueLookSmooth : JITASM::JITASM {
+                DialogueLookSmooth(
+                    std::uintptr_t a_targetAddr)
+                    : JITASM()
+                {
+                    Xbyak::Label retnLabel;
+                    Xbyak::Label callLabel;
+
+                    movss(dword[rbx + 0x2C], xmm0);
+                    mov(rcx, rbx);
+                    call(ptr[rip + callLabel]);
+                    jmp(ptr[rip + retnLabel]);
+
+                    L(retnLabel);
+                    dq(a_targetAddr + 0xD);
+
+                    L(callLabel);
+                    dq(std::uintptr_t(PlayerControls_InputEvent_ProcessEvent_140707110_Hook));
+                }
+            };
+
+            LogPatchBegin(CKEY_PC_DIALOGUE_LOOK_SE);
+            {
+                auto addr(
+                    PlayerControls_InputEvent_ProcessEvent +
+                    Offsets::PlayerControls_InputEvent_ProcessEvent_movssix);
+
+                DialogueLookSmooth code(addr);
+                g_branchTrampoline.Write5Branch(addr, code.get());
+            }
+            LogPatchEnd(CKEY_PC_DIALOGUE_LOOK_SE);
+        }
+        else
+        {
+            Error("%s: could not apply patch", CKEY_PC_DIALOGUE_LOOK_SE);
+        }
+    }
+
     void DControls::Patch_GamepadCursor()
     {
         struct GamepadCursorSpeed : JITASM::JITASM {
@@ -414,7 +461,7 @@ namespace SDT
         if (d < _EPSILON)
             return;
 
-        a_fpState->unk68[0] = *UnkFloat0 * (a_controls->unk02C / d * (f * 30.0f)) + a_fpState->unk68[0];
+        a_fpState->unk68[0] = *UnkFloat0 * (a_controls->lookinput.x / d * (f * 30.0f)) + a_fpState->unk68[0];
     }
 
     void DControls::AddMapCameraPos_Hook(
@@ -434,5 +481,76 @@ namespace SDT
             a_camera->pos.x *= std::fabsf(a_camera->pos.x) * ps;
             a_camera->pos.y *= std::fabsf(a_camera->pos.y) * ps;
         }
+    }
+
+    void DControls::PlayerControls_InputEvent_ProcessEvent_140707110_Hook(PlayerControls* a_controls)
+    {
+        Sub_140707110(a_controls);
+
+        float lookStart = *m_Instance.m_gv.fPCDialogueLookStart;
+        if (lookStart <= 0.0f) {
+            return;
+        }
+
+        auto data = *unkCoordData;
+
+        float pRight = data->bottomRight.x - lookStart;
+        float pLeft = data->topLeft.x + lookStart;
+        float pTop = data->topLeft.y + lookStart;
+        float pBottom = data->bottomRight.y - lookStart;
+
+        bool isRight = data->cursorPos.x > pRight;
+        bool isLeft = data->cursorPos.x < pLeft;
+        bool isTop = data->cursorPos.y < pTop;
+        bool isBottom = data->cursorPos.y > pBottom;
+
+        float m;
+
+        if (isRight)
+        {
+            m = Math::NormalizeSafeClamp(data->cursorPos.x, pRight, data->bottomRight.x);
+
+            if (isTop)
+            {
+                auto mb = 1.0f - Math::NormalizeSafeClamp(data->cursorPos.y, data->topLeft.y, pTop);
+                if (mb > m) m = mb;
+            }
+            else if (isBottom)
+            {
+                auto mb = Math::NormalizeSafeClamp(data->cursorPos.y, pBottom, data->bottomRight.y);
+                if (mb > m) m = mb;
+            }
+        }
+        else if (isLeft)
+        {
+            m = 1.0f - Math::NormalizeSafeClamp(data->cursorPos.x, data->topLeft.x, pLeft);
+
+            if (isTop)
+            {
+                auto mb = 1.0f - Math::NormalizeSafeClamp(data->cursorPos.y, data->topLeft.y, pTop);
+                if (mb > m) m = mb;
+            }
+            else if (isBottom)
+            {
+                auto mb = Math::NormalizeSafeClamp(data->cursorPos.y, pBottom, data->bottomRight.y);
+                if (mb > m) m = mb;
+            }
+        }
+        else if (isTop)
+        {
+            m = 1.0f - Math::NormalizeSafeClamp(data->cursorPos.y, data->topLeft.y, pTop);
+        }
+        else if (isBottom)
+        {
+            m = Math::NormalizeSafeClamp(data->cursorPos.y, pBottom, data->bottomRight.y);
+        }
+        else {
+            return;
+        }
+
+        m = m * m;
+
+        a_controls->lookinput.y *= m;
+        a_controls->lookinput.x *= m;
     }
 }

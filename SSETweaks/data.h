@@ -73,6 +73,13 @@ namespace SDT
         static inline constexpr unsigned long long CursorMenu_MenuEventHandler_ProcessThumbstick_Sub140ED3120 = 80428;
 
         static inline constexpr unsigned long long LockpickingMenu_ProcessMouseMove = 51076;
+
+        static inline constexpr unsigned long long TESLoadScreen_LoadForm = 21366;
+        static inline constexpr unsigned long long Sub_14017D910 = 13902;
+
+        static inline constexpr unsigned long long UnkCoordData = 517043;
+
+        static inline constexpr unsigned long long Sub_140707110 = 41292;
     }
 
     namespace Offsets
@@ -164,6 +171,7 @@ namespace SDT
         static inline constexpr std::uintptr_t AutoVanityState_Update_IncrementAngle = 0xE2;
 
         static inline constexpr std::uintptr_t PlayerControls_InputEvent_ProcessEvent_LoadDLSpeed = 0x1CC;
+        static inline constexpr std::uintptr_t PlayerControls_InputEvent_ProcessEvent_movssix = 0x1E6;
 
         static inline constexpr std::uintptr_t CursorMenu_MenuEventHandler_ProcessThumbstick_MulCS = 0x4A;
 
@@ -267,5 +275,15 @@ namespace SDT
         };
 
         static_assert(offsetof(_SettingCollectionList, items) == 0x118);
+
+        struct UnkCoordData
+        {
+            std::uint32_t   unk00;                          // 00
+            NiPoint2        cursorPos;                      // 04
+            NiPoint2        topLeft;                        // 0C
+            NiPoint2        bottomRight;                    // 14
+            float           cursorSensitivity;              // 1C
+            // ...
+        };
     }
 }

@@ -537,6 +537,7 @@
     <ClInclude Include="config.h" />
     <ClInclude Include="controls.h" />
     <ClInclude Include="data.h" />
+    <ClInclude Include="Data\PluginInfo.h" />
     <ClInclude Include="dispatcher.h" />
     <ClInclude Include="drv_base.h" />
     <ClInclude Include="drv_ids.h" />
@@ -564,6 +565,7 @@
   <ItemGroup>
     <ClCompile Include="config.cpp" />
     <ClCompile Include="controls.cpp" />
+    <ClCompile Include="Data\PluginInfo.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="drv_base.cpp" />
     <ClCompile Include="events.cpp" />

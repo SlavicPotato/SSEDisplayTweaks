@@ -6,7 +6,6 @@ namespace SDT
         public IDriver,
         IConfig
     {
-        typedef void (*writeCameraPos_t)(MapCamera*, float, float, float);
     public:
         static inline constexpr auto ID = DRIVER_ID::CONTROLS;
 
@@ -30,6 +29,7 @@ namespace SDT
             float map_kb_movement_speedmult;
             bool auto_vanity_camera;
             bool dialogue_look;
+            bool dialogue_look_se;
             bool gamepad_cursor_speed;
             bool lockpick_rotation;
         } m_conf;
@@ -39,6 +39,7 @@ namespace SDT
         void Patch_MapKBMovement();
         void Patch_AutoVanityCamera();
         void Patch_DialogueLook();
+        void Patch_DialogueLook_Edge();
         void Patch_GamepadCursor();
         void Patch_LockpickRotation();
 
@@ -46,13 +47,15 @@ namespace SDT
 
         static void MouseSens_Hook(PlayerControls* a_controls, FirstPersonState* a_fpState);
         static void AddMapCameraPos_Hook(MapCamera* a_camera, float x, float y, float z);
+        static void PlayerControls_InputEvent_ProcessEvent_140707110_Hook(PlayerControls* a_controls);
 
         struct {
             float* fMouseHeadingXScale;
             float* fMouseHeadingSensitivity;
+            float* fPCDialogueLookStart;
         } m_gv;
 
-        writeCameraPos_t addCameraPos_o;
+        decltype(AddMapCameraPos_Hook)* addCameraPos_o;
 
         inline static auto MT_Inject = IAL::Addr(AID::UnkMovFunc0, Offsets::MT_Inject);
 
@@ -63,7 +66,9 @@ namespace SDT
         inline static auto PlayerControls_InputEvent_ProcessEvent = IAL::Addr<std::uintptr_t>(AID::PlayerControls_InputEvent_ProcessEvent);
         inline static auto CursorMenu_MenuEventHandler_ProcessThumbstick_Sub140ED3120 = IAL::Addr<std::uintptr_t>(AID::CursorMenu_MenuEventHandler_ProcessThumbstick_Sub140ED3120);
         inline static auto LockpickingMenu_ProcessMouseMove = IAL::Addr<std::uintptr_t>(AID::LockpickingMenu_ProcessMouseMove);
-
+        inline static auto unkCoordData = IAL::Addr<Structures::UnkCoordData**>(AID::UnkCoordData);
+        inline static auto Sub_140707110 = IAL::Addr<decltype(PlayerControls_InputEvent_ProcessEvent_140707110_Hook)*>(AID::Sub_140707110);
+        
         static DControls m_Instance;
     };
 }

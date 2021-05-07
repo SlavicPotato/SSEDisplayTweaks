@@ -2,6 +2,8 @@
 
 namespace SDT
 {
+    class IPluginInfo;
+
     class DMisc :
         public IDriver,
         IConfig
@@ -13,7 +15,7 @@ namespace SDT
         FN_ESSENTIAL(false);
         FN_DRVDEF(6);
     private:
-        DMisc() = default;
+        DMisc();
 
         virtual void LoadConfig() override;
         virtual void PostLoadConfig() override;
@@ -21,11 +23,27 @@ namespace SDT
         virtual void RegisterHooks() override;
         virtual bool Prepare() override;
 
+        static bool TESLoadScreen_LoadForm_Hook(TESLoadScreen* a_form);
+        static void MessageHandler(Event, void*);
+
+        static void RemoveLensFlareFromWeathers();
+
         struct {
             bool skipmissingini;
+            bool loadscreen_filter;
+            bool disable_lens_flare;
+            std::string dls_deny;
+            std::string dls_allow;
         }m_conf;
 
+        std::unique_ptr<IPluginInfo> m_pluginData;
+        stl::iunordered_set<std::string> m_dlsAllow;
+        stl::iunordered_set<std::string> m_dlsBlock;
+        bool m_dlsDenyAll;
+
         inline static auto SkipNoINI = IAL::Addr(AID::INIProc0, Offsets::SkipNoINI);
+        inline static auto TESLoadScreen_LoadForm = IAL::Addr<std::uintptr_t>(AID::TESLoadScreen_LoadForm);
+        inline static auto Sub14017D910 = IAL::Addr<std::uintptr_t>(AID::Sub_14017D910);
 
         static DMisc m_Instance;
     };

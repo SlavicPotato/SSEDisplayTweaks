@@ -31,6 +31,12 @@
     <Filter Include="Source Files\Render">
       <UniqueIdentifier>{8c169d72-0c27-45bb-8f14-39b7b3368b7b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Data">
+      <UniqueIdentifier>{881f6f2c-ccdb-4961-a17b-9cabc7341a06}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Data">
+      <UniqueIdentifier>{c6735b9d-5fca-409e-8627-7964e7e1a84e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -114,6 +120,9 @@
     <ClInclude Include="OS\WinAPI.h">
       <Filter>Source Files\OS</Filter>
     </ClInclude>
+    <ClInclude Include="Data\PluginInfo.h">
+      <Filter>Header Files\Data</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -166,6 +175,9 @@
     </ClCompile>
     <ClCompile Include="OS\SysCall.cpp">
       <Filter>Source Files\OS</Filter>
+    </ClCompile>
+    <ClCompile Include="Data\PluginInfo.cpp">
+      <Filter>Source Files\Data</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
