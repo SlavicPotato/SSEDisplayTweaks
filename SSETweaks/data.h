@@ -80,6 +80,8 @@ namespace SDT
         static inline constexpr unsigned long long UnkCoordData = 517043;
 
         static inline constexpr unsigned long long Sub_140707110 = 41292;
+
+        static inline constexpr unsigned long long FreeCameraState_Update_Sub140848AA0 = 49819;
     }
 
     namespace Offsets

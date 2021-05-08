@@ -32,6 +32,8 @@ namespace SDT
             bool dialogue_look_se;
             bool gamepad_cursor_speed;
             bool lockpick_rotation;
+            bool freecam_verticalsens;
+            bool freecam_translation;
         } m_conf;
 
         void Patch_Damping();
@@ -42,6 +44,8 @@ namespace SDT
         void Patch_DialogueLook_Edge();
         void Patch_GamepadCursor();
         void Patch_LockpickRotation();
+        void Patch_FreecamVerticalSens();
+        void Patch_FreecamTranslation();
 
         void WriteKBMovementPatchDir(std::uintptr_t a_address, bool a_isY = false);
 
@@ -68,6 +72,7 @@ namespace SDT
         inline static auto LockpickingMenu_ProcessMouseMove = IAL::Addr<std::uintptr_t>(AID::LockpickingMenu_ProcessMouseMove);
         inline static auto unkCoordData = IAL::Addr<Structures::UnkCoordData**>(AID::UnkCoordData);
         inline static auto Sub_140707110 = IAL::Addr<decltype(PlayerControls_InputEvent_ProcessEvent_140707110_Hook)*>(AID::Sub_140707110);
+        inline static auto FreeCameraState_Update_Sub140848AA0 = IAL::Addr<std::uintptr_t>(AID::FreeCameraState_Update_Sub140848AA0);
         
         static DControls m_Instance;
     };

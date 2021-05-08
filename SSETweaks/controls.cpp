@@ -12,6 +12,8 @@ namespace SDT
     static constexpr const char* CKEY_PC_DIALOGUE_LOOK_SE = "DialogueLookSmoothEdge";
     static constexpr const char* CKEY_GP_CURSOR = "GamepadCursorSpeedFix";
     static constexpr const char* CKEY_LOCKPICK_ROTATION = "LockpickRotationSpeedFix";
+    static constexpr const char* CKEY_FREECAM_VERTICALSENS = "FreeCameraVerticalSensitivityFix";
+    static constexpr const char* CKEY_FREECAM_TRANSLATION = "FreeCameraTranslationSpeedFix";
 
     DControls DControls::m_Instance;
 
@@ -27,6 +29,8 @@ namespace SDT
         m_conf.dialogue_look_se = GetConfigValue(CKEY_PC_DIALOGUE_LOOK_SE, false);
         m_conf.gamepad_cursor_speed = GetConfigValue(CKEY_GP_CURSOR, true);
         m_conf.lockpick_rotation = GetConfigValue(CKEY_LOCKPICK_ROTATION, true);
+        m_conf.freecam_verticalsens = GetConfigValue(CKEY_FREECAM_VERTICALSENS, true);
+        m_conf.freecam_translation = GetConfigValue(CKEY_FREECAM_TRANSLATION, true);
     }
 
     void DControls::PostLoadConfig()
@@ -59,7 +63,7 @@ namespace SDT
         if (m_conf.dialogue_look) {
             Patch_DialogueLook();
         }
-        
+
         if (m_conf.dialogue_look_se) {
             Patch_DialogueLook_Edge();
         }
@@ -71,6 +75,15 @@ namespace SDT
         if (m_conf.lockpick_rotation) {
             Patch_LockpickRotation();
         }
+
+        if (m_conf.freecam_verticalsens) {
+            Patch_FreecamVerticalSens();
+        }
+
+        if (m_conf.freecam_translation) {
+            Patch_FreecamTranslation();
+        }
+
     }
 
     void DControls::RegisterHooks()
@@ -395,6 +408,122 @@ namespace SDT
         LogPatchEnd(CKEY_LOCKPICK_ROTATION);
     }
 
+    void DControls::Patch_FreecamVerticalSens()
+    {
+        struct FreeCameraVerticalSensitivity : JITASM::JITASM {
+            FreeCameraVerticalSensitivity(
+                std::uintptr_t a_targetAddr)
+                : JITASM()
+            {
+                Xbyak::Label retnLabel;
+                Xbyak::Label magicLabel;
+
+                mulss(xmm0, xmm1);
+                mulss(xmm2, dword[rip + magicLabel]);
+                jmp(ptr[rip + retnLabel]);
+
+                L(retnLabel);
+                dq(a_targetAddr + 0x8);
+
+                L(magicLabel);
+                dd(0x3d6a0ea1); // 17.5f
+            }
+        };
+
+        LogPatchBegin(CKEY_FREECAM_VERTICALSENS);
+        {
+            auto addr(FreeCameraState_Update_Sub140848AA0 + 0x97);
+            FreeCameraVerticalSensitivity code(addr);
+            g_branchTrampoline.Write6Branch(addr, code.get());
+        }
+        LogPatchEnd(CKEY_FREECAM_VERTICALSENS);
+    }
+
+    void DControls::Patch_FreecamTranslation()
+    {
+        struct FreeCameraTranslationSpeedFwdBack : JITASM::JITASM {
+            FreeCameraTranslationSpeedFwdBack(
+                std::uintptr_t a_targetAddr)
+                : JITASM()
+            {
+                Xbyak::Label retnLabel;
+                Xbyak::Label magicLabel;
+
+                movss(xmm10, dword[rax + 0x24]);
+                mulss(xmm8, dword[rip + magicLabel]);
+                mulss(xmm8, xmm1); // xmm1 = no slow timer
+                jmp(ptr[rip + retnLabel]);
+
+                L(retnLabel);
+                dq(a_targetAddr + 0x6);
+
+                L(magicLabel);
+                dd(0x42700000); // 60.0f
+            }
+        };
+
+        LogPatchBegin("FreeCameraTranslationSpeedFix (forward/back)");
+        {
+            auto addr(FreeCameraState_Update_Sub140848AA0 + 0x74);
+            FreeCameraTranslationSpeedFwdBack code(addr);
+            g_branchTrampoline.Write6Branch(addr, code.get());
+        }
+        LogPatchEnd("FreeCameraTranslationSpeedFix (forward/back)");
+
+        auto fFreeCameraRunSpeed = ISKSE::GetINISettingAddr<float>("fFreeCameraRunSpeed:Camera");
+
+        if (fFreeCameraRunSpeed)
+        {
+            struct FreeCameraTranslationSpeedUpDown : JITASM::JITASM {
+                FreeCameraTranslationSpeedUpDown(
+                    std::uintptr_t a_targetAddr,
+                    std::uintptr_t a_fFreeCameraRunSpeedAddr)
+                    : JITASM()
+                {
+                    Xbyak::Label retnLabel;
+                    Xbyak::Label timerLabel;
+                    Xbyak::Label magicLabel;
+                    Xbyak::Label fFreeCameraRunSpeedLabel;
+
+                    Xbyak::Label notRunningLabel;
+
+                    movaps(xmm3, xmm0);
+                    je(notRunningLabel);
+                    mov(rcx, ptr[rip + fFreeCameraRunSpeedLabel]);
+                    mulss(xmm3, ptr[rcx]);
+                    L(notRunningLabel);
+                    mulss(xmm3, dword[rip + magicLabel]);
+                    mov(rcx, ptr[rip + timerLabel]);
+                    mulss(xmm3, dword[rcx]);
+                    jmp(ptr[rip + retnLabel]);
+
+                    L(retnLabel);
+                    dq(a_targetAddr + 0x5);
+
+                    L(timerLabel);
+                    dq(std::uintptr_t(Game::g_frameTimer));
+
+                    L(magicLabel);
+                    dd(0x42700000); // 60.0f
+
+                    L(fFreeCameraRunSpeedLabel);
+                    dq(a_fFreeCameraRunSpeedAddr);
+                }
+            };
+
+            LogPatchBegin("FreeCameraTranslationSpeedFix (up/down)");
+            {
+                auto addr(FreeCameraState_Update_Sub140848AA0 + 0x285);
+                FreeCameraTranslationSpeedUpDown code(addr, std::uintptr_t(fFreeCameraRunSpeed));
+                g_branchTrampoline.Write5Branch(addr, code.get());
+            }
+            LogPatchEnd("FreeCameraTranslationSpeedFix (up/down)");
+        }
+        else {
+            Error("%s: up/down patch failed", CKEY_FREECAM_TRANSLATION);
+        }
+    }
+
     void DControls::WriteKBMovementPatchDir(
         std::uintptr_t a_address,
         bool a_isY
@@ -451,17 +580,12 @@ namespace SDT
     void DControls::MouseSens_Hook(PlayerControls* a_controls, FirstPersonState* a_fpState)
     {
         float interval = *Game::g_frameTimer;
-
         if (interval < _EPSILON)
             return;
 
         auto f = *m_Instance.m_gv.fMouseHeadingXScale * *m_Instance.m_gv.fMouseHeadingSensitivity;
-        auto d = f / interval;
 
-        if (d < _EPSILON)
-            return;
-
-        a_fpState->unk68[0] = *UnkFloat0 * (a_controls->lookinput.x / d * (f * 30.0f)) + a_fpState->unk68[0];
+        a_fpState->unk68[0] = *UnkFloat0 * (a_controls->lookinput.x / (f / interval) * (f * 30.0f)) + a_fpState->unk68[0];
     }
 
     void DControls::AddMapCameraPos_Hook(
