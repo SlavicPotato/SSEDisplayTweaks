@@ -13,7 +13,7 @@ namespace SDT
     static constexpr const char* CKEY_GP_CURSOR = "GamepadCursorSpeedFix";
     static constexpr const char* CKEY_LOCKPICK_ROTATION = "LockpickRotationSpeedFix";
     static constexpr const char* CKEY_FREECAM_VERTICALSENS = "FreeCameraVerticalSensitivityFix";
-    static constexpr const char* CKEY_FREECAM_TRANSLATION = "FreeCameraTranslationSpeedFix";
+    static constexpr const char* CKEY_FREECAM_TRANSLATION = "FreeCameraMovementSpeedFix";
 
     DControls DControls::m_Instance;
 
@@ -462,13 +462,13 @@ namespace SDT
             }
         };
 
-        LogPatchBegin("FreeCameraTranslationSpeedFix (forward/back)");
+        LogPatchBegin("FreeCameraMovementSpeedFix (forward/back)");
         {
             auto addr(FreeCameraState_Update_Sub140848AA0 + 0x74);
             FreeCameraTranslationSpeedFwdBack code(addr);
             g_branchTrampoline.Write6Branch(addr, code.get());
         }
-        LogPatchEnd("FreeCameraTranslationSpeedFix (forward/back)");
+        LogPatchEnd("FreeCameraMovementSpeedFix (forward/back)");
 
         auto fFreeCameraRunSpeed = ISKSE::GetINISettingAddr<float>("fFreeCameraRunSpeed:Camera");
 
@@ -511,13 +511,13 @@ namespace SDT
                 }
             };
 
-            LogPatchBegin("FreeCameraTranslationSpeedFix (up/down)");
+            LogPatchBegin("FreeCameraMovementSpeedFix (up/down)");
             {
                 auto addr(FreeCameraState_Update_Sub140848AA0 + 0x285);
                 FreeCameraTranslationSpeedUpDown code(addr, std::uintptr_t(fFreeCameraRunSpeed));
                 g_branchTrampoline.Write5Branch(addr, code.get());
             }
-            LogPatchEnd("FreeCameraTranslationSpeedFix (up/down)");
+            LogPatchEnd("FreeCameraMovementSpeedFix (up/down)");
         }
         else {
             Error("%s: up/down patch failed", CKEY_FREECAM_TRANSLATION);
