@@ -93,12 +93,17 @@ namespace SDT
     void DWindow::SetupCursorLockMP()
     {
         m_mp.Add(
-            { WM_SETFOCUS , WM_CAPTURECHANGED },
+            { WM_SETFOCUS },
             [&](HWND hWnd, UINT, WPARAM, LPARAM)
             {
-                if (::GetFocus() == hWnd && ::GetActiveWindow() == hWnd) {
-                    CaptureCursor(hWnd, true);
-                }
+                CaptureCursor(hWnd, true);
+            });
+
+        m_mp.Add(
+            { WM_CAPTURECHANGED },
+            [&](HWND hWnd, UINT, WPARAM, LPARAM)
+            {
+                CaptureCursor(hWnd, false);
             });
 
         m_mp.Add(
@@ -111,7 +116,7 @@ namespace SDT
         m_mp.Add(WM_ACTIVATE,
             [&](HWND hWnd, UINT, WPARAM wParam, LPARAM)
             {
-                BOOL fMinimized = static_cast<BOOL>(HIWORD(wParam));
+                auto fMinimized = static_cast<BOOL>(HIWORD(wParam));
                 WORD fActive = LOWORD(wParam);
 
                 if (fActive == WA_ACTIVE) {
@@ -373,9 +378,6 @@ namespace SDT
         if (m_Instance.m_conf.center_window) {
             m_Instance.DoCenter(hWnd, X, Y, nWidth, nHeight);
         }
-
-        ::SetFocus(hWnd);
-        ::SetActiveWindow(hWnd);
 
         m_Instance.Message(
             "[0x%llX] Window created [%s] (%d,%d,%d,%d)",
