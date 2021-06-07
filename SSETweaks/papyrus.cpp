@@ -83,7 +83,7 @@ namespace SDT
         {
             struct UpdateBudgetInject : JITASM::JITASM {
                 UpdateBudgetInject(std::uintptr_t targetAddr, bool enable_stats)
-                    : JITASM()
+                    : JITASM(ISKSE::GetLocalTrampoline())
                 {
                     Xbyak::Label callLabel;
                     Xbyak::Label retnLabel;
@@ -108,7 +108,7 @@ namespace SDT
             LogPatchBegin("UpdateBudget (game)");
             {
                 UpdateBudgetInject code(UpdateBudgetGame, m_conf.stats_enabled);
-                g_branchTrampoline.Write6Branch(UpdateBudgetGame, code.get());
+                ISKSE::GetBranchTrampoline().Write6Branch(UpdateBudgetGame, code.get());
 
                 safe_memset(UpdateBudgetGame + 0x6, 0xCC, 2);
             }
@@ -117,7 +117,7 @@ namespace SDT
             LogPatchBegin("UpdateBudget (UI)");
             {
                 UpdateBudgetInject code(UpdateBudgetUI, m_conf.stats_enabled);
-                g_branchTrampoline.Write6Branch(UpdateBudgetUI, code.get());
+                ISKSE::GetBranchTrampoline().Write6Branch(UpdateBudgetUI, code.get());
 
                 safe_memset(UpdateBudgetUI + 0x6, 0xCC, 2);
             }

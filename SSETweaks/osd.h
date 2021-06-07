@@ -170,6 +170,8 @@ namespace SDT
         static const wchar_t* StatsRendererCallback_Counter();
         static const wchar_t* StatsRendererCallback_VRAM();
 
+        void Initialize(D3D11CreateEventPost *a_data);
+
         static void OnD3D11PostCreate_OSD(Event code, void* data);
         static void OnD3D11PostPostCreate_OSD(Event code, void* data);
 
@@ -203,8 +205,7 @@ namespace SDT
             DirectX::XMFLOAT2A scale;
             DirectX::XMFLOAT2A offset;
             struct {
-                double fps;
-                double frametime;
+                long double frametime;
             } cur;
         } m_stats;
 

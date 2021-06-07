@@ -52,6 +52,7 @@ namespace SDT
     bool IEvents::Initialize()
     {
         if (!Hook::Call5(
+            ISKSE::GetBranchTrampoline(),
             LoadPluginINI_C,
             reinterpret_cast<std::uintptr_t>(PostLoadPluginINI_Hook),
             m_Instance.LoadPluginINI_O
@@ -62,6 +63,7 @@ namespace SDT
         }
 
         if (!Hook::Call5(
+            ISKSE::GetBranchTrampoline(),
             PopulateUIStringHolder_C,
             reinterpret_cast<std::uintptr_t>(PopulateUIStringHolder_Hook),
             m_Instance.PopulateUIStringHolder_O))
@@ -71,7 +73,10 @@ namespace SDT
 
         m_Instance.Debug("Installed event hooks");
 
-        ISKSE::messaging->RegisterListener(ISKSE::pluginHandle, "SKSE", MessageHandler);
+        auto& skse = ISKSE::GetSingleton();
+
+        auto messagingInterface = skse.GetInterface<SKSEMessagingInterface>();
+        messagingInterface->RegisterListener(skse.GetPluginHandle(), "SKSE", MessageHandler);
 
         return true;
     }

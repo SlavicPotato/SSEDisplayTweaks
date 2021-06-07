@@ -82,6 +82,9 @@ namespace SDT
         static inline constexpr unsigned long long Sub_140707110 = 41292;
 
         static inline constexpr unsigned long long FreeCameraState_Update_Sub140848AA0 = 49819;
+
+        static inline constexpr unsigned long long ActorFade = 32270;
+        static inline constexpr unsigned long long PlayerFade = 49899;
     }
 
     namespace Offsets
@@ -271,7 +274,7 @@ namespace SDT
 
             char inipath[260]; // MAX_PATH
             std::uint8_t pad10C[12];
-            SettingCollectionList::Entry items;
+            SettingCollectionList::ConfigEntry items;
 
             void LoadIni_Hook();
         };

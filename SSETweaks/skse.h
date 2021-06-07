@@ -1,50 +1,46 @@
 #pragma once
 
+#include <ext/ISKSE.h>
+#include <ext/ISettingCollection.h>
+
 namespace SDT
 {
     static inline constexpr std::size_t MAX_TRAMPOLINE_BRANCH = 320;
     static inline constexpr std::size_t MAX_TRAMPOLINE_CODEGEN = 1024;
 
-    class ISKSE
+    class ISKSE :
+        public ISKSEBase<
+        SKSEInterfaceFlags::kTrampoline |
+        SKSEInterfaceFlags::kMessaging,
+        320ui64,
+        1024ui64>,
+        public ISettingCollection
     {
     public:
-        static bool Query(const SKSEInterface* skse, PluginInfo* info);
-        static bool Initialize(const SKSEInterface* skse);
 
-        template <typename T>
-        [[nodiscard]] static auto GetINISettingAddr(const char* name)
-        {
-            using type = std::remove_all_extents_t<T>;
+        [[nodiscard]] SKMP_FORCEINLINE static auto& GetSingleton() {
+            return m_Instance;
+        }
 
-            Setting* setting = (*g_iniSettingCollection)->Get(name);
-            if (setting) {
-                return reinterpret_cast<type*>(&setting->data);
-            }
+        [[nodiscard]] SKMP_FORCEINLINE static auto& GetBranchTrampoline() {
+            return m_Instance.GetTrampoline(TrampolineID::kBranch);
+        }
 
-            return static_cast<type*>(nullptr);
-        };
+        [[nodiscard]] SKMP_FORCEINLINE static auto& GetLocalTrampoline() {
+            return m_Instance.GetTrampoline(TrampolineID::kLocal);
+        }
 
-        template <typename T>
-        [[nodiscard]] static auto GetINIPrefSettingAddr(const char* name)
-        {
-            using type = std::remove_all_extents_t<T>;
-
-            Setting* setting = (*g_iniPrefSettingCollection)->Get(name);
-            if (setting) {
-                return reinterpret_cast<type*>(&setting->data);
-            }
-
-            return static_cast<type*>(nullptr);
-        };
-
-        static HMODULE moduleHandle;
-        static PluginHandle pluginHandle;
-
-        static SKSEMessagingInterface* messaging;
-
-        static std::size_t branchTrampolineSize;
-        static std::size_t localTrampolineSize;
-    protected:
+    private:
         ISKSE() = default;
+
+        virtual void OnLogOpen() override;
+        virtual const char* GetLogPath() const override;
+        virtual const char* GetPluginName() const override;
+        virtual UInt32 GetPluginVersion() const override;
+        virtual bool CheckRuntimeVersion(UInt32 a_version) const override;
+        virtual bool CheckInterfaceVersion(UInt32 a_interfaceID, UInt32 a_interfaceVersion, UInt32 a_compiledInterfaceVersion) const override;
+
+        static ISKSE m_Instance;
     };
 }
+

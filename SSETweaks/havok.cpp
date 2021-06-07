@@ -90,7 +90,11 @@ namespace SDT
                     hf = reinterpret_cast<std::uintptr_t>(hookRTH);
                 }
 
-                if (!Hook::Call5(PhysCalcMaxTime, hf, PhysCalcMaxTime_O))
+                if (!Hook::Call5(
+                    ISKSE::GetBranchTrampoline(), 
+                    PhysCalcMaxTime,
+                    hf, 
+                    PhysCalcMaxTime_O))
                 {
                     m_conf.havok_on = false;
                     Error("Couldn't hook physics calc function");

@@ -62,15 +62,18 @@ namespace SDT
 
         uint32_t c = 0;
 
-        for (const auto& hdesc : m_hooks) {
-            if (hdesc.type == HookDescriptor::HookType::kWR5Call) {
+        for (const auto& hdesc : m_hooks)
+        {
+            if (hdesc.type == HookDescriptor::HookType::kWR5Call) 
+            {
                 Debug("BranchTrampoline::Write5Call %llX -> %llX", hdesc.wc_target, hdesc.wc_hook);
-                g_branchTrampoline.Write5Call(hdesc.wc_target, hdesc.wc_hook);
+                ISKSE::GetBranchTrampoline().Write5Call(hdesc.wc_target, hdesc.wc_hook);
                 c++;
             }
-            else if (hdesc.type == HookDescriptor::HookType::kWR6Call) {
+            else if (hdesc.type == HookDescriptor::HookType::kWR6Call) 
+            {
                 Debug("BranchTrampoline::Write6Call %llX -> %llX", hdesc.wc_target, hdesc.wc_hook);
-                g_branchTrampoline.Write6Call(hdesc.wc_target, hdesc.wc_hook);
+                ISKSE::GetBranchTrampoline().Write6Call(hdesc.wc_target, hdesc.wc_hook);
                 c++;
             }
         }

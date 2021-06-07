@@ -408,7 +408,7 @@ namespace SDT
 
     bool DRender::ConfigParseResolution(const std::string& in, std::int32_t(&a_out)[2])
     {
-        std::vector<std::int32_t> v2;
+        stl::vector<std::int32_t> v2;
         StrHelpers::SplitString<std::int32_t>(in, 'x', v2);
 
         if (v2.size() < 2)
@@ -625,7 +625,7 @@ namespace SDT
         else {
             struct ResizeTargetInjectArgs : JITASM::JITASM {
                 ResizeTargetInjectArgs(std::uintptr_t retnAddr, std::uintptr_t mdescAddr
-                ) : JITASM()
+                ) : JITASM(ISKSE::GetLocalTrampoline())
                 {
                     Xbyak::Label mdescLabel;
                     Xbyak::Label retnLabel;
@@ -647,7 +647,7 @@ namespace SDT
                 ResizeTargetInjectArgs code(
                     ResizeTarget + 0x8,
                     std::uintptr_t(&modeDesc));
-                g_branchTrampoline.Write6Branch(
+                ISKSE::GetBranchTrampoline().Write6Branch(
                     ResizeTarget, code.get());
                 safe_memset(ResizeTarget + 0x6, 0xCC, 0x2);
             }
@@ -657,7 +657,7 @@ namespace SDT
         {
             struct ResizeBuffersInjectArgs : JITASM::JITASM {
                 ResizeBuffersInjectArgs(std::uintptr_t retnAddr, std::uintptr_t swdAddr
-                ) : JITASM()
+                ) : JITASM(ISKSE::GetLocalTrampoline())
                 {
                     Xbyak::Label retnLabel;
                     Xbyak::Label bdLabel;
@@ -688,7 +688,7 @@ namespace SDT
                     ResizeBuffers_Inject + 0x18,
                     std::uintptr_t(&m_swapchain));
 
-                g_branchTrampoline.Write6Branch(
+                ISKSE::GetBranchTrampoline().Write6Branch(
                     ResizeBuffers_Inject, code.get());
 
                 safe_memset(ResizeBuffers_Inject + 0x6, 0xCC, 0x12);
@@ -699,14 +699,18 @@ namespace SDT
 
     void DRender::RegisterHooks()
     {
-        if (!Hook::Call5(CreateDXGIFactory_C,
+        if (!Hook::Call5(
+            ISKSE::GetBranchTrampoline(),
+            CreateDXGIFactory_C,
             reinterpret_cast<std::uintptr_t>(CreateDXGIFactory_Hook),
             m_createDXGIFactory_O))
         {
             Warning("CreateDXGIFactory hook failed");
         }
 
-        if (!Hook::Call5(D3D11CreateDeviceAndSwapChain_C,
+        if (!Hook::Call5(
+            ISKSE::GetBranchTrampoline(),
+            D3D11CreateDeviceAndSwapChain_C,
             reinterpret_cast<std::uintptr_t>(D3D11CreateDeviceAndSwapChain_Hook),
             m_D3D11CreateDeviceAndSwapChain_O))
         {
@@ -729,7 +733,7 @@ namespace SDT
     {
         struct PresentHook : JITASM::JITASM {
             PresentHook(std::uintptr_t targetAddr
-            ) : JITASM()
+            ) : JITASM(ISKSE::GetLocalTrampoline())
             {
                 Xbyak::Label callLabel;
                 Xbyak::Label retnLabel;
@@ -749,7 +753,7 @@ namespace SDT
         LogPatchBegin("IDXGISwapChain::Present");
         {
             PresentHook code(presentAddr);
-            g_branchTrampoline.Write6Branch(presentAddr, code.get());
+            ISKSE::GetBranchTrampoline().Write6Branch(presentAddr, code.get());
         }
         LogPatchEnd("IDXGISwapChain::Present");
 

@@ -146,16 +146,28 @@ namespace SDT
 
     void DWindow::RegisterHooks()
     {
-        if (m_mp.HasProcessors() || m_conf.upscale) {
-            if (!Hook::Call6(CreateWindowEx_C, reinterpret_cast<std::uintptr_t>(CreateWindowExA_Hook), m_createWindowExA_O)) {
+        if (m_mp.HasProcessors() || m_conf.upscale) 
+        {
+            if (!Hook::Call6(
+                ISKSE::GetBranchTrampoline(), 
+                CreateWindowEx_C, 
+                reinterpret_cast<std::uintptr_t>(CreateWindowExA_Hook), 
+                m_createWindowExA_O)) 
+            {
                 Error("CreateWindowExA hook failed");
                 SetOK(false);
                 return;
             }
         }
 
-        if (m_conf.upscale) {
-            if (Hook::Call6(GetClientRect1_C, reinterpret_cast<std::uintptr_t>(GetClientRect_Hook), m_getClientRect_O)) {
+        if (m_conf.upscale) 
+        {
+            if (Hook::Call6(
+                ISKSE::GetBranchTrampoline(), 
+                GetClientRect1_C, 
+                reinterpret_cast<std::uintptr_t>(GetClientRect_Hook),
+                m_getClientRect_O)) 
+            {
                 IEvents::RegisterForEvent(Event::OnD3D11PreCreate, OnD3D11PreCreate_Upscale);
             }
             else {
@@ -361,6 +373,9 @@ namespace SDT
         if (m_Instance.m_conf.center_window) {
             m_Instance.DoCenter(hWnd, X, Y, nWidth, nHeight);
         }
+
+        ::SetFocus(hWnd);
+        ::SetActiveWindow(hWnd);
 
         m_Instance.Message(
             "[0x%llX] Window created [%s] (%d,%d,%d,%d)",

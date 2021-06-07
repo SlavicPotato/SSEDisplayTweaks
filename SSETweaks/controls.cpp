@@ -91,6 +91,7 @@ namespace SDT
         if (m_conf.map_kb_movement)
         {
             if (!Hook::Call5(
+                ISKSE::GetBranchTrampoline(),
                 MapLookHandler_ProcessButton + Offsets::MapLookHandler_ProcessButton_Add,
                 std::uintptr_t(AddMapCameraPos_Hook),
                 addCameraPos_o))
@@ -104,7 +105,7 @@ namespace SDT
     {
         struct MovementThresholdInject : JITASM::JITASM {
             MovementThresholdInject(std::uintptr_t retnAddr, float* maxvAddr)
-                : JITASM()
+                : JITASM(ISKSE::GetLocalTrampoline())
             {
                 Xbyak::Label maxvLabel;
                 Xbyak::Label retnLabel;
@@ -125,7 +126,7 @@ namespace SDT
         LogPatchBegin(CKEY_DAMPINGFIX);
         {
             MovementThresholdInject code(MT_Inject + 0x8, &m_conf.tcpf_threshold);
-            g_branchTrampoline.Write6Branch(MT_Inject, code.get());
+            ISKSE::GetBranchTrampoline().Write6Branch(MT_Inject, code.get());
 
             Patching::safe_memset(MT_Inject + 0x6, 0xCC, 0x2);
         }
@@ -141,7 +142,7 @@ namespace SDT
         {
             struct FirstPersonSitHorizontal : JITASM::JITASM {
                 FirstPersonSitHorizontal(std::uintptr_t retnAddr, std::uintptr_t callAddr)
-                    : JITASM()
+                    : JITASM(ISKSE::GetLocalTrampoline())
                 {
                     Xbyak::Label retnLabel;
                     Xbyak::Label callLabel;
@@ -162,7 +163,7 @@ namespace SDT
             LogPatchBegin(CKEY_FSHS);
             {
                 FirstPersonSitHorizontal code(FMHS_Inject + 0x17, std::uintptr_t(MouseSens_Hook));
-                g_branchTrampoline.Write6Branch(FMHS_Inject, code.get());
+                ISKSE::GetBranchTrampoline().Write6Branch(FMHS_Inject, code.get());
             }
             LogPatchEnd(CKEY_FSHS);
         }
@@ -193,7 +194,7 @@ namespace SDT
                 AutoVanityStateUpdate(
                     std::uintptr_t a_targetAddr,
                     std::uintptr_t a_fAutoVanityIncrementAddr)
-                    : JITASM()
+                    : JITASM(ISKSE::GetLocalTrampoline())
                 {
                     Xbyak::Label retnLabel;
                     Xbyak::Label timerLabel;
@@ -226,7 +227,7 @@ namespace SDT
             {
                 auto addr(AutoVanityState_Update + Offsets::AutoVanityState_Update_IncrementAngle);
                 AutoVanityStateUpdate code(addr, std::uintptr_t(fAutoVanityIncrement));
-                g_branchTrampoline.Write6Branch(addr, code.get());
+                ISKSE::GetBranchTrampoline().Write6Branch(addr, code.get());
             }
             LogPatchEnd(CKEY_AUTO_VANITY_CAMERA);
         }
@@ -245,7 +246,7 @@ namespace SDT
                 DialogueLookSpeedUpdate(
                     std::uintptr_t a_targetAddr,
                     std::uintptr_t a_fPCDialogueLookSpeedAddr)
-                    : JITASM::JITASM()
+                    : JITASM(ISKSE::GetLocalTrampoline())
                 {
                     Xbyak::Label retnLabel;
                     Xbyak::Label timerLabel;
@@ -280,7 +281,7 @@ namespace SDT
                     Offsets::PlayerControls_InputEvent_ProcessEvent_LoadDLSpeed);
 
                 DialogueLookSpeedUpdate code(addr, std::uintptr_t(fPCDialogueLookSpeed));
-                g_branchTrampoline.Write6Branch(addr, code.get());
+                ISKSE::GetBranchTrampoline().Write6Branch(addr, code.get());
             }
             LogPatchEnd(CKEY_PC_DIALOGUE_LOOK);
         }
@@ -298,7 +299,7 @@ namespace SDT
             struct DialogueLookSmooth : JITASM::JITASM {
                 DialogueLookSmooth(
                     std::uintptr_t a_targetAddr)
-                    : JITASM()
+                    : JITASM(ISKSE::GetLocalTrampoline())
                 {
                     Xbyak::Label retnLabel;
                     Xbyak::Label callLabel;
@@ -323,7 +324,7 @@ namespace SDT
                     Offsets::PlayerControls_InputEvent_ProcessEvent_movssix);
 
                 DialogueLookSmooth code(addr);
-                g_branchTrampoline.Write5Branch(addr, code.get());
+                ISKSE::GetBranchTrampoline().Write5Branch(addr, code.get());
             }
             LogPatchEnd(CKEY_PC_DIALOGUE_LOOK_SE);
         }
@@ -338,7 +339,7 @@ namespace SDT
         struct GamepadCursorSpeed : JITASM::JITASM {
             GamepadCursorSpeed(
                 std::uintptr_t a_targetAddr)
-                : JITASM()
+                : JITASM(ISKSE::GetLocalTrampoline())
             {
                 Xbyak::Label retnLabel;
                 Xbyak::Label timerLabel;
@@ -368,7 +369,7 @@ namespace SDT
                 Offsets::CursorMenu_MenuEventHandler_ProcessThumbstick_MulCS);
 
             GamepadCursorSpeed code(addr);
-            g_branchTrampoline.Write6Branch(addr, code.get());
+            ISKSE::GetBranchTrampoline().Write6Branch(addr, code.get());
         }
         LogPatchEnd(CKEY_GP_CURSOR);
     }
@@ -380,7 +381,7 @@ namespace SDT
         struct LockpickRotationSpeedMouse : JITASM::JITASM {
             LockpickRotationSpeedMouse(
                 std::uintptr_t a_targetAddr)
-                : JITASM()
+                : JITASM(ISKSE::GetLocalTrampoline())
             {
                 Xbyak::Label retnLabel;
                 Xbyak::Label magicLabel;
@@ -403,7 +404,7 @@ namespace SDT
                 Offsets::LockpickingMenu_ProcessMouseMove_MulFT);
 
             LockpickRotationSpeedMouse code(addr);
-            g_branchTrampoline.Write6Branch(addr, code.get());
+            ISKSE::GetBranchTrampoline().Write6Branch(addr, code.get());
         }
         LogPatchEnd(CKEY_LOCKPICK_ROTATION);
     }
@@ -413,7 +414,7 @@ namespace SDT
         struct FreeCameraVerticalSensitivity : JITASM::JITASM {
             FreeCameraVerticalSensitivity(
                 std::uintptr_t a_targetAddr)
-                : JITASM()
+                : JITASM(ISKSE::GetLocalTrampoline())
             {
                 Xbyak::Label retnLabel;
                 Xbyak::Label magicLabel;
@@ -434,7 +435,7 @@ namespace SDT
         {
             auto addr(FreeCameraState_Update_Sub140848AA0 + 0x97);
             FreeCameraVerticalSensitivity code(addr);
-            g_branchTrampoline.Write6Branch(addr, code.get());
+            ISKSE::GetBranchTrampoline().Write6Branch(addr, code.get());
         }
         LogPatchEnd(CKEY_FREECAM_VERTICALSENS);
     }
@@ -444,7 +445,7 @@ namespace SDT
         struct FreeCameraTranslationSpeedFwdBack : JITASM::JITASM {
             FreeCameraTranslationSpeedFwdBack(
                 std::uintptr_t a_targetAddr)
-                : JITASM()
+                : JITASM(ISKSE::GetLocalTrampoline())
             {
                 Xbyak::Label retnLabel;
                 Xbyak::Label magicLabel;
@@ -466,7 +467,7 @@ namespace SDT
         {
             auto addr(FreeCameraState_Update_Sub140848AA0 + 0x74);
             FreeCameraTranslationSpeedFwdBack code(addr);
-            g_branchTrampoline.Write6Branch(addr, code.get());
+            ISKSE::GetBranchTrampoline().Write6Branch(addr, code.get());
         }
         LogPatchEnd("FreeCameraMovementSpeedFix (forward/back)");
 
@@ -478,7 +479,7 @@ namespace SDT
                 FreeCameraTranslationSpeedUpDown(
                     std::uintptr_t a_targetAddr,
                     std::uintptr_t a_fFreeCameraRunSpeedAddr)
-                    : JITASM()
+                    : JITASM(ISKSE::GetLocalTrampoline())
                 {
                     Xbyak::Label retnLabel;
                     Xbyak::Label timerLabel;
@@ -515,7 +516,7 @@ namespace SDT
             {
                 auto addr(FreeCameraState_Update_Sub140848AA0 + 0x285);
                 FreeCameraTranslationSpeedUpDown code(addr, std::uintptr_t(fFreeCameraRunSpeed));
-                g_branchTrampoline.Write5Branch(addr, code.get());
+                ISKSE::GetBranchTrampoline().Write5Branch(addr, code.get());
             }
             LogPatchEnd("FreeCameraMovementSpeedFix (up/down)");
         }
@@ -535,7 +536,7 @@ namespace SDT
                 std::uintptr_t a_targetAddr,
                 const float* a_speedMult,
                 bool a_isY)
-                : JITASM()
+                : JITASM(ISKSE::GetLocalTrampoline())
             {
                 Xbyak::Label retnLabel;
                 Xbyak::Label timerLabel;
@@ -574,7 +575,7 @@ namespace SDT
             std::addressof(m_conf.map_kb_movement_speedmult),
             a_isY);
 
-        g_branchTrampoline.Write6Branch(a_address, code.get());
+        ISKSE::GetBranchTrampoline().Write6Branch(a_address, code.get());
     }
 
     void DControls::MouseSens_Hook(PlayerControls* a_controls, FirstPersonState* a_fpState)

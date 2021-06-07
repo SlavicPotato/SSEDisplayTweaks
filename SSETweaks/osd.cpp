@@ -3,6 +3,8 @@
 #define DIRECTINPUT_VERSION 0x0800
 #include <dinput.h>
 
+#include <Src/PlatformHelpers.h>
+
 namespace SDT
 {
     static constexpr const char* CKEY_ENABLESTATS = "Enable";
@@ -47,6 +49,7 @@ namespace SDT
 
     DOSD::DOSD()
     {
+
         m_bufStats1[0] = 0x0;
         m_bufStats2[0] = 0x0;
         m_bufStats3[0] = 0x0;
@@ -180,7 +183,7 @@ namespace SDT
 
     void DOSD::ConfigParseColors(const std::string& in, XMVECTORF32& out)
     {
-        std::vector<float> cols;
+        stl::vector<float> cols;
         StrHelpers::SplitString<float>(in, ' ', cols);
         if (cols.size() > 2)
         {
@@ -201,7 +204,7 @@ namespace SDT
 
     void DOSD::ConfigParseScale(const std::string& in, DirectX::XMFLOAT2A& out)
     {
-        std::vector<float> scale;
+        stl::vector<float> scale;
         StrHelpers::SplitString<float>(in, ' ', scale);
         if (scale.size() > 0)
         {
@@ -222,7 +225,7 @@ namespace SDT
 
     void DOSD::ConfigParseVector2(const std::string& in, DirectX::XMFLOAT2A& out)
     {
-        std::vector<float> v2;
+        stl::vector<float> v2;
         StrHelpers::SplitString<float>(in, ' ', v2);
         if (v2.size() > 0) {
             out.x = v2[0];
@@ -236,7 +239,7 @@ namespace SDT
     {
         out = 0U;
 
-        std::vector<std::string> items;
+        stl::vector<std::string> items;
         StrHelpers::SplitString(in, ',', items);
         for (auto& s : items) {
             auto it = m_itemToFlag.find(s);
@@ -303,17 +306,19 @@ namespace SDT
 
     bool StatsRenderer::Load(int resource)
     {
-        HRSRC hRes = ::FindResource(ISKSE::moduleHandle, MAKEINTRESOURCE(resource), RT_RCDATA);
+        auto handle = ISKSE::GetSingleton().ModuleHandle();
+
+        HRSRC hRes = ::FindResource(handle, MAKEINTRESOURCE(resource), RT_RCDATA);
         if (hRes == nullptr) {
             return false;
         }
 
-        HGLOBAL hData = ::LoadResource(ISKSE::moduleHandle, hRes);
+        HGLOBAL hData = ::LoadResource(handle, hRes);
         if (hData == nullptr) {
             return false;
         }
 
-        DWORD dSize = ::SizeofResource(ISKSE::moduleHandle, hRes);
+        DWORD dSize = ::SizeofResource(handle, hRes);
 
         LPVOID pData = ::LockResource(hData);
         if (pData == nullptr) {
@@ -473,8 +478,8 @@ namespace SDT
     const wchar_t* DOSD::StatsRendererCallback_FPS()
     {
         ::_snwprintf_s(m_Instance.m_bufStats1, _TRUNCATE,
-            L"FPS: %.1f",
-            1.0 / (m_Instance.m_stats.cur.frametime / 1000000.0));
+            L"FPS: %.1Lf",
+            1.0L / (m_Instance.m_stats.cur.frametime / 1000000.0L));
 
         return m_Instance.m_bufStats1;
     }
@@ -482,8 +487,8 @@ namespace SDT
     const wchar_t* DOSD::StatsRendererCallback_SimpleFPS()
     {
         ::_snwprintf_s(m_Instance.m_bufStats1, _TRUNCATE,
-            L"%.1f",
-            1.0 / (m_Instance.m_stats.cur.frametime / 1000000.0));
+            L"%.1Lf",
+            1.0L / (m_Instance.m_stats.cur.frametime / 1000000.0L));
 
         return m_Instance.m_bufStats1;
     }
@@ -491,8 +496,8 @@ namespace SDT
     const wchar_t* DOSD::StatsRendererCallback_Frametime()
     {
         ::_snwprintf_s(m_Instance.m_bufStats2, _TRUNCATE,
-            L"Frametime: %.2f ms",
-            m_Instance.m_stats.cur.frametime / 1000.0);
+            L"Frametime: %.2Lf ms",
+            m_Instance.m_stats.cur.frametime / 1000.0L);
 
         return m_Instance.m_bufStats2;
     }
@@ -500,8 +505,8 @@ namespace SDT
     const wchar_t* DOSD::StatsRendererCallback_SimpleFrametime()
     {
         ::_snwprintf_s(m_Instance.m_bufStats2, _TRUNCATE,
-            L"%.2f",
-            m_Instance.m_stats.cur.frametime / 1000.0);
+            L"%.2Lf",
+            m_Instance.m_stats.cur.frametime / 1000.0L);
 
         return m_Instance.m_bufStats2;
     }
@@ -535,6 +540,9 @@ namespace SDT
 
     void DOSD::Present_Pre(IDXGISwapChain*)
     {
+        if (!m_Instance.m_statsRenderer.get())
+            return;
+
         if (!m_Instance.m_stats.draw)
             return;
 
@@ -542,10 +550,14 @@ namespace SDT
             return;
 
         m_Instance.m_statsRenderer->DrawStrings();
+
     }
 
     void DOSD::Present_Post(IDXGISwapChain* a_swapChain)
     {
+        if (!m_Instance.m_statsRenderer.get())
+            return;
+
         m_Instance.m_stats.frameCounter++;
 
         if (!m_Instance.m_stats.draw) {
@@ -576,151 +588,124 @@ namespace SDT
         }
     }
 
-    /*HRESULT STDMETHODCALLTYPE DOSD::StatsPresent_Hook(
-        IDXGISwapChain* pSwapChain,
-        UINT SyncInterval,
-        UINT PresentFlags)
+    void DOSD::Initialize(D3D11CreateEventPost* a_data)
     {
-        if (m_Instance.m_stats.draw) {
-            if (!m_Instance.m_stats.warmup)
-                m_Instance.m_statsRenderer->DrawStrings();
-        }
-
-        HRESULT hr = pSwapChain->Present(SyncInterval, PresentFlags);
-
-        m_Instance.m_stats.frameCounter++;
-
-        if (m_Instance.m_stats.draw)
+        try
         {
-            auto e = IPerfCounter::Query();
-            auto deltaT = IPerfCounter::delta_us(m_Instance.m_stats.lastUpdate, e);
+            if (m_statsRenderer.get()) {
+                throw std::exception("Already initialized");
+            }
 
-            if (m_Instance.m_stats.warmup || deltaT >= m_Instance.m_stats.interval)
+            if (m_conf.scale_to_window)
             {
-                auto deltaFC =
-                    m_Instance.m_stats.frameCounter -
-                    m_Instance.m_stats.lastFrameCount;
+                RECT rect;
+                if (::GetClientRect(a_data->m_pSwapChainDesc->OutputWindow, std::addressof(rect)) == TRUE)
+                {
+                    float ww = static_cast<float>(rect.right - rect.left);
+                    float wh = static_cast<float>(rect.bottom - rect.top);
+                    float bw = static_cast<float>(a_data->m_pSwapChainDesc->BufferDesc.Width);
+                    float bh = static_cast<float>(a_data->m_pSwapChainDesc->BufferDesc.Height);
 
-                m_Instance.m_stats.cur.frametime =
-                    static_cast<double>(deltaT) / static_cast<double>(deltaFC);
+                    float ws = bw / ww;
+                    float hs = bh / wh;
 
-                m_Instance.m_stats.lastFrameCount =
-                    m_Instance.m_stats.frameCounter;
-                m_Instance.m_stats.lastUpdate = e;
+                    m_stats.scale.x *= ws;
+                    m_stats.scale.y *= hs;
+                }
+            }
 
-                if (m_Instance.m_stats.warmup) {
-                    m_Instance.m_stats.warmup--;
+            auto renderer = std::make_unique<StatsRenderer>(
+                a_data->m_pDevice, a_data->m_pImmediateContext,
+                a_data->m_pSwapChainDesc->BufferDesc.Width,
+                a_data->m_pSwapChainDesc->BufferDesc.Height,
+                m_stats.offset,
+                m_conf.outline_size,
+                m_conf.align,
+                m_stats.scale,
+                m_stats.colors.font,
+                m_stats.colors.outline);
+
+            bool res = false;
+            bool isCustom = false;
+
+            if (!m_conf.font_file.empty())
+            {
+                std::wostringstream ss;
+                ss << OSD_FONT_PATH << StrHelpers::ToWString(
+                    m_conf.font_file);
+
+                auto file = ss.str();
+
+                Debug("Loading OSD font from '%s'", StrHelpers::ToNative(file).c_str());
+
+                if (!(res = renderer->Load(file.c_str()))) {
+                    Warning("Couldn't load font, falling back to built-in");
+                }
+                else {
+                    isCustom = true;
+                }
+            }
+
+            if (!res) {
+                res = renderer->Load(
+                    ConfigGetFontResource(m_conf.font));
+            }
+
+            if (res)
+            {
+                if (m_stats.flags & F_SHOW_FPS_SIMPLE) {
+                    renderer->AddCallback(StatsRendererCallback_SimpleFPS);
+                }
+                else if (m_stats.flags & F_SHOW_FPS) {
+                    renderer->AddCallback(StatsRendererCallback_FPS);
                 }
 
-                m_Instance.m_statsRenderer->Update();
+                if (m_stats.flags & F_SHOW_FRAMETIME_SIMPLE) {
+                    renderer->AddCallback(StatsRendererCallback_SimpleFrametime);
+                }
+                else if (m_stats.flags & F_SHOW_FRAMETIME) {
+                    renderer->AddCallback(StatsRendererCallback_Frametime);
+                }
+
+                if (m_stats.flags & F_SHOW_COUNTER) {
+                    renderer->AddCallback(StatsRendererCallback_Counter);
+                }
+
+                if (m_stats.flags & F_SHOW_VRAM_USAGE)
+                {
+                    if (SUCCEEDED(a_data->m_pAdapter->QueryInterface(IID_PPV_ARGS(m_adapter.GetAddressOf())))) {
+                        renderer->AddCallback(StatsRendererCallback_VRAM);
+                    }
+                    else {
+                        Error("Failed to get IDXGIAdapter3, DXGI 1.4 or later is required to display VRAM usage info");
+                    }
+                }
+
+                m_statsRenderer = std::move(renderer);
+
+                Message("Initialized");
+            }
+            else {
+                Error("Couldn't load OSD renderer");
             }
         }
-
-        return hr;
-    };*/
+        catch (const std::exception& e)
+        {
+            Error("Exception thrown while initializing stats renderer: %s", e.what());
+        }
+    }
 
     void DOSD::OnD3D11PostCreate_OSD(Event code, void* data)
     {
         auto info = reinterpret_cast<D3D11CreateEventPost*>(data);
-
-        if (m_Instance.m_conf.scale_to_window)
-        {
-            RECT rect;
-            if (::GetClientRect(info->m_pSwapChainDesc->OutputWindow, std::addressof(rect)) == TRUE)
-            {
-                float ww = static_cast<float>(rect.right - rect.left);
-                float wh = static_cast<float>(rect.bottom - rect.top);
-                float bw = static_cast<float>(info->m_pSwapChainDesc->BufferDesc.Width);
-                float bh = static_cast<float>(info->m_pSwapChainDesc->BufferDesc.Height);
-
-                float ws = bw / ww;
-                float hs = bh / wh;
-
-                m_Instance.m_stats.scale.x *= ws;
-                m_Instance.m_stats.scale.y *= hs;
-            }
-        }
-
-        m_Instance.m_statsRenderer = std::make_unique<StatsRenderer>(
-            info->m_pDevice, info->m_pImmediateContext,
-            info->m_pSwapChainDesc->BufferDesc.Width,
-            info->m_pSwapChainDesc->BufferDesc.Height,
-            m_Instance.m_stats.offset,
-            m_Instance.m_conf.outline_size,
-            m_Instance.m_conf.align,
-            m_Instance.m_stats.scale,
-            m_Instance.m_stats.colors.font,
-            m_Instance.m_stats.colors.outline);
-
-        bool res = false;
-        bool isCustom = false;
-
-        if (!m_Instance.m_conf.font_file.empty())
-        {
-            std::wostringstream ss;
-            ss << OSD_FONT_PATH << StrHelpers::ToWString(
-                m_Instance.m_conf.font_file);
-
-            auto file = ss.str();
-
-            m_Instance.Debug("Loading OSD font from '%s'", StrHelpers::ToNative(file).c_str());
-
-            if (!(res = m_Instance.m_statsRenderer->Load(file.c_str()))) {
-                m_Instance.Warning("Couldn't load font, falling back to built-in");
-            }
-            else {
-                isCustom = true;
-            }
-        }
-
-        if (!res) {
-            res = m_Instance.m_statsRenderer->Load(
-                ConfigGetFontResource(m_Instance.m_conf.font));
-        }
-
-        if (res)
-        {
-            if (m_Instance.m_stats.flags & F_SHOW_FPS_SIMPLE) {
-                m_Instance.AddStatsCallback(StatsRendererCallback_SimpleFPS);
-            }
-            else if (m_Instance.m_stats.flags & F_SHOW_FPS) {
-                m_Instance.AddStatsCallback(StatsRendererCallback_FPS);
-            }
-
-            if (m_Instance.m_stats.flags & F_SHOW_FRAMETIME_SIMPLE) {
-                m_Instance.AddStatsCallback(StatsRendererCallback_SimpleFrametime);
-            }
-            else if (m_Instance.m_stats.flags & F_SHOW_FRAMETIME) {
-                m_Instance.AddStatsCallback(StatsRendererCallback_Frametime);
-            }
-
-            if (m_Instance.m_stats.flags & F_SHOW_COUNTER) {
-                m_Instance.AddStatsCallback(StatsRendererCallback_Counter);
-            }
-
-            if (m_Instance.m_stats.flags & F_SHOW_VRAM_USAGE)
-            {
-                if (SUCCEEDED(info->m_pAdapter->QueryInterface(IID_PPV_ARGS(m_Instance.m_adapter.GetAddressOf())))) {
-                    m_Instance.AddStatsCallback(StatsRendererCallback_VRAM);
-                }
-                else {
-                    m_Instance.Error("Failed to get IDXGIAdapter3, DXGI 1.4 or later is required to display VRAM usage info");
-                }
-            }
-
-            if (!isCustom) {
-                m_Instance.m_statsRenderer->MulScale(XMFLOAT2A(1.0f, 0.9f));
-            }
-
-        }
-        else {
-            m_Instance.Error("Couldn't load OSD renderer");
-        }
+        m_Instance.Initialize(info);
     }
 
     void DOSD::OnD3D11PostPostCreate_OSD(Event code, void* data)
     {
-        auto info = static_cast<D3D11CreateEventPost*>(data);
+        if (!m_Instance.m_statsRenderer.get()) {
+            return;
+        }
 
         if (!m_Instance.m_statsRenderer->IsLoaded())
             return;

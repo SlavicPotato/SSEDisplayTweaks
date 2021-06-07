@@ -25,15 +25,25 @@ namespace SDT
                 gLog.Message("Custom configuration loaded");
             }
 
+            auto& skse = ISKSE::GetSingleton();
+
+            if (!skse.QueryInterfaces(a_skse)) {
+                return false;
+            }
+
+            if (!skse.CreateTrampolines(a_skse)) {
+                return false;
+            }
+
             result = Initialize(a_skse);
 
             if (result == 0)
             {
+                auto usageBranch = skse.GetTrampolineUsage(TrampolineID::kBranch);
+                auto usageLocal = skse.GetTrampolineUsage(TrampolineID::kLocal);
+
                 gLog.Debug("[Trampoline] branch: %zu/%zu, codegen: %zu/%u",
-                    ISKSE::branchTrampolineSize - g_branchTrampoline.Remain(),
-                    ISKSE::branchTrampolineSize,
-                    ISKSE::localTrampolineSize - g_localTrampoline.Remain(),
-                    ISKSE::localTrampolineSize);
+                    usageBranch.used, usageBranch.total, usageLocal.used, usageLocal.total);
             }
 
             ClearConfiguration();
@@ -45,10 +55,6 @@ namespace SDT
 
         int Initialize(const SKSEInterface* a_skse)
         {
-            if (!ISKSE::Initialize(a_skse)) {
-                return 1;
-            }
-
             if (!IEvents::Initialize()) {
                 return 1;
             }
@@ -68,14 +74,14 @@ namespace SDT
 
 extern "C"
 {
-    bool SKSEPlugin_Query(const SKSEInterface* skse, PluginInfo* info)
+    bool SKSEPlugin_Query(const SKSEInterface* a_skse, PluginInfo* a_info)
     {
-        return SDT::ISKSE::Query(skse, info);
+        return SDT::ISKSE::GetSingleton().Query(a_skse, a_info);
     }
 
     bool SKSEPlugin_Load(const SKSEInterface* skse)
     {
-        ASSERT(SDT::ISKSE::moduleHandle != nullptr);
+        ASSERT(SDT::ISKSE::GetSingleton().ModuleHandle() != nullptr);
 
         gLog.Message("%s version %s (runtime %u.%u.%u.%u)",
             PLUGIN_NAME, PLUGIN_VERSION_VERSTRING,
@@ -141,7 +147,7 @@ BOOL APIENTRY DllMain(
     switch (ul_reason_for_call)
     {
     case DLL_PROCESS_ATTACH:
-        SDT::ISKSE::moduleHandle = hModule;
+        SDT::ISKSE::GetSingleton().SetModuleHandle(hModule);
         break;
     }
     return TRUE;
