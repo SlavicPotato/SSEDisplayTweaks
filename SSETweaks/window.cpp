@@ -100,13 +100,6 @@ namespace SDT
             });
 
         m_mp.Add(
-            { WM_CAPTURECHANGED },
-            [&](HWND hWnd, UINT, WPARAM, LPARAM)
-            {
-                CaptureCursor(hWnd, false);
-            });
-
-        m_mp.Add(
             { WM_WINDOWPOSCHANGED, WM_SIZING },
             [&](HWND hWnd, UINT, WPARAM, LPARAM)
             {
