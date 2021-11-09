@@ -1,78 +1,84 @@
 #pragma once
 
-namespace SDT 
+#include "drv_ids.h"
+
+namespace SDT
 {
-    class HookDescriptor
-    {
-    public:
-        enum class HookType : std::uint8_t {
-            kWR5Call,
-            kWR6Call
-        };
+	class HookDescriptor
+	{
+	public:
+		enum class HookType : std::uint8_t
+		{
+			kWR5Call,
+			kWR6Call
+		};
 
-        HookDescriptor(std::uintptr_t target, std::uintptr_t hook, HookType type) :
-            wc_target(target), wc_hook(hook), type(type)
-        {
-        }
+		HookDescriptor(std::uintptr_t target, std::uintptr_t hook, HookType type) :
+			wc_target(target), wc_hook(hook), type(type)
+		{
+		}
 
-        std::uintptr_t wc_target;
-        std::uintptr_t wc_hook;
+		std::uintptr_t wc_target;
+		std::uintptr_t wc_hook;
 
-        HookType type;
-    };
+		HookType type;
+	};
 
-    class IHook :
-        protected ILog
-    {
-    protected:
-        IHook() = default;
-        virtual ~IHook() noexcept = default;
+	class IHook :
+		protected ILog
+	{
+	protected:
+		IHook() = default;
+		virtual ~IHook() noexcept = default;
 
-        void RegisterHook(std::uintptr_t target, std::uintptr_t hook);
-        void RegisterHook(std::uintptr_t target, std::uintptr_t hook, HookDescriptor::HookType type);
-        void RegisterHook(const HookDescriptor & hdesc);
-        void RegisterHook(HookDescriptor&& hdesc);
-        bool InstallHooks();
-    private:
-        std::vector<HookDescriptor> m_hooks;
-    };
+		void RegisterHook(std::uintptr_t target, std::uintptr_t hook);
+		void RegisterHook(std::uintptr_t target, std::uintptr_t hook, HookDescriptor::HookType type);
+		void RegisterHook(const HookDescriptor& hdesc);
+		void RegisterHook(HookDescriptor&& hdesc);
+		bool InstallHooks();
 
-    class IDriver :
-        protected IHook
-    {
-        friend class IDDispatcher;
-    public:
-        static inline constexpr auto ID = DRIVER_ID::INVALID;
+	private:
+		std::vector<HookDescriptor> m_hooks;
+	};
 
-        SKMP_FORCEINLINE bool IsInitialized() const { return m_Initialized; }
-        SKMP_FORCEINLINE bool IsOK() const { return m_IsOK; }
+	class IDriver :
+		protected IHook
+	{
+		friend class IDDispatcher;
 
-        IDriver(const IDriver&) = delete;
-        IDriver(IDriver&&) = delete;
-        IDriver& operator=(const IDriver&) = delete;
-        void operator=(IDriver&&) = delete;
+	public:
+		static inline constexpr auto ID = DRIVER_ID::INVALID;
 
-        FN_NAMEPROC("IDriver");
-        FN_ESSENTIAL(false);
-        FN_DRVDEF(-1);
-    protected:
-        IDriver();
-        virtual ~IDriver() noexcept = default;
+		SKMP_FORCEINLINE bool IsInitialized() const { return m_Initialized; }
+		SKMP_FORCEINLINE bool IsOK() const { return m_IsOK; }
 
-        SKMP_FORCEINLINE void SetOK(bool b) { m_IsOK = b; }
+		IDriver(const IDriver&) = delete;
+		IDriver(IDriver&&) = delete;
+		IDriver& operator=(const IDriver&) = delete;
+		void operator=(IDriver&&) = delete;
 
-    private:
-        virtual void LoadConfig() {};
-        virtual void PostLoadConfig() {};
-        virtual void Patch() {};
-        virtual void RegisterHooks() {};
-        virtual void PostInit() {};
-        [[nodiscard]] virtual bool Prepare() { return false; };
+		FN_NAMEPROC("IDriver");
+		FN_ESSENTIAL(false);
+		FN_DRVDEF(-1);
 
-        [[nodiscard]] bool Initialize();
+	protected:
+		IDriver();
+		virtual ~IDriver() noexcept = default;
 
-        bool m_Initialized;
-        bool m_IsOK;
-    };
+		SKMP_FORCEINLINE void SetOK(bool b) { m_IsOK = b; }
+
+	private:
+		virtual void LoadConfig(){};
+		virtual void PostLoadConfig(){};
+		virtual void Patch(){};
+		virtual void RegisterHooks(){};
+		virtual void PostInit(){};
+		[[nodiscard]] virtual bool Prepare() { return false; };
+
+		[[nodiscard]] bool Initialize();
+
+		bool m_Initialized;
+		bool m_IsOK;
+	};
 
 }

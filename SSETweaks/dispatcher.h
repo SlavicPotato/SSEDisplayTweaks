@@ -2,39 +2,40 @@
 
 namespace SDT
 {
-    class IDDispatcher :
-        ILog
-    {
-    public:
-        static void RegisterDriver(IDriver* const);
-        static bool InitializeDrivers();
-        static bool DriverOK(DRIVER_ID const id);
-        static IDriver* GetDriver(DRIVER_ID const id);
+	class IDDispatcher :
+		ILog
+	{
+	public:
+		static void RegisterDriver(IDriver* const);
+		static bool InitializeDrivers();
+		static bool DriverOK(DRIVER_ID const id);
+		static IDriver* GetDriver(DRIVER_ID const id);
 
-        template <class T>
-        [[nodiscard]] static auto GetDriver();
+		template <class T>
+		[[nodiscard]] static auto GetDriver();
 
-        FN_NAMEPROC("Dispatcher");
-    private:
-        IDDispatcher() = default;
+		FN_NAMEPROC("Dispatcher");
 
-        void PreProcessDrivers();
-        bool InitializeDrivers_Impl();
+	private:
+		IDDispatcher() = default;
 
-        std::vector<IDriver*> m_drivers;
-        std::unordered_map<DRIVER_ID, IDriver*> m_drivermap;
+		void PreProcessDrivers();
+		bool InitializeDrivers_Impl();
 
-        static IDDispatcher m_Instance;
-    };
+		std::vector<IDriver*> m_drivers;
+		std::unordered_map<DRIVER_ID, IDriver*> m_drivermap;
 
-    template <class T>
-    auto IDDispatcher::GetDriver()
-    {
-        using type = std::remove_all_extents_t<std::remove_reference_t<std::remove_cv_t<T>>>;
+		static IDDispatcher m_Instance;
+	};
 
-        static_assert(std::is_base_of_v<IDriver, type>);
+	template <class T>
+	auto IDDispatcher::GetDriver()
+	{
+		using type = std::remove_all_extents_t<std::remove_reference_t<std::remove_cv_t<T>>>;
 
-        return static_cast<type*>(GetDriver(type::ID));
-    }
+		static_assert(std::is_base_of_v<IDriver, type>);
+
+		return static_cast<type*>(GetDriver(type::ID));
+	}
 
 }

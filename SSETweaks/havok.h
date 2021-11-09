@@ -1,80 +1,87 @@
 #pragma once
 
+#include "stats.h"
+
 namespace SDT
 {
-    constexpr float HAVOK_MAXTIME_MIN = 30.0f;
+	constexpr float HAVOK_MAXTIME_MIN = 30.0f;
 
-    class DHavok :
-        public IDriver,
-        IConfig
-    {
-        typedef void(*RTProcR) (float a_time, bool a_isComplex, std::uint8_t a_unk0);
-    public:
-        static inline constexpr auto ID = DRIVER_ID::HAVOK;
+	class DOSD;
 
-        FN_NAMEPROC("HAVOK");
-        FN_ESSENTIAL(false);
-        FN_DRVDEF(4);
-    private:
-        DHavok();
+	class DHavok :
+		public IDriver,
+		IConfig
+	{
+		typedef void (*RTProcR)(float a_time, bool a_isComplex, std::uint8_t a_unk0);
 
-        virtual void LoadConfig() override;
-        virtual void PostLoadConfig() override;
-        virtual void RegisterHooks() override;
-        virtual bool Prepare() override;
+	public:
+		static inline constexpr auto ID = DRIVER_ID::HAVOK;
 
-        bool HavokHasPossibleIssues(const DXGI_SWAP_CHAIN_DESC* pSwapChainDesc, float t) const;
-        void ApplyHavokSettings(const DXGI_SWAP_CHAIN_DESC* pSwapChainDesc);
-        float AutoGetMaxTime(const DXGI_SWAP_CHAIN_DESC* pSwapChainDesc, float def) const;
+		FN_NAMEPROC("HAVOK");
+		FN_ESSENTIAL(false);
+		FN_DRVDEF(4);
 
-        SKMP_FORCEINLINE static float GetMaxTimeComplex(float a_interval);
-        SKMP_FORCEINLINE void CalculateHavokValues(bool a_isComplex) const;
-        SKMP_FORCEINLINE void UpdateHavokStats() const;
+	private:
+		DHavok();
 
-        static void hookRTH(float a_time, bool a_isComplex, std::uint8_t a_unk0);
-        static void hookRTHStats(float a_time, bool a_isComplex, std::uint8_t a_unk0);
+		virtual void LoadConfig() override;
+		virtual void PostLoadConfig() override;
+		virtual void RegisterHooks() override;
+		virtual bool Prepare() override;
 
-        static const wchar_t* StatsRendererCallback();
+		bool HavokHasPossibleIssues(const DXGI_SWAP_CHAIN_DESC* pSwapChainDesc, float t) const;
+		void ApplyHavokSettings(const DXGI_SWAP_CHAIN_DESC* pSwapChainDesc);
+		float AutoGetMaxTime(const DXGI_SWAP_CHAIN_DESC* pSwapChainDesc, float def) const;
 
-        static void OnD3D11PreCreate_Havok(Event code, void* data);
-        static void OnD3D11PostCreate_Havok(Event code, void* data);
+		SKMP_FORCEINLINE static float GetMaxTimeComplex(float a_interval);
+		SKMP_FORCEINLINE void CalculateHavokValues(bool a_isComplex) const;
+		SKMP_FORCEINLINE void UpdateHavokStats() const;
 
-        struct {
-            bool havok_enabled;
-            bool havok_on;
-            float fmt_max;
-            float fmt_min;
-            float fmtc_offset;
-            bool stats_enabled;
-            bool perf_mode;
-            bool adjust_ini;
-        } m_conf;
+		static void hookRTH(float a_time, bool a_isComplex, std::uint8_t a_unk0);
+		static void hookRTHStats(float a_time, bool a_isComplex, std::uint8_t a_unk0);
 
-        float fmt_max;
-        float fmt_min;
+		static const wchar_t* StatsRendererCallback();
 
-        struct 
-        {
-            float* fMaxTime;
-            float* fMaxTimeComplex;
-            std::uint32_t* uMaxNumPhysicsStepsPerUpdate;
-            std::uint32_t* uMaxNumPhysicsStepsPerUpdateComplex;
-        } m_gv;
+		static void OnD3D11PreCreate_Havok(Event code, void* data);
+		static void OnD3D11PostCreate_Havok(Event code, void* data);
 
-        RTProcR PhysCalcMaxTime_O;
+		struct
+		{
+			bool havok_enabled;
+			bool havok_on;
+			float fmt_max;
+			float fmt_min;
+			float fmtc_offset;
+			bool stats_enabled;
+			bool perf_mode;
+			bool adjust_ini;
+		} m_conf;
 
-        inline static auto RTUnk0_GM_C = IAL::Addr(AID::RT0, Offsets::RTUnk0_GM_C);
-        inline static auto RTUnk0_UI_C = IAL::Addr(AID::RT0, Offsets::RTUnk0_UI_C);
-        inline static auto PhysCalcMaxTime = IAL::Addr(AID::FMTProc, Offsets::PhysCalcHT);
-        inline static auto isComplex = IAL::Addr<std::uint32_t*>(AID::IsComplex);
+		float fmt_max;
+		float fmt_min;
 
-        DOSD* m_OSDDriver;
+		struct
+		{
+			float* fMaxTime;
+			float* fMaxTimeComplex;
+			std::uint32_t* uMaxNumPhysicsStepsPerUpdate;
+			std::uint32_t* uMaxNumPhysicsStepsPerUpdateComplex;
+		} m_gv;
 
-        wchar_t bufStats[128];
+		RTProcR PhysCalcMaxTime_O;
 
-        StatsCounter m_stats_counters[2];
+		inline static auto RTUnk0_GM_C = IAL::Addr(AID::RT0, Offsets::RTUnk0_GM_C);
+		inline static auto RTUnk0_UI_C = IAL::Addr(AID::RT0, Offsets::RTUnk0_UI_C);
+		inline static auto PhysCalcMaxTime = IAL::Addr(AID::FMTProc, Offsets::PhysCalcHT);
+		inline static auto isComplex = IAL::Addr<std::uint32_t*>(AID::IsComplex);
 
-        static DHavok m_Instance;
-    };
+		DOSD* m_OSDDriver;
+
+		wchar_t bufStats[128];
+
+		StatsCounter m_stats_counters[2];
+
+		static DHavok m_Instance;
+	};
 
 }

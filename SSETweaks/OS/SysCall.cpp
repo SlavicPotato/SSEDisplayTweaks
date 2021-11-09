@@ -11,7 +11,7 @@ ISysCall ISysCall::m_Instance;
 
 ISysCall::ISysCall()
 {
-    /*HMODULE hModule = GetModuleHandleA("ntdll.dll");
+	/*HMODULE hModule = GetModuleHandleA("ntdll.dll");
 
     if (hModule != nullptr) {
         NtWaitForSingleObject = reinterpret_cast<NtWaitForSingleObject_t>(GetProcAddress(hModule, "NtWaitForSingleObject"));

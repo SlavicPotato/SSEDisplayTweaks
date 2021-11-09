@@ -117,12 +117,6 @@
     <ClInclude Include="Render\FramerateLimiter.h">
       <Filter>Header Files\Render</Filter>
     </ClInclude>
-    <ClInclude Include="OS\WinAPI.h">
-      <Filter>Source Files\OS</Filter>
-    </ClInclude>
-    <ClInclude Include="Data\PluginInfo.h">
-      <Filter>Header Files\Data</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -176,8 +170,8 @@
     <ClCompile Include="OS\SysCall.cpp">
       <Filter>Source Files\OS</Filter>
     </ClCompile>
-    <ClCompile Include="Data\PluginInfo.cpp">
-      <Filter>Source Files\Data</Filter>
+    <ClCompile Include="..\..\sse-build-resources\ext\IPluginInfo.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

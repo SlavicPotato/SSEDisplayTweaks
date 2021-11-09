@@ -2,64 +2,67 @@
 
 namespace SDT
 {
-    class DPapyrus :
-        public IDriver,
-        IConfig
-    {
-    public:
-        static inline constexpr auto ID = DRIVER_ID::PAPYRUS;
+	class DPapyrus :
+		public IDriver,
+		IConfig
+	{
+	public:
+		static inline constexpr auto ID = DRIVER_ID::PAPYRUS;
 
-        FN_NAMEPROC("Papyrus");
-        FN_ESSENTIAL(false);
-        FN_DRVDEF(6);
-    private:
-        DPapyrus();
+		FN_NAMEPROC("Papyrus");
+		FN_ESSENTIAL(false);
+		FN_DRVDEF(6);
 
-        virtual void LoadConfig() override;
-        virtual void PostLoadConfig() override;
-        virtual void Patch() override;
-        virtual bool Prepare() override;
-        virtual void RegisterHooks() override;
+	private:
+		DPapyrus();
 
-        static float SKMP_FORCEINLINE CalculateUpdateBudget();
-        static float CalculateUpdateBudgetStats();
+		virtual void LoadConfig() override;
+		virtual void PostLoadConfig() override;
+		virtual void Patch() override;
+		virtual bool Prepare() override;
+		virtual void RegisterHooks() override;
 
-        static const wchar_t* StatsRendererCallback1();
-        static const wchar_t* StatsRendererCallback2();
+		static float SKMP_FORCEINLINE CalculateUpdateBudget();
+		static float CalculateUpdateBudgetStats();
 
-        static void OnD3D11PostCreate_Papyrus(Event code, void* data);
+		static const wchar_t* StatsRendererCallback1();
+		static const wchar_t* StatsRendererCallback2();
 
-        struct {
-            bool seo_fix;
-            bool dynbudget_enabled;
-            float dynbudget_fps_min;
-            float dynbudget_fps_max;
-            float dynbudget_base;
-            bool stats_enabled;
-            bool warn_overstressed;
-        }m_conf;
+		static void OnD3D11PostCreate_Papyrus(Event code, void* data);
 
-        inline static auto SetExpressionOverride_lea = IAL::Addr(AID::SetExpressionOverride, Offsets::SetExpressionOverride_lea);
-        inline static auto SetExpressionOverride_cmp = IAL::Addr(AID::SetExpressionOverride, Offsets::SetExpressionOverride_cmp);
-        inline static auto UpdateBudgetGame = IAL::Addr(AID::ScriptRunGame, Offsets::ScriptUpdateBudgetGame);
-        inline static auto UpdateBudgetUI = IAL::Addr(AID::ScriptRunUI, Offsets::ScriptUpdateBudgetUI);
+		struct
+		{
+			bool seo_fix;
+			bool dynbudget_enabled;
+			float dynbudget_fps_min;
+			float dynbudget_fps_max;
+			float dynbudget_base;
+			bool stats_enabled;
+			bool warn_overstressed;
+		} m_conf;
 
-        float m_lastInterval;
+		inline static auto SetExpressionOverride_lea = IAL::Addr(AID::SetExpressionOverride, Offsets::SetExpressionOverride_lea);
+		inline static auto SetExpressionOverride_cmp = IAL::Addr(AID::SetExpressionOverride, Offsets::SetExpressionOverride_cmp);
+		inline static auto UpdateBudgetGame = IAL::Addr(AID::ScriptRunGame, Offsets::ScriptUpdateBudgetGame);
+		inline static auto UpdateBudgetUI = IAL::Addr(AID::ScriptRunUI, Offsets::ScriptUpdateBudgetUI);
 
-        struct {
-            float* fUpdateBudgetMS;
-        }m_gv;
+		float m_lastInterval;
 
-        float m_bmult;
-        float m_t_max;
-        float m_t_min;
+		struct
+		{
+			float* fUpdateBudgetMS;
+		} m_gv;
 
-        wchar_t m_bufStats1[64];
+		float m_bmult;
+		float m_t_max;
+		float m_t_min;
 
-        DOSD* m_OSDDriver;
+		wchar_t m_bufStats1[64];
 
-        StatsCounter m_stats_counter;
+		DOSD* m_OSDDriver;
 
-        static DPapyrus m_Instance;
-    };
+		StatsCounter m_stats_counter;
+
+		static DPapyrus m_Instance;
+	};
 }

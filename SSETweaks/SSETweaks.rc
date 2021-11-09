@@ -18,83 +18,61 @@
 //
 // FONTDATA
 //
-IDR_DROIDSANS            RCDATA                "droidsans.font"
+IDR_DROIDSANS RCDATA "droidsans.font"
 
 /////////////////////////////////////////////////////////////////////////////
 // English (United States) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
-LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+	LANGUAGE LANG_ENGLISH,
+	SUBLANG_ENGLISH_US
 
-#ifdef APSTUDIO_INVOKED
-/////////////////////////////////////////////////////////////////////////////
-//
-// TEXTINCLUDE
-//
+#	ifdef APSTUDIO_INVOKED
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// TEXTINCLUDE
+	//
 
-1 TEXTINCLUDE 
-BEGIN
-    "resource.h\0"
-END
+	1 TEXTINCLUDE
+		BEGIN
+	"resource.h\0" END
 
-2 TEXTINCLUDE 
-BEGIN
-    "#include ""winres.h""\r\n"
-    "\0"
-END
+	2 TEXTINCLUDE
+		BEGIN
+	"#include "
+	"winres.h"
+	"\r\n"
+	"\0" END
 
-3 TEXTINCLUDE 
-BEGIN
-    "\r\n"
-    "\0"
-END
+	3 TEXTINCLUDE
+		BEGIN
+	"\r\n"
+	"\0" END
 
-#endif    // APSTUDIO_INVOKED
-
+#	endif  // APSTUDIO_INVOKED
 
 /////////////////////////////////////////////////////////////////////////////
 //
 // Version
 //
 
-#include "plugin.h"
+#	include "plugin.h"
 
-VS_VERSION_INFO VERSIONINFO
- FILEVERSION 0, PLUGIN_VERSION_MAJOR, PLUGIN_VERSION_MINOR, PLUGIN_VERSION_REVISION
- PRODUCTVERSION 0, PLUGIN_VERSION_MAJOR, PLUGIN_VERSION_MINOR, PLUGIN_VERSION_REVISION
- FILEFLAGSMASK 0x17L
-#ifdef _DEBUG
- FILEFLAGS 0xbL
-#else
- FILEFLAGS 0xaL
-#endif
- FILEOS 0x40000L
- FILETYPE 0x1L
- FILESUBTYPE 0x0L
-BEGIN
-    BLOCK "StringFileInfo"
-    BEGIN
-        BLOCK "040904b0"
-        BEGIN
-            VALUE "CompanyName", PLUGIN_AUTHOR
-            VALUE "FileDescription", "Collection of tweaks for smoother gameplay"
-            VALUE "InternalName", PLUGIN_NAME
-            VALUE "OriginalFilename", PLUGIN_NAME ".dll"
-            VALUE "ProductName", PLUGIN_NAME
-            VALUE "ProductVersion", PLUGIN_VERSION_VERSTRING
-            VALUE "LegalCopyright", "Copyright (C) 2020 SlavicPotato"
-        END
-    END
-    BLOCK "VarFileInfo"
-    BEGIN
-        VALUE "Translation", 0x409, 1200
-    END
-END
+		VS_VERSION_INFO VERSIONINFO
+			FILEVERSION 0,
+	PLUGIN_VERSION_MAJOR, PLUGIN_VERSION_MINOR, PLUGIN_VERSION_REVISION PRODUCTVERSION 0, PLUGIN_VERSION_MAJOR, PLUGIN_VERSION_MINOR, PLUGIN_VERSION_REVISION FILEFLAGSMASK 0x17L
+#	ifdef _DEBUG
+	FILEFLAGS 0xbL
+#	else
+	FILEFLAGS 0xaL
+#	endif
+	FILEOS 0x40000L FILETYPE 0x1L FILESUBTYPE 0x0L BEGIN BLOCK "StringFileInfo" BEGIN BLOCK "040904b0" BEGIN VALUE "CompanyName",
+	PLUGIN_AUTHOR
+		VALUE "FileDescription",
+	"Collection of tweaks for smoother gameplay" VALUE "InternalName", PLUGIN_NAME VALUE "OriginalFilename", PLUGIN_NAME ".dll" VALUE "ProductName", PLUGIN_NAME VALUE "ProductVersion", PLUGIN_VERSION_VERSTRING VALUE "LegalCopyright", "Copyright (C) 2020 SlavicPotato" END END BLOCK "VarFileInfo" BEGIN VALUE "Translation", 0x409, 1200 END END
 
-#endif    // English (United States) resources
+#endif  // English (United States) resources
 /////////////////////////////////////////////////////////////////////////////
-
-
 
 #ifndef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -102,7 +80,5 @@ END
 // Generated from the TEXTINCLUDE 3 resource.
 //
 
-
 /////////////////////////////////////////////////////////////////////////////
-#endif    // not APSTUDIO_INVOKED
-
+#endif  // not APSTUDIO_INVOKED
