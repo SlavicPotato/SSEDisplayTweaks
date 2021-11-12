@@ -757,7 +757,7 @@ namespace SDT
 				jmp(ptr[rip + retnLabel]);
 
 				L(retnLabel);
-				dq(targetAddr + 0x6);
+				dq(targetAddr + 0x7);
 
 				L(callLabel);
 				dq(std::uintptr_t(Present_Hook));
