@@ -73,6 +73,7 @@ namespace SDT
 		virtual void Patch(){};
 		virtual void RegisterHooks(){};
 		virtual void PostInit(){};
+		virtual void PostPatch(){};
 		[[nodiscard]] virtual bool Prepare() { return false; };
 
 		[[nodiscard]] bool Initialize();

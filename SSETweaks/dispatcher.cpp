@@ -43,6 +43,11 @@ namespace SDT
 		return m_Instance.InitializeDrivers_Impl();
 	}
 
+	bool IDDispatcher::InitializeDriversPost()
+	{
+		return m_Instance.InitializeDriversPost_Impl();
+	}
+
 	bool IDDispatcher::InitializeDrivers_Impl()
 	{
 		PreProcessDrivers();
@@ -100,6 +105,25 @@ namespace SDT
 		}
 
 		Message("%zu driver(s) initialized", count);
+
+		//m_drivers.swap(decltype(m_drivers)());
+
+		return true;
+	}
+
+	bool IDDispatcher::InitializeDriversPost_Impl()
+	{
+		for (const auto& drv : m_drivers)
+		{
+			if (!drv->IsOK())
+			{
+				continue;
+			}
+
+			drv->PostPatch();
+		}
+
+		FlushInstructionCache(GetCurrentProcess(), nullptr, 0);
 
 		m_drivers.swap(decltype(m_drivers)());
 

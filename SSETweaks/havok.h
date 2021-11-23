@@ -27,6 +27,7 @@ namespace SDT
 		virtual void LoadConfig() override;
 		virtual void PostLoadConfig() override;
 		virtual void RegisterHooks() override;
+		virtual void Patch() override;
 		virtual bool Prepare() override;
 
 		bool HavokHasPossibleIssues(const DXGI_SWAP_CHAIN_DESC* pSwapChainDesc, float t) const;
@@ -70,10 +71,9 @@ namespace SDT
 
 		RTProcR PhysCalcMaxTime_O;
 
-		inline static auto RTUnk0_GM_C = IAL::Addr(AID::RT0, Offsets::RTUnk0_GM_C);
-		inline static auto RTUnk0_UI_C = IAL::Addr(AID::RT0, Offsets::RTUnk0_UI_C);
-		inline static auto PhysCalcMaxTime = IAL::Addr(AID::FMTProc, Offsets::PhysCalcHT);
-		inline static auto isComplex = IAL::Addr<std::uint32_t*>(AID::IsComplex);
+		inline static auto PhysCalcMaxTime = IAL::Addr(AID::FMTProc, 36577, Offsets::PhysCalcHT, 0xA6);
+		inline static auto PhysCalc_AE_patch = IAL::Addr<std::uintptr_t>(0, 77850, 0, 0x75);
+		inline static auto isComplex = IAL::Addr<std::uint32_t*>(AID::IsComplex, 403438);
 
 		DOSD* m_OSDDriver;
 

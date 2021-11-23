@@ -165,8 +165,8 @@ namespace SDT
 
 		MsgProc m_mp;
 
-		inline static std::uintptr_t CreateWindowEx_C = IAL::Addr(AID::WindowCreate, Offsets::WindowCreate);
-		inline static std::uintptr_t GetClientRect1_C = IAL::Addr(AID::WinFunc0, Offsets::GetClientRect1);
+		inline static std::uintptr_t CreateWindowEx_C = IAL::Addr(AID::WindowCreate, 77226, Offsets::WindowCreate, 0x22C);
+		inline static std::uintptr_t GetClientRect1_C = IAL::Addr(AID::WinFunc0, 77245, Offsets::GetClientRect1, 0x18B);
 
 		struct
 		{

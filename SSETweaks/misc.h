@@ -43,11 +43,11 @@ namespace SDT
 
 		std::unique_ptr<IPluginInfo> m_pluginData;
 
-		inline static auto SkipNoINI = IAL::Addr(AID::INIProc0, Offsets::SkipNoINI);
-		inline static auto TESLoadScreen_LoadForm = IAL::Addr<std::uintptr_t>(AID::TESLoadScreen_LoadForm);
-		inline static auto Sub14017D910 = IAL::Addr<std::uintptr_t>(AID::Sub_14017D910);
-		inline static auto ActorFade_a = IAL::Addr<std::uintptr_t>(AID::ActorFade);
-		inline static auto PlayerFade_a = IAL::Addr(AID::PlayerFade, 0x431);
+		inline static auto SkipNoINI = IAL::Addr(AID::INIProc0, 36725, Offsets::SkipNoINI, 0x319);
+		inline static auto TESLoadScreen_LoadForm = IAL::Addr<std::uintptr_t>(AID::TESLoadScreen_LoadForm, 21830);
+		inline static auto TESLoadScreen_LoadForm_Unkf = IAL::Addr<std::uintptr_t>(AID::TESLoadScreen_LoadForm_Unkf, 13988);
+		inline static auto ActorFade_a = IAL::Addr<std::uintptr_t>(AID::ActorFade, 33007);
+		inline static auto PlayerFade_a = IAL::Addr(AID::PlayerFade, 50832, 0x431, 0x4DD);
 
 		static DMisc m_Instance;
 	};

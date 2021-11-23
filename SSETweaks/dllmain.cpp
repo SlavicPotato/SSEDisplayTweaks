@@ -83,9 +83,24 @@ extern "C" {
 
 	bool SKSEPlugin_Load(const SKSEInterface* skse)
 	{
-		ASSERT(SDT::ISKSE::GetSingleton().ModuleHandle() != nullptr);
+		auto& iskse = SDT::ISKSE::GetSingleton();
 
-		gLog.Message("%s version %s (runtime %u.%u.%u.%u)", PLUGIN_NAME, PLUGIN_VERSION_VERSTRING, GET_EXE_VERSION_MAJOR(skse->runtimeVersion), GET_EXE_VERSION_MINOR(skse->runtimeVersion), GET_EXE_VERSION_BUILD(skse->runtimeVersion), GET_EXE_VERSION_SUB(skse->runtimeVersion));
+		if (IAL::IsAE())
+		{
+			iskse.SetPluginHandle(skse->GetPluginHandle());
+			iskse.OpenLog();
+		}
+
+		ASSERT(iskse.ModuleHandle() != nullptr);
+
+		gLog.Message(
+			"%s version %s (runtime %u.%u.%u.%u)",
+			PLUGIN_NAME,
+			PLUGIN_VERSION_VERSTRING,
+			GET_EXE_VERSION_MAJOR(skse->runtimeVersion),
+			GET_EXE_VERSION_MINOR(skse->runtimeVersion),
+			GET_EXE_VERSION_BUILD(skse->runtimeVersion),
+			GET_EXE_VERSION_SUB(skse->runtimeVersion));
 
 		if (!IAL::IsLoaded())
 		{
@@ -100,7 +115,6 @@ extern "C" {
 		}
 
 		PerfTimer timer;
-
 		timer.Start();
 
 		bool ok(false);
@@ -133,17 +147,35 @@ extern "C" {
 
 		if (ok)
 		{
-			gLog.Debug(
-				"[%s] db load: %.3f ms, init: %.3f ms, db unload: %.3f ms [%zu record(s)]",
-				__FUNCTION__,
-				IAL::GetLoadTime() * 1000.0f,
-				tInit * 1000.0f,
-				tUnload * 1000.0f,
-				dbEntries);
+			if (!IAL::IsAE())
+			{
+				gLog.Debug(
+					"[%s] db load: %.3f ms, init: %.3f ms, db unload: %.3f ms [%zu record(s)]",
+					__FUNCTION__,
+					IAL::GetLoadTime() * 1000.0f,
+					tInit * 1000.0f,
+					tUnload * 1000.0f,
+					dbEntries);
+			}
 		}
 
 		return ok;
 	}
+
+	SKSEPluginVersionData SKSEPlugin_Version = {
+		SKSEPluginVersionData::kVersion,
+
+		MAKE_PLUGIN_VERSION(
+			PLUGIN_VERSION_MAJOR,
+			PLUGIN_VERSION_MINOR,
+			PLUGIN_VERSION_REVISION),
+		PLUGIN_NAME,
+		PLUGIN_AUTHOR,
+		"n/a",
+		SKSEPluginVersionData::kVersionIndependent_AddressLibraryPostAE,
+		{ RUNTIME_VERSION_1_6_318, 0 },
+		0,
+	};
 };
 
 BOOL APIENTRY DllMain(

@@ -41,10 +41,10 @@ namespace SDT
 			bool warn_overstressed;
 		} m_conf;
 
-		inline static auto SetExpressionOverride_lea = IAL::Addr(AID::SetExpressionOverride, Offsets::SetExpressionOverride_lea);
-		inline static auto SetExpressionOverride_cmp = IAL::Addr(AID::SetExpressionOverride, Offsets::SetExpressionOverride_cmp);
-		inline static auto UpdateBudgetGame = IAL::Addr(AID::ScriptRunGame, Offsets::ScriptUpdateBudgetGame);
-		inline static auto UpdateBudgetUI = IAL::Addr(AID::ScriptRunUI, Offsets::ScriptUpdateBudgetUI);
+		inline static auto SetExpressionOverride_lea = IAL::Addr(AID::SetExpressionOverride, 54748, Offsets::SetExpressionOverride_lea, 0x18);
+		inline static auto SetExpressionOverride_cmp = IAL::Addr(AID::SetExpressionOverride, 54748, Offsets::SetExpressionOverride_cmp, 0x28);
+		inline static auto UpdateBudgetGame = IAL::Addr(AID::ScriptRunGame, 53928, Offsets::ScriptUpdateBudgetGame, 0x90);
+		inline static auto UpdateBudgetUI = IAL::Addr(AID::ScriptRunUI, 53929, Offsets::ScriptUpdateBudgetUI, 0x90);
 
 		float m_lastInterval;
 

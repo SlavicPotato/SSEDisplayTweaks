@@ -122,7 +122,7 @@ namespace SDT
 		friend class MenuOpenCloseEventInitializer;
 
 		typedef void (*inihookproc)(void);
-		typedef UIStringHolder* (*PopulateUIStringHolder_t)(UIStringHolder*);
+		typedef UIStringHolder* (*PopulateUIStringHolder_t)(void*);
 
 		using mstcMap_t = std::unordered_map<const char*, MenuEvent>;
 
@@ -156,20 +156,23 @@ namespace SDT
 		IEvents() = default;
 
 		static void PostLoadPluginINI_Hook();
-		static UIStringHolder* PopulateUIStringHolder_Hook(UIStringHolder* a_dest);
+		static void PostLoadPluginINI_AE_Hook(void* a_unk);
+		static UIStringHolder* PopulateUIStringHolder_Hook(void* a_dest);
 
 		static void MessageHandler(SKSEMessagingInterface::Message* a_message);
 
-		void CreateMSTCMap(UIStringHolder* a_holder);
+		void CreateMSTCMap();
 
 		std::unordered_map<Event, std::vector<_EventTriggerDescriptor>> m_events;
 		std::unordered_map<MenuEvent, std::vector<_MenuEventCallbackDescriptor>> m_menu_events;
 
-		inihookproc LoadPluginINI_O;
+		decltype(&PostLoadPluginINI_Hook) LoadPluginINI_O;
+		decltype(&PostLoadPluginINI_AE_Hook) LoadPluginINI_AE_O;
+
 		PopulateUIStringHolder_t PopulateUIStringHolder_O;
 
-		inline static auto LoadPluginINI_C = IAL::Addr(AID::Init0, Offsets::LoadPluginINI_C);
-		inline static auto PopulateUIStringHolder_C = IAL::Addr(AID::Init0, Offsets::PopulateUIStringHolder_C);
+		inline static auto LoadPluginINI_C = IAL::Addr(AID::Init0, 36547, Offsets::LoadPluginINI_C, 0xA71);
+		inline static auto PopulateUIStringHolder_C = IAL::Addr(AID::Init0, 36547, Offsets::PopulateUIStringHolder_C, 0xE85);
 
 		mstcMap_t m_mstc_map;
 

@@ -3,6 +3,8 @@
 namespace SDT
 {
 	static constexpr const char* CKEY_DAMPINGFIX = "ThirdPersonMovementFix";
+	static constexpr const char* CKEY_DAMPINGFIX1 = "ThirdPersonMovementFix1";
+	static constexpr const char* CKEY_DAMPINGFIX2 = "ThirdPersonMovementFix2";
 	static constexpr const char* CKEY_TCPFTHRESH = "MovementThreshold";
 	static constexpr const char* CKEY_FSHS = "SittingHorizontalLookSensitivityFix";
 	static constexpr const char* CKEY_MAP_KB_MOVEMENT = "MapMoveKeyboardSpeedFix";
@@ -14,6 +16,8 @@ namespace SDT
 	static constexpr const char* CKEY_LOCKPICK_ROTATION = "LockpickRotationSpeedFix";
 	static constexpr const char* CKEY_FREECAM_VERTICALSENS = "FreeCameraVerticalSensitivityFix";
 	static constexpr const char* CKEY_FREECAM_TRANSLATION = "FreeCameraMovementSpeedFix";
+	static constexpr const char* CKEY_VERTICAL_LOOK_SENS = "VerticalLookSensitivityFix";
+	static constexpr const char* CKEY_SLOT_TIME_CAM = "SlowTimeCameraMovementFix";
 
 	DControls DControls::m_Instance;
 
@@ -31,6 +35,8 @@ namespace SDT
 		m_conf.lockpick_rotation = GetConfigValue(CKEY_LOCKPICK_ROTATION, true);
 		m_conf.freecam_verticalsens = GetConfigValue(CKEY_FREECAM_VERTICALSENS, true);
 		m_conf.freecam_translation = GetConfigValue(CKEY_FREECAM_TRANSLATION, true);
+		m_conf.vertical_look_sens = GetConfigValue(CKEY_VERTICAL_LOOK_SENS, true);
+		m_conf.slow_time_cam = GetConfigValue(CKEY_SLOT_TIME_CAM, true);
 	}
 
 	void DControls::PostLoadConfig()
@@ -40,6 +46,14 @@ namespace SDT
 	bool DControls::Prepare()
 	{
 		return true;
+	}
+
+	void DControls::PostPatch()
+	{
+		if (m_conf.slow_time_cam)
+		{
+			Patch_SlowTimeCameraMovement();
+		}
 	}
 
 	void DControls::Patch()
@@ -93,6 +107,11 @@ namespace SDT
 		{
 			Patch_FreecamTranslation();
 		}
+
+		if (m_conf.vertical_look_sens)
+		{
+			Patch_VerticalLookSensitivity();
+		}
 	}
 
 	void DControls::RegisterHooks()
@@ -101,7 +120,7 @@ namespace SDT
 		{
 			if (!Hook::Call5(
 					ISKSE::GetBranchTrampoline(),
-					MapLookHandler_ProcessButton + Offsets::MapLookHandler_ProcessButton_Add,
+					MapLookHandler_ProcessButton + (IAL::IsAE() ? OffsetsAE::MapLookHandler_ProcessButton_Add : Offsets::MapLookHandler_ProcessButton_Add),
 					std::uintptr_t(AddMapCameraPos_Hook),
 					addCameraPos_o))
 			{
@@ -112,35 +131,77 @@ namespace SDT
 
 	void DControls::Patch_Damping()
 	{
-		struct MovementThresholdInject : JITASM::JITASM
+		if (IAL::IsAE())
 		{
-			MovementThresholdInject(std::uintptr_t retnAddr, float* maxvAddr) :
-				JITASM(ISKSE::GetLocalTrampoline())
+			struct MovementThresholdInject : JITASM::JITASM
 			{
-				Xbyak::Label maxvLabel;
-				Xbyak::Label retnLabel;
+				MovementThresholdInject(std::uintptr_t a_targetAddr, float* maxvAddr) :
+					JITASM(ISKSE::GetLocalTrampoline())
+				{
+					Xbyak::Label maxvLabel;
+					Xbyak::Label retnLabel;
 
-				movss(xmm9, dword[rip + maxvLabel]);
-				mov(dword[rsp + 0x30], 0x7F7FFFFF);
+					comiss(xmm6, dword[rip + maxvLabel]);
+					jmp(ptr[rip + retnLabel]);
 
-				jmp(ptr[rip + retnLabel]);
+					L(retnLabel);
+					dq(a_targetAddr + 0x7);
 
-				L(retnLabel);
-				dq(retnAddr);
+					L(maxvLabel);
+					db(reinterpret_cast<Xbyak::uint8*>(maxvAddr), sizeof(float));
+				}
+			};
 
-				L(maxvLabel);
-				db(reinterpret_cast<Xbyak::uint8*>(maxvAddr), sizeof(float));
+			LogPatchBegin(CKEY_DAMPINGFIX1);
+			{
+				MovementThresholdInject code(MT_Inject_AE1, &m_conf.tcpf_threshold);
+				ISKSE::GetBranchTrampoline().Write6Branch(MT_Inject_AE1, code.get());
+
+				//Patching::safe_memset(addr + 0x6, 0x90, 0x1);
 			}
-		};
+			LogPatchEnd(CKEY_DAMPINGFIX1);
 
-		LogPatchBegin(CKEY_DAMPINGFIX);
-		{
-			MovementThresholdInject code(MT_Inject + 0x8, &m_conf.tcpf_threshold);
-			ISKSE::GetBranchTrampoline().Write6Branch(MT_Inject, code.get());
+			LogPatchBegin(CKEY_DAMPINGFIX2);
+			{
+				MovementThresholdInject code(MT_Inject_AE2, &m_conf.tcpf_threshold);
+				ISKSE::GetBranchTrampoline().Write6Branch(MT_Inject_AE2, code.get());
 
-			Patching::safe_memset(MT_Inject + 0x6, 0xCC, 0x2);
+				//Patching::safe_memset(addr + 0x6, 0x90, 0x1);
+			}
+			LogPatchEnd(CKEY_DAMPINGFIX2);
 		}
-		LogPatchEnd(CKEY_DAMPINGFIX);
+		else
+		{
+			struct MovementThresholdInject : JITASM::JITASM
+			{
+				MovementThresholdInject(std::uintptr_t retnAddr, float* maxvAddr) :
+					JITASM(ISKSE::GetLocalTrampoline())
+				{
+					Xbyak::Label maxvLabel;
+					Xbyak::Label retnLabel;
+
+					movss(xmm9, dword[rip + maxvLabel]);
+					mov(dword[rsp + 0x30], 0x7F7FFFFF);
+
+					jmp(ptr[rip + retnLabel]);
+
+					L(retnLabel);
+					dq(retnAddr);
+
+					L(maxvLabel);
+					db(reinterpret_cast<Xbyak::uint8*>(maxvAddr), sizeof(float));
+				}
+			};
+
+			LogPatchBegin(CKEY_DAMPINGFIX);
+			{
+				MovementThresholdInject code(MT_Inject + 0x8, &m_conf.tcpf_threshold);
+				ISKSE::GetBranchTrampoline().Write6Branch(MT_Inject, code.get());
+
+				//Patching::safe_memset(MT_Inject + 0x6, 0x90, 0x2);
+			}
+			LogPatchEnd(CKEY_DAMPINGFIX);
+		}
 	}
 
 	void DControls::Patch_FPMountHorizontalSens()
@@ -150,33 +211,65 @@ namespace SDT
 
 		if (m_gv.fMouseHeadingXScale && m_gv.fMouseHeadingSensitivity)
 		{
-			struct FirstPersonSitHorizontal : JITASM::JITASM
+			if (IAL::IsAE())
 			{
-				FirstPersonSitHorizontal(std::uintptr_t retnAddr, std::uintptr_t callAddr) :
-					JITASM(ISKSE::GetLocalTrampoline())
+				struct FirstPersonSitHorizontal : JITASM::JITASM
 				{
-					Xbyak::Label retnLabel;
-					Xbyak::Label callLabel;
+					FirstPersonSitHorizontal(std::uintptr_t retnAddr, std::uintptr_t callAddr) :
+						JITASM(ISKSE::GetLocalTrampoline())
+					{
+						Xbyak::Label retnLabel;
+						Xbyak::Label callLabel;
 
-					mov(rcx, rax);  // PlayerControls
-					mov(rdx, rbx);  // FirstPersonState
-					call(ptr[rip + callLabel]);
-					jmp(ptr[rip + retnLabel]);
+						mov(rcx, rsi);  // FirstPersonState
+						call(ptr[rip + callLabel]);
+						jmp(ptr[rip + retnLabel]);
 
-					L(retnLabel);
-					dq(retnAddr);
+						L(retnLabel);
+						dq(retnAddr);
 
-					L(callLabel);
-					dq(callAddr);
+						L(callLabel);
+						dq(callAddr);
+					}
+				};
+
+				LogPatchBegin(CKEY_FSHS);
+				{
+					FirstPersonSitHorizontal code(FMHS_Inject + 0x1E, std::uintptr_t(MouseSens_AE_Hook));
+					ISKSE::GetBranchTrampoline().Write6Branch(FMHS_Inject, code.get());
 				}
-			};
-
-			LogPatchBegin(CKEY_FSHS);
-			{
-				FirstPersonSitHorizontal code(FMHS_Inject + 0x17, std::uintptr_t(MouseSens_Hook));
-				ISKSE::GetBranchTrampoline().Write6Branch(FMHS_Inject, code.get());
+				LogPatchEnd(CKEY_FSHS);
 			}
-			LogPatchEnd(CKEY_FSHS);
+			else
+			{
+				struct FirstPersonSitHorizontal : JITASM::JITASM
+				{
+					FirstPersonSitHorizontal(std::uintptr_t retnAddr, std::uintptr_t callAddr) :
+						JITASM(ISKSE::GetLocalTrampoline())
+					{
+						Xbyak::Label retnLabel;
+						Xbyak::Label callLabel;
+
+						mov(rcx, rax);  // PlayerControls
+						mov(rdx, rbx);  // FirstPersonState
+						call(ptr[rip + callLabel]);
+						jmp(ptr[rip + retnLabel]);
+
+						L(retnLabel);
+						dq(retnAddr);
+
+						L(callLabel);
+						dq(callAddr);
+					}
+				};
+
+				LogPatchBegin(CKEY_FSHS);
+				{
+					FirstPersonSitHorizontal code(FMHS_Inject + 0x17, std::uintptr_t(MouseSens_Hook));
+					ISKSE::GetBranchTrampoline().Write6Branch(FMHS_Inject, code.get());
+				}
+				LogPatchEnd(CKEY_FSHS);
+			}
 		}
 		else
 		{
@@ -188,10 +281,10 @@ namespace SDT
 	{
 		LogPatchBegin(CKEY_MAP_KB_MOVEMENT);
 
-		WriteKBMovementPatchDir(MapLookHandler_ProcessButton + Offsets::MapLookHandler_ProcessButton_Up, true);
-		WriteKBMovementPatchDir(MapLookHandler_ProcessButton + Offsets::MapLookHandler_ProcessButton_Down, true);
-		WriteKBMovementPatchDir(MapLookHandler_ProcessButton + Offsets::MapLookHandler_ProcessButton_Left);
-		WriteKBMovementPatchDir(MapLookHandler_ProcessButton + Offsets::MapLookHandler_ProcessButton_Right);
+		WriteKBMovementPatchDir(MapLookHandler_ProcessButton + (IAL::IsAE() ? OffsetsAE::MapLookHandler_ProcessButton_Up : Offsets::MapLookHandler_ProcessButton_Up), true);
+		WriteKBMovementPatchDir(MapLookHandler_ProcessButton + (IAL::IsAE() ? OffsetsAE::MapLookHandler_ProcessButton_Down : Offsets::MapLookHandler_ProcessButton_Down), true);
+		WriteKBMovementPatchDir(MapLookHandler_ProcessButton + (IAL::IsAE() ? OffsetsAE::MapLookHandler_ProcessButton_Left : Offsets::MapLookHandler_ProcessButton_Left));
+		WriteKBMovementPatchDir(MapLookHandler_ProcessButton + (IAL::IsAE() ? OffsetsAE::MapLookHandler_ProcessButton_Right : Offsets::MapLookHandler_ProcessButton_Right));
 
 		LogPatchEnd(CKEY_MAP_KB_MOVEMENT);
 	}
@@ -238,7 +331,7 @@ namespace SDT
 
 			LogPatchBegin(CKEY_AUTO_VANITY_CAMERA);
 			{
-				auto addr(AutoVanityState_Update + Offsets::AutoVanityState_Update_IncrementAngle);
+				auto addr(AutoVanityState_Update + (IAL::IsAE() ? OffsetsAE::AutoVanityState_Update_IncrementAngle : Offsets::AutoVanityState_Update_IncrementAngle));
 				AutoVanityStateUpdate code(addr, std::uintptr_t(fAutoVanityIncrement));
 				ISKSE::GetBranchTrampoline().Write6Branch(addr, code.get());
 			}
@@ -293,7 +386,7 @@ namespace SDT
 			{
 				auto addr(
 					PlayerControls_InputEvent_ProcessEvent +
-					Offsets::PlayerControls_InputEvent_ProcessEvent_LoadDLSpeed);
+					(IAL::IsAE() ? OffsetsAE::PlayerControls_InputEvent_ProcessEvent_LoadDLSpeed : Offsets::PlayerControls_InputEvent_ProcessEvent_LoadDLSpeed));
 
 				DialogueLookSpeedUpdate code(addr, std::uintptr_t(fPCDialogueLookSpeed));
 				ISKSE::GetBranchTrampoline().Write6Branch(addr, code.get());
@@ -312,84 +405,117 @@ namespace SDT
 
 		if (m_gv.fPCDialogueLookStart)
 		{
-			struct DialogueLookSmooth : JITASM::JITASM
+			bool result;
+
+			if (IAL::IsAE())
 			{
-				DialogueLookSmooth(
-					std::uintptr_t a_targetAddr) :
-					JITASM(ISKSE::GetLocalTrampoline())
-				{
-					Xbyak::Label retnLabel;
-					Xbyak::Label callLabel;
-
-					movss(dword[rbx + 0x2C], xmm0);
-					mov(rcx, rbx);
-					call(ptr[rip + callLabel]);
-					jmp(ptr[rip + retnLabel]);
-
-					L(retnLabel);
-					dq(a_targetAddr + 0xD);
-
-					L(callLabel);
-					dq(std::uintptr_t(PlayerControls_InputEvent_ProcessEvent_140707110_Hook));
-				}
-			};
-
-			LogPatchBegin(CKEY_PC_DIALOGUE_LOOK_SE);
-			{
-				auto addr(
-					PlayerControls_InputEvent_ProcessEvent +
-					Offsets::PlayerControls_InputEvent_ProcessEvent_movssix);
-
-				DialogueLookSmooth code(addr);
-				ISKSE::GetBranchTrampoline().Write5Branch(addr, code.get());
+				result = Hook::Call5(
+					ISKSE::GetBranchTrampoline(),
+					PlayerControls_InputEvent_ProcessEvent + 0x668,
+					std::uintptr_t(PlayerControls_InputEvent_ProcessEvent_Edge_Hook),
+					PlayerControls_InputEvent_ProcessEvent_Edge_o);
 			}
-			LogPatchEnd(CKEY_PC_DIALOGUE_LOOK_SE);
+			else
+			{
+				result = Hook::Call5(
+					ISKSE::GetBranchTrampoline(),
+					PlayerControls_InputEvent_ProcessEvent + 0x1EE,
+					std::uintptr_t(PlayerControls_InputEvent_ProcessEvent_Edge_Hook),
+					PlayerControls_InputEvent_ProcessEvent_Edge_o);
+			}
+
+			if (result)
+			{
+				return;
+			}
 		}
-		else
-		{
-			Error("%s: could not apply patch", CKEY_PC_DIALOGUE_LOOK_SE);
-		}
+
+		Error("%s: could not install hook", CKEY_PC_DIALOGUE_LOOK_SE);
 	}
 
 	void DControls::Patch_GamepadCursor()
 	{
-		struct GamepadCursorSpeed : JITASM::JITASM
+		if (IAL::IsAE())
 		{
-			GamepadCursorSpeed(
-				std::uintptr_t a_targetAddr) :
-				JITASM(ISKSE::GetLocalTrampoline())
+			struct GamepadCursorSpeed : JITASM::JITASM
 			{
-				Xbyak::Label retnLabel;
-				Xbyak::Label timerLabel;
-				Xbyak::Label magicLabel;
+				GamepadCursorSpeed(
+					std::uintptr_t a_targetAddr) :
+					JITASM(ISKSE::GetLocalTrampoline())
+				{
+					Xbyak::Label retnLabel;
+					Xbyak::Label timerLabel;
+					Xbyak::Label magicLabel;
 
-				mulss(xmm4, dword[rcx + 0x1C]);
-				mulss(xmm4, dword[rip + magicLabel]);
-				mov(rax, ptr[rip + timerLabel]);
-				mulss(xmm4, dword[rax]);
-				jmp(ptr[rip + retnLabel]);
+					mulss(xmm0, dword[rcx + 0x1C]);
+					mulss(xmm0, dword[rip + magicLabel]);
+					mov(rax, ptr[rip + timerLabel]);
+					mulss(xmm0, dword[rax]);
+					jmp(ptr[rip + retnLabel]);
 
-				L(retnLabel);
-				dq(a_targetAddr + 0x6);
+					L(retnLabel);
+					dq(a_targetAddr + 0x5);
 
-				L(timerLabel);
-				dq(std::uintptr_t(Game::g_frameTimer));
+					L(timerLabel);
+					dq(std::uintptr_t(Game::g_frameTimer));
 
-				L(magicLabel);
-				dd(0x42700000);  // 60.0f
+					L(magicLabel);
+					dd(0x42700000);  // 60.0f
+				}
+			};
+
+			LogPatchBegin(CKEY_GP_CURSOR);
+			{
+				auto addr(
+					CursorMenu_MenuEventHandler_ProcessThumbstick +
+					OffsetsAE::CursorMenu_MenuEventHandler_ProcessThumbstick_MulCS);
+
+				GamepadCursorSpeed code(addr);
+				ISKSE::GetBranchTrampoline().Write5Branch(addr, code.get());
 			}
-		};
-
-		LogPatchBegin(CKEY_GP_CURSOR);
-		{
-			auto addr(
-				CursorMenu_MenuEventHandler_ProcessThumbstick_Sub140ED3120 +
-				Offsets::CursorMenu_MenuEventHandler_ProcessThumbstick_MulCS);
-
-			GamepadCursorSpeed code(addr);
-			ISKSE::GetBranchTrampoline().Write6Branch(addr, code.get());
+			LogPatchEnd(CKEY_GP_CURSOR);
 		}
-		LogPatchEnd(CKEY_GP_CURSOR);
+		else
+
+		{
+			struct GamepadCursorSpeed : JITASM::JITASM
+			{
+				GamepadCursorSpeed(
+					std::uintptr_t a_targetAddr) :
+					JITASM(ISKSE::GetLocalTrampoline())
+				{
+					Xbyak::Label retnLabel;
+					Xbyak::Label timerLabel;
+					Xbyak::Label magicLabel;
+
+					mulss(xmm4, dword[rcx + 0x1C]);
+					mulss(xmm4, dword[rip + magicLabel]);
+					mov(rax, ptr[rip + timerLabel]);
+					mulss(xmm4, dword[rax]);
+					jmp(ptr[rip + retnLabel]);
+
+					L(retnLabel);
+					dq(a_targetAddr + 0x5);
+
+					L(timerLabel);
+					dq(std::uintptr_t(Game::g_frameTimer));
+
+					L(magicLabel);
+					dd(0x42700000);  // 60.0f
+				}
+			};
+
+			LogPatchBegin(CKEY_GP_CURSOR);
+			{
+				auto addr(
+					CursorMenu_MenuEventHandler_ProcessThumbstick +
+					Offsets::CursorMenu_MenuEventHandler_ProcessThumbstick_MulCS);
+
+				GamepadCursorSpeed code(addr);
+				ISKSE::GetBranchTrampoline().Write5Branch(addr, code.get());
+			}
+			LogPatchEnd(CKEY_GP_CURSOR);
+		}
 	}
 
 	void DControls::Patch_LockpickRotation()
@@ -420,7 +546,9 @@ namespace SDT
 		{
 			auto addr(
 				LockpickingMenu_ProcessMouseMove +
-				Offsets::LockpickingMenu_ProcessMouseMove_MulFT);
+				(IAL::IsAE() ?
+                     OffsetsAE::LockpickingMenu_ProcessMouseMove_MulFT :
+                     Offsets::LockpickingMenu_ProcessMouseMove_MulFT));
 
 			LockpickRotationSpeedMouse code(addr);
 			ISKSE::GetBranchTrampoline().Write6Branch(addr, code.get());
@@ -453,7 +581,7 @@ namespace SDT
 
 		LogPatchBegin(CKEY_FREECAM_VERTICALSENS);
 		{
-			auto addr(FreeCameraState_Update_Sub140848AA0 + 0x97);
+			auto addr(FreeCameraState_Update + (IAL::IsAE() ? 0x9D : 0x97));
 			FreeCameraVerticalSensitivity code(addr);
 			ISKSE::GetBranchTrampoline().Write6Branch(addr, code.get());
 		}
@@ -486,7 +614,7 @@ namespace SDT
 
 		LogPatchBegin("FreeCameraMovementSpeedFix (forward/back)");
 		{
-			auto addr(FreeCameraState_Update_Sub140848AA0 + 0x74);
+			auto addr(FreeCameraState_Update + (IAL::IsAE() ? 0x8A : 0x74));
 			FreeCameraTranslationSpeedFwdBack code(addr);
 			ISKSE::GetBranchTrampoline().Write6Branch(addr, code.get());
 		}
@@ -496,56 +624,259 @@ namespace SDT
 
 		if (fFreeCameraRunSpeed)
 		{
-			struct FreeCameraTranslationSpeedUpDown : JITASM::JITASM
+			if (IAL::IsAE())
 			{
-				FreeCameraTranslationSpeedUpDown(
-					std::uintptr_t a_targetAddr,
-					std::uintptr_t a_fFreeCameraRunSpeedAddr) :
-					JITASM(ISKSE::GetLocalTrampoline())
+				auto fFreeCameraTranslationSpeed = ISKSE::GetINISettingAddr<float>("fFreeCameraTranslationSpeed:Camera");
+
+				if (fFreeCameraTranslationSpeed)
 				{
-					Xbyak::Label retnLabel;
-					Xbyak::Label timerLabel;
-					Xbyak::Label magicLabel;
-					Xbyak::Label fFreeCameraRunSpeedLabel;
+					struct FreeCameraTranslationSpeedUpDown :
+						JITASM::JITASM
+					{
+						FreeCameraTranslationSpeedUpDown(
+							std::uintptr_t a_targetAddr,
+							std::uintptr_t a_fFreeCameraTranslationSpeedAddr,
+							std::uintptr_t a_fFreeCameraRunSpeedAddr) :
+							JITASM(ISKSE::GetLocalTrampoline())
+						{
+							Xbyak::Label retnLabel;
+							Xbyak::Label timerLabel;
+							Xbyak::Label magicLabel;
+							Xbyak::Label fFreeCameraTranslationSpeedAddr;
+							Xbyak::Label fFreeCameraRunSpeedLabel;
 
-					Xbyak::Label notRunningLabel;
+							Xbyak::Label notRunningLabel;
 
-					movaps(xmm3, xmm0);
-					je(notRunningLabel);
-					mov(rcx, ptr[rip + fFreeCameraRunSpeedLabel]);
-					mulss(xmm3, ptr[rcx]);
-					L(notRunningLabel);
-					mulss(xmm3, dword[rip + magicLabel]);
-					mov(rcx, ptr[rip + timerLabel]);
-					mulss(xmm3, dword[rcx]);
-					jmp(ptr[rip + retnLabel]);
+							mov(rcx, ptr[rip + fFreeCameraTranslationSpeedAddr]);
+							mulss(xmm6, ptr[rcx]);
+							je(notRunningLabel);
+							mov(rcx, ptr[rip + fFreeCameraRunSpeedLabel]);
+							mulss(xmm6, ptr[rcx]);
+							L(notRunningLabel);
+							mulss(xmm6, dword[rip + magicLabel]);
+							mov(rcx, ptr[rip + timerLabel]);
+							mulss(xmm6, dword[rcx]);
+							jmp(ptr[rip + retnLabel]);
 
-					L(retnLabel);
-					dq(a_targetAddr + 0x5);
+							L(retnLabel);
+							dq(a_targetAddr + 0xA);
 
-					L(timerLabel);
-					dq(std::uintptr_t(Game::g_frameTimer));
+							L(timerLabel);
+							dq(std::uintptr_t(Game::g_frameTimer));
 
-					L(magicLabel);
-					dd(0x42700000);  // 60.0f
+							L(magicLabel);
+							dd(0x42700000);  // 60.0f
 
-					L(fFreeCameraRunSpeedLabel);
-					dq(a_fFreeCameraRunSpeedAddr);
+							L(fFreeCameraRunSpeedLabel);
+							dq(a_fFreeCameraRunSpeedAddr);
+
+							L(fFreeCameraTranslationSpeedAddr);
+							dq(a_fFreeCameraTranslationSpeedAddr);
+						}
+					};
+
+					LogPatchBegin("FreeCameraMovementSpeedFix (up/down)");
+					{
+						auto addr(FreeCameraState_Update + 0x2DC);
+						FreeCameraTranslationSpeedUpDown code(
+							addr,
+							std::uintptr_t(fFreeCameraTranslationSpeed),
+							std::uintptr_t(fFreeCameraRunSpeed));
+						ISKSE::GetBranchTrampoline().Write6Branch(addr, code.get());
+					}
+					LogPatchEnd("FreeCameraMovementSpeedFix (up/down)");
 				}
-			};
-
-			LogPatchBegin("FreeCameraMovementSpeedFix (up/down)");
-			{
-				auto addr(FreeCameraState_Update_Sub140848AA0 + 0x285);
-				FreeCameraTranslationSpeedUpDown code(addr, std::uintptr_t(fFreeCameraRunSpeed));
-				ISKSE::GetBranchTrampoline().Write5Branch(addr, code.get());
 			}
-			LogPatchEnd("FreeCameraMovementSpeedFix (up/down)");
+			else
+			{
+				struct FreeCameraTranslationSpeedUpDown :
+					JITASM::JITASM
+				{
+					FreeCameraTranslationSpeedUpDown(
+						std::uintptr_t a_targetAddr,
+						std::uintptr_t a_fFreeCameraRunSpeedAddr) :
+						JITASM(ISKSE::GetLocalTrampoline())
+					{
+						Xbyak::Label retnLabel;
+						Xbyak::Label timerLabel;
+						Xbyak::Label magicLabel;
+						Xbyak::Label fFreeCameraRunSpeedLabel;
+
+						Xbyak::Label notRunningLabel;
+
+						movaps(xmm3, xmm0);
+						je(notRunningLabel);
+						mov(rcx, ptr[rip + fFreeCameraRunSpeedLabel]);
+						mulss(xmm3, ptr[rcx]);
+						L(notRunningLabel);
+						mulss(xmm3, dword[rip + magicLabel]);
+						mov(rcx, ptr[rip + timerLabel]);
+						mulss(xmm3, dword[rcx]);
+						jmp(ptr[rip + retnLabel]);
+
+						L(retnLabel);
+						dq(a_targetAddr + 0x5);
+
+						L(timerLabel);
+						dq(std::uintptr_t(Game::g_frameTimer));
+
+						L(magicLabel);
+						dd(0x42700000);  // 60.0f
+
+						L(fFreeCameraRunSpeedLabel);
+						dq(a_fFreeCameraRunSpeedAddr);
+					}
+				};
+
+				LogPatchBegin("FreeCameraMovementSpeedFix (up/down)");
+				{
+					auto addr(FreeCameraState_Update + 0x285);
+					FreeCameraTranslationSpeedUpDown code(addr, std::uintptr_t(fFreeCameraRunSpeed));
+					ISKSE::GetBranchTrampoline().Write5Branch(addr, code.get());
+				}
+				LogPatchEnd("FreeCameraMovementSpeedFix (up/down)");
+			}
 		}
 		else
 		{
 			Error("%s: up/down patch failed", CKEY_FREECAM_TRANSLATION);
 		}
+	}
+
+	void DControls::Patch_VerticalLookSensitivity()
+	{
+		if (IAL::IsAE())
+		{
+			struct Assembly :
+				JITASM::JITASM
+			{
+				Assembly(
+					std::uintptr_t a_targetAddr) :
+					JITASM(ISKSE::GetLocalTrampoline())
+				{
+					Xbyak::Label retnLabel;
+					Xbyak::Label magicLabel;
+
+					mulss(xmm3, dword[rip + magicLabel]);
+					jmp(ptr[rip + retnLabel]);
+
+					L(retnLabel);
+					dq(a_targetAddr + 0x8);
+
+					L(magicLabel);
+					dd(0x3CC0C0C0);  // 1 / 42.5
+				}
+			};
+
+			LogPatchBegin("VerticalLookSensitivity (ThirdPerson)");
+			{
+				auto addr(VerticalLookSens_ThirdPerson + 0x65);
+				Assembly code(addr);
+				ISKSE::GetBranchTrampoline().Write6Branch(addr, code.get());
+			}
+			LogPatchEnd("VerticalLookSensitivity (ThirdPerson)");
+
+			LogPatchBegin("VerticalLookSensitivity (Dragon)");
+			{
+				auto addr(VerticalLookSens_Dragon + 0x53);
+				Assembly code(addr);
+				ISKSE::GetBranchTrampoline().Write6Branch(addr, code.get());
+			}
+			LogPatchEnd("VerticalLookSensitivity (Dragon)");
+
+			LogPatchBegin("VerticalLookSensitivity (Horse)");
+			{
+				auto addr(VerticalLookSens_Horse + 0x53);
+				Assembly code(addr);
+				ISKSE::GetBranchTrampoline().Write6Branch(addr, code.get());
+			}
+			LogPatchEnd("VerticalLookSensitivity (Horse)");
+		}
+		/*else
+		{
+			struct Assembly :
+				JITASM::JITASM
+			{
+				Assembly(
+					std::uintptr_t a_targetAddr) :
+					JITASM(ISKSE::GetLocalTrampoline())
+				{
+					Xbyak::Label retnLabel;
+					Xbyak::Label magicLabel;
+					Xbyak::Label timerLabel;
+
+					movss(xmm4, dword[rip + magicLabel]);
+					mov(r8, ptr[rip + timerLabel]);
+					movss(xmm3, dword[r8]);
+
+					jmp(ptr[rip + retnLabel]);
+
+					L(retnLabel);
+					dq(a_targetAddr + 0xB);
+
+					L(timerLabel);
+					dq(std::uintptr_t(Game::g_frameTimer));
+
+					L(magicLabel);
+					dd(0x3CC0C0C0);
+				}
+			};
+
+			LogPatchBegin("VerticalLookSensitivity (ThirdPerson)");
+			{
+				auto addr(VerticalLookSens_ThirdPerson + 0x71);
+				Assembly code(addr);
+				ISKSE::GetBranchTrampoline().Write6Branch(addr, code.get());
+			}
+			LogPatchEnd("VerticalLookSensitivity (ThirdPerson)");
+
+			LogPatchBegin("VerticalLookSensitivity (Dragon)");
+			{
+				auto addr(VerticalLookSens_Dragon + 0x5F);
+				Assembly code(addr);
+				ISKSE::GetBranchTrampoline().Write6Branch(addr, code.get());
+			}
+			LogPatchEnd("VerticalLookSensitivity (Dragon)");
+
+			LogPatchBegin("VerticalLookSensitivity (Horse)");
+			{
+				auto addr(VerticalLookSens_Horse + 0x5F);
+				Assembly code(addr);
+				ISKSE::GetBranchTrampoline().Write6Branch(addr, code.get());
+			}
+			LogPatchEnd("VerticalLookSensitivity (Horse)");
+		}*/
+	}
+
+	void DControls::replace_st_timer(std::uintptr_t a_addr)
+	{
+		auto displ = static_cast<std::int32_t>(std::uintptr_t(Game::g_frameTimer) - a_addr) - 4;
+
+		Patching::safe_write<std::int32_t>(a_addr, displ);
+	}
+
+	void DControls::Patch_SlowTimeCameraMovement()
+	{
+		LogPatchBegin("SlowTimeCameraMovement");
+
+		if (IAL::IsAE())
+		{
+			replace_st_timer(SlowTimeCameraMovementFix1 + 0x3F);
+			replace_st_timer(SlowTimeCameraMovementFix1 + 0xA1);
+			replace_st_timer(SlowTimeCameraMovementFix1 + 0x1BA);
+			replace_st_timer(SlowTimeCameraMovementFix2 + 0x268);
+			replace_st_timer(SlowTimeCameraMovementFix3 + 0x17);
+		}
+		/*else
+		{
+			replace_st_timer(SlowTimeCameraMovementFix1 + 0x2F);
+			replace_st_timer(SlowTimeCameraMovementFix1 + 0x96);
+			replace_st_timer(SlowTimeCameraMovementFix1 + 0x1FD);
+			replace_st_timer(SlowTimeCameraMovementFix2 + 0xBA);
+			replace_st_timer(SlowTimeCameraMovementFix3 + 0x17);
+		}*/
+
+		LogPatchEnd("SlowTimeCameraMovement");
 	}
 
 	void DControls::WriteKBMovementPatchDir(
@@ -608,7 +939,20 @@ namespace SDT
 
 		auto f = *m_Instance.m_gv.fMouseHeadingXScale * *m_Instance.m_gv.fMouseHeadingSensitivity;
 
-		a_fpState->unk68[0] = *UnkFloat0 * (a_controls->lookInput.x / (f / interval) * (f * 30.0f)) + a_fpState->unk68[0];
+		a_fpState->unk68[0] = *FPSittingRotationSpeed * (a_controls->lookInput.x / (f / interval) * (f * 30.0f)) + a_fpState->unk68[0];
+	}
+
+	void DControls::MouseSens_AE_Hook(FirstPersonState* a_fpState)
+	{
+		float interval = *Game::g_frameTimer;
+		if (interval < _EPSILON)
+			return;
+
+		auto f = *m_Instance.m_gv.fMouseHeadingXScale * *m_Instance.m_gv.fMouseHeadingSensitivity;
+
+		auto controls = PlayerControls::GetSingleton();
+
+		a_fpState->unk68[0] = *FPSittingRotationSpeed * (controls->lookInput.x / (f / interval) * (f * 30.0f)) + a_fpState->unk68[0];
 	}
 
 	void DControls::AddMapCameraPos_Hook(
@@ -630,9 +974,9 @@ namespace SDT
 		}
 	}
 
-	void DControls::PlayerControls_InputEvent_ProcessEvent_140707110_Hook(PlayerControls* a_controls)
+	void DControls::PlayerControls_InputEvent_ProcessEvent_Edge_Hook(PlayerControls* a_controls)
 	{
-		Sub_140707110(a_controls);
+		m_Instance.PlayerControls_InputEvent_ProcessEvent_Edge_o(a_controls);
 
 		float lookStart = *m_Instance.m_gv.fPCDialogueLookStart;
 		if (lookStart <= 0.0f)

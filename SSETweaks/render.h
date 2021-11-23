@@ -253,24 +253,24 @@ namespace SDT
 		std::vector<presentCallback_t> m_presentCallbacksPre;
 		std::vector<presentCallback_t> m_presentCallbacksPost;
 
-		inline static auto CreateDXGIFactory_C = IAL::Addr(AID::D3D11Create, Offsets::CreateDXGIFactory_C);
-		inline static auto D3D11CreateDeviceAndSwapChain_C = IAL::Addr(AID::D3D11Create, Offsets::D3D11CreateDeviceAndSwapChain_C);
-		inline static auto Present_Flags_Inject = IAL::Addr(AID::Present, Offsets::Present_Flags_Inject);
-		inline static auto presentAddr = IAL::Addr(AID::Present, Offsets::Present);
+		inline static auto CreateDXGIFactory_C = IAL::Addr(AID::D3D11Create, 77396, Offsets::CreateDXGIFactory_C, 0x25);
+		inline static auto D3D11CreateDeviceAndSwapChain_C = IAL::Addr(AID::D3D11Create, 77396, Offsets::D3D11CreateDeviceAndSwapChain_C, 0x2C0);
+		inline static auto Present_Flags_Inject = IAL::Addr(AID::Present, 77246, Offsets ::Present_Flags_Inject, 0x8E);
+		inline static auto presentAddr = IAL::Addr(AID::Present, 77246, Offsets::Present, 0x9F);
 
-		inline static auto bFullscreen_Patch = IAL::Addr(AID::Init0, Offsets::bFullscreen_Patch);
-		inline static auto bBorderless_Patch = IAL::Addr(AID::Init0, Offsets::bBorderless_Patch);
-		inline static auto iSizeW_Patch = IAL::Addr(AID::Init0, Offsets::iSizeW_Patch);
-		inline static auto iSizeH_Patch = IAL::Addr(AID::Init0, Offsets::iSizeH_Patch);
-		inline static auto DisplayRefreshRate = IAL::Addr(AID::Init0, Offsets::DisplayRefreshRate);
+		inline static auto bFullscreen_Patch = IAL::Addr(AID::Init0, 36547, Offsets::bFullscreen_Patch, 0xCB0);
+		inline static auto bBorderless_Patch = IAL::Addr(AID::Init0, 36547, Offsets ::bBorderless_Patch, 0xCBB);
+		inline static auto iSizeW_Patch = IAL::Addr(AID::Init0, 36547, Offsets ::iSizeW_Patch, 0xCC6);
+		inline static auto iSizeH_Patch = IAL::Addr(AID::Init0, 36547, Offsets ::iSizeH_Patch, 0xCD0);
+		inline static auto DisplayRefreshRate = IAL::Addr(AID::Init0, 36547, Offsets ::DisplayRefreshRate, 0xCEE);
 
 		//inline static auto DXGIData = IAL::Addr<Structures::IDXGIData**>(AID::DXGIData);
 
-		inline static auto MaxFrameLatency = IAL::Addr(AID::D3DInit, Offsets::MaxFrameLatency);
-		inline static auto ResizeBuffers_Inject = IAL::Addr(AID::WindowSwapChainAdjust, Offsets::ResizeBuffers_Inject);
-		inline static auto ResizeBuffersDisable = IAL::Addr(AID::WindowSwapChainAdjust, Offsets::ResizeBuffersDisable);
-		inline static auto ResizeTargetDisable = IAL::Addr(AID::WindowSwapChain2, Offsets::ResizeTargetDisable);
-		inline static auto ResizeTarget = IAL::Addr(AID::WindowSwapChain2, Offsets::ResizeTarget);
+		inline static auto MaxFrameLatency = IAL::Addr(AID::D3DInit, 77226, Offsets::MaxFrameLatency, 0x2FE);
+		inline static auto ResizeBuffers_Inject = IAL::Addr(AID::WindowSwapChainAdjust, 77238, Offsets::ResizeBuffers_Inject, 0x2C4);
+		inline static auto ResizeBuffersDisable = IAL::Addr(AID::WindowSwapChainAdjust, 77238, Offsets ::ResizeBuffersDisable, 0x26);
+		inline static auto ResizeTargetDisable = IAL::Addr(AID::WindowSwapChain2, 77239, Offsets::ResizeTargetDisable, 0x24);
+		inline static auto ResizeTarget = IAL::Addr(AID::WindowSwapChain2, 77239, Offsets::ResizeTarget, 0xF9);
 
 		struct
 		{

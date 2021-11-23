@@ -28,10 +28,14 @@ namespace SDT
 
 	bool ISKSE::CheckRuntimeVersion(std::uint32_t a_version) const
 	{
-		return a_version >= RUNTIME_VERSION_1_5_23;
+		return a_version >= RUNTIME_VERSION_1_5_23 &&
+		       a_version <= RUNTIME_VERSION_1_5_97;
 	}
 
-	bool ISKSE::CheckInterfaceVersion(std::uint32_t a_interfaceID, std::uint32_t a_interfaceVersion, std::uint32_t a_compiledInterfaceVersion) const
+	bool ISKSE::CheckInterfaceVersion(
+		std::uint32_t a_interfaceID,
+		std::uint32_t a_interfaceVersion,
+		std::uint32_t a_compiledInterfaceVersion) const
 	{
 		return true;
 	}

@@ -75,7 +75,7 @@ namespace SDT
 		static inline constexpr unsigned long long LockpickingMenu_ProcessMouseMove = 51076;
 
 		static inline constexpr unsigned long long TESLoadScreen_LoadForm = 21366;
-		static inline constexpr unsigned long long Sub_14017D910 = 13902;
+		static inline constexpr unsigned long long TESLoadScreen_LoadForm_Unkf = 13902;
 
 		static inline constexpr unsigned long long UnkCoordData = 517043;
 
@@ -182,9 +182,92 @@ namespace SDT
 		static inline constexpr std::uintptr_t LockpickingMenu_ProcessMouseMove_MulFT = 0x42;
 	}
 
+	namespace OffsetsAE
+	{
+		static inline constexpr std::uintptr_t CreateDXGIFactory_C = 0xDAD6D0 + 0x25;
+		static inline constexpr std::uintptr_t D3D11CreateDeviceAndSwapChain_C = 0xDAD6D0 + 0x2C0;
+
+		static inline constexpr std::uintptr_t Present_Flags_Inject = 0xDA5BE0 + 0x8E;
+		static inline constexpr std::uintptr_t Present = 0xDA5BE0 + 0x9F;
+
+		static inline constexpr std::uintptr_t bFullscreen_Patch = 0x5D41A0 + 0xCB0;
+		static inline constexpr std::uintptr_t bBorderless_Patch = 0x5D41A0 + 0xCBB;
+		static inline constexpr std::uintptr_t iSizeW_Patch = 0x5D41A0 + 0xCC6;
+		static inline constexpr std::uintptr_t iSizeH_Patch = 0x5D41A0 + 0xCD0;
+		static inline constexpr std::uintptr_t DisplayRefreshRate = 0x5D41A0 + 0xCEE;
+
+		static inline constexpr std::uintptr_t MaxFrameLatency = 0xDA3850 + 0x2FE;
+
+		static inline constexpr std::uintptr_t ResizeBuffers_Inject = 0xDA5030 + 0x2C4;
+		static inline constexpr std::uintptr_t ResizeBuffersDisable = 0xDA5030 + 0x26;  // uncond jmp
+
+		static inline constexpr std::uintptr_t ResizeTargetDisable = 0xDA54C0 + 0x24;  // uncond jmp
+
+		static inline constexpr std::uintptr_t ResizeTarget = 0xDA54C0 + 0xF9;
+
+		static inline constexpr std::uintptr_t WindowCreate = 0xDA3850 + 0x22C;
+		static inline constexpr std::uintptr_t GetClientRect1 = 0xDA5A00 + 0x18B;
+
+		static inline constexpr std::uintptr_t SetExpressionOverride_lea = 0x979050 + 0x18;
+		static inline constexpr std::uintptr_t SetExpressionOverride_cmp = 0x979050 + 0x28;
+
+		static inline constexpr std::uintptr_t ScriptUpdateBudgetGame = 0x94F6E0 + 0x90;
+		static inline constexpr std::uintptr_t ScriptUpdateBudgetUI = 0x94F7C0 + 0x90;
+
+		static inline constexpr std::uintptr_t SkipNoINI = 0x5E2C90 + 0x319;
+
+		static inline constexpr std::uintptr_t TESLoadScreen_LoadForm = 0x2F8C70;
+		static inline constexpr std::uintptr_t TESLoadScreen_LoadForm_Unkf = 0x187720;
+
+		static inline constexpr std::uintptr_t ActorFade = 0x50D640;
+		static inline constexpr std::uintptr_t PlayerFade = 0x878630 + 0x4DD;
+
+		static inline constexpr std::uintptr_t PhysCalcHT = 0x5DB3D0 + 0xA6;
+		static inline constexpr std::uintptr_t PhysCalc = 0xDE5F20;
+		static inline constexpr std::uintptr_t IsComplex = 0x2FC161C;
+
+		static inline constexpr std::uintptr_t FrameTimerSlow = 0x30064C8;
+		static inline constexpr std::uintptr_t FrameTimerNoSlow = 0x30064CC;
+
+		static inline constexpr std::uintptr_t LoadPluginINI_C = 0x5D41A0 + 0xA71;
+		static inline constexpr std::uintptr_t PopulateUIStringHolder_C = 0x5D41A0 + 0xE85;
+
+		static inline constexpr std::uintptr_t MT_Inject1 = 0x724ED0 + 0x389;
+		static inline constexpr std::uintptr_t MT_Inject2 = 0x724ED0 + 0x880;
+
+		static inline constexpr std::uintptr_t FMHS_Inject = 0x872A30 + 0x125;
+		static inline constexpr std::uintptr_t UnkFloat0 = 0x1E876D8;
+		static inline constexpr std::uintptr_t MapLookHandler_ProcessButton = 0x910870;
+		static inline constexpr std::uintptr_t MapLookHandler_ProcessButton_Up = 0xC6;
+		static inline constexpr std::uintptr_t MapLookHandler_ProcessButton_Down = 0xF2;
+		static inline constexpr std::uintptr_t MapLookHandler_ProcessButton_Left = 0x122;
+		static inline constexpr std::uintptr_t MapLookHandler_ProcessButton_Right = 0x14F;
+		static inline constexpr std::uintptr_t MapLookHandler_ProcessButton_Add = 0x164;
+
+		static inline constexpr std::uintptr_t AutoVanityState_Update = 0x871AB0;
+		static inline constexpr std::uintptr_t AutoVanityState_Update_IncrementAngle = 0xE2;
+
+		static inline constexpr std::uintptr_t PlayerControls_InputEvent_ProcessEvent = 0x72E720;
+		static inline constexpr std::uintptr_t PlayerControls_InputEvent_ProcessEvent_LoadDLSpeed = 0x574;
+
+		static inline constexpr std::uintptr_t UnkCoordData = 0x2FC1C10;
+
+		
+		static inline constexpr std::uintptr_t CursorMenu_MenuEventHandler_ProcessThumbstick_Sub140F1A3B0 = 0xF1A3B0;
+		static inline constexpr std::uintptr_t CursorMenu_MenuEventHandler_ProcessThumbstick_MulCS = 0x5A;
+
+
+		static inline constexpr std::uintptr_t LockpickingMenu_ProcessMouseMove = 0x8C70D0;
+		static inline constexpr std::uintptr_t LockpickingMenu_ProcessMouseMove_MulFT = 0x42;
+
+		static inline constexpr std::uintptr_t FreeCameraState_Update_Sub140874400 = 0x874400;
+
+	}
+
 	namespace Payloads
 	{
 		static inline constexpr std::uint8_t SkipNoINI[] = { 0x4C, 0x89, 0xF1 };
+		static inline constexpr std::uint8_t SkipNoINI_AE[] = { 0x48, 0x8B, 0xCF };
 		static inline constexpr std::uint8_t seoFix_lea[] = { 0x01, 0x90 };
 		static inline constexpr std::uint8_t seoFix_cmp = 0x10;
 		static inline constexpr std::uint8_t nopx3[] = { 0x90, 0x90, 0x90 };
@@ -220,9 +303,25 @@ namespace SDT
 			0x00,
 			0x90
 		};
+		static inline constexpr std::uint8_t ResizeBuffersDisable_AE[] = {
+			0xE9,
+			0x45,
+			0x04,
+			0x00,
+			0x00,
+			0x90
+		};
 		static inline constexpr std::uint8_t ResizeTargetDisable[] = {
 			0xE9,
 			0x43,
+			0x01,
+			0x00,
+			0x00,
+			0x90
+		};
+		static inline constexpr std::uint8_t ResizeTargetDisable_AE[] = {
+			0xE9,
+			0x30,
 			0x01,
 			0x00,
 			0x00,
@@ -312,7 +411,7 @@ namespace SDT
 			NiPoint2 topLeft;         // 0C
 			NiPoint2 bottomRight;     // 14
 			float cursorSensitivity;  // 1C
-			// ...
+									  // ...
 		};
 	}
 }

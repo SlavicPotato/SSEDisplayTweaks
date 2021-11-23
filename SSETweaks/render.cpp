@@ -560,6 +560,7 @@ namespace SDT
 			safe_write(
 				MaxFrameLatency,
 				static_cast<std::uint32_t>(m_conf.max_frame_latency));
+
 			Message("Maximum frame latency: %d", m_conf.max_frame_latency);
 		}
 
@@ -567,19 +568,39 @@ namespace SDT
 		{
 			if (m_conf.disablebufferresize)
 			{
-				safe_write(
-					ResizeBuffersDisable,
-					reinterpret_cast<const void*>(Payloads::ResizeBuffersDisable),
-					sizeof(Payloads::ResizeBuffersDisable));
+				if (IAL::IsAE())
+				{
+					safe_write(
+						ResizeBuffersDisable,
+						reinterpret_cast<const void*>(Payloads::ResizeBuffersDisable_AE),
+						sizeof(Payloads::ResizeBuffersDisable_AE));
+				}
+				else
+				{
+					safe_write(
+						ResizeBuffersDisable,
+						reinterpret_cast<const void*>(Payloads::ResizeBuffersDisable),
+						sizeof(Payloads::ResizeBuffersDisable));
+				}
 				Debug("Disabled swap chain buffer resizing");
 			}
 
 			if (m_conf.disabletargetresize)
 			{
-				safe_write(
-					ResizeTargetDisable,
-					reinterpret_cast<const void*>(Payloads::ResizeTargetDisable),
-					sizeof(Payloads::ResizeTargetDisable));
+				if (IAL::IsAE())
+				{
+					safe_write(
+						ResizeTargetDisable,
+						reinterpret_cast<const void*>(Payloads::ResizeTargetDisable_AE),
+						sizeof(Payloads::ResizeTargetDisable_AE));
+				}
+				else
+				{
+					safe_write(
+						ResizeTargetDisable,
+						reinterpret_cast<const void*>(Payloads::ResizeTargetDisable),
+						sizeof(Payloads::ResizeTargetDisable));
+				}
 
 				Debug("Disabled swap chain target resizing");
 			}
@@ -658,7 +679,7 @@ namespace SDT
 				ISKSE::GetBranchTrampoline().Write6Branch(
 					ResizeTarget,
 					code.get());
-				safe_memset(ResizeTarget + 0x6, 0xCC, 0x2);
+				//safe_memset(ResizeTarget + 0x6, 0x90, 0x2);
 			}
 			LogPatchEnd("IDXGISwapChain::ResizeTarget");
 		}
@@ -702,7 +723,7 @@ namespace SDT
 					ResizeBuffers_Inject,
 					code.get());
 
-				safe_memset(ResizeBuffers_Inject + 0x6, 0xCC, 0x12);
+				//safe_memset(ResizeBuffers_Inject + 0x6, 0x90, 0x12);
 			}
 			LogPatchEnd("IDXGISwapChain::ResizeBuffers");
 		}
@@ -1295,8 +1316,8 @@ namespace SDT
 				*ppSwapChain,
 				pAdapter);
 
-			if (evd_post.m_pDevice && 
-				evd_post.m_pImmediateContext)
+			if (evd_post.m_pDevice &&
+			    evd_post.m_pImmediateContext)
 			{
 				IEvents::TriggerEvent(Event::OnD3D11PostCreate, reinterpret_cast<void*>(&evd_post));
 				IEvents::TriggerEvent(Event::OnD3D11PostPostCreate, reinterpret_cast<void*>(&evd_post));

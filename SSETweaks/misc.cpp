@@ -99,10 +99,20 @@ namespace SDT
 	{
 		if (m_conf.skipmissingini)
 		{
-			Patching::safe_write(
-				SkipNoINI,
-				static_cast<const void*>(Payloads::SkipNoINI),
-				sizeof(Payloads::SkipNoINI));
+			if (IAL::IsAE())
+			{
+				Patching::safe_write(
+					SkipNoINI,
+					static_cast<const void*>(Payloads::SkipNoINI_AE),
+					sizeof(Payloads::SkipNoINI_AE));
+			}
+			else
+			{
+				Patching::safe_write(
+					SkipNoINI,
+					static_cast<const void*>(Payloads::SkipNoINI),
+					sizeof(Payloads::SkipNoINI));
+			}
 		}
 
 		if (m_conf.loadscreen_filter)
@@ -136,13 +146,13 @@ namespace SDT
 					dq(targetAddr + 0x8);
 
 					L(retnSkipLabel);
-					dq(targetAddr + 0x4EC);
+					dq(targetAddr + (IAL::IsAE() ? 0x4ED : 0x4EC));
 
 					L(callHookFnLabel);
 					dq(std::uintptr_t(TESLoadScreen_LoadForm_Hook));
 
 					L(callUnkFnLabel);
-					dq(Sub14017D910);
+					dq(TESLoadScreen_LoadForm_Unkf);
 				}
 			};
 
@@ -157,20 +167,39 @@ namespace SDT
 
 		if (m_conf.disable_actor_fade)
 		{
-			constexpr std::uint8_t data1[] = { 0xEB, 0x60 };  // jmp 0x60
-			safe_write(ActorFade_a + 0x4FC, data1, sizeof(data1));
+			if (IAL::IsAE())
+			{
+				constexpr std::uint8_t data1[] = { 0xEB, 0x61, 0x90, 0x90, 0x90, 0x90, 0x90 };
+				safe_write(ActorFade_a + 0x4CA, data1, sizeof(data1));
 
-			constexpr std::uint8_t data2[] = { 0xEB, 0x69 };  // jmp 0x68
-			safe_write(ActorFade_a + 0x4F3, data2, sizeof(data2));
+				constexpr std::uint8_t data2[] = { 0x0F, 0xB6, 0x9D, 0x80, 0x02, 0x00, 0x00, 0xEB, 0x6A, 0x90, 0x90, 0x90 };
+				safe_write(ActorFade_a + 0x4BA, data2, sizeof(data2));
+			}
+			else
+			{
+				constexpr std::uint8_t data1[] = { 0xEB, 0x60 };  // jmp 0x60
+				safe_write(ActorFade_a + 0x4FC, data1, sizeof(data1));
+
+				constexpr std::uint8_t data2[] = { 0xEB, 0x69 };  // jmp 0x69
+				safe_write(ActorFade_a + 0x4F3, data2, sizeof(data2));
+			}
 
 			Message("Actor fade patch applied");
 		}
 
 		if (m_conf.disable_player_fade)
 		{
-			constexpr std::uint8_t data[] = { 0xEB, 0x58 };  // jmp 0x58
-			safe_write(PlayerFade_a, data, sizeof(data));
+			if (IAL::IsAE())
+			{
+				constexpr std::uint8_t data[] = { 0xEB, 0x58, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 };  // jmp 0x58
+				safe_write(PlayerFade_a, data, sizeof(data));
+			}
+			else
+			{
+				constexpr std::uint8_t data[] = { 0xEB, 0x58 };  // jmp 0x58
+				safe_write(PlayerFade_a, data, sizeof(data));
 
+			}
 			Message("Player fade patch applied");
 		}
 	}
@@ -259,5 +288,4 @@ namespace SDT
 			RemoveLensFlareFromWeathers();
 		}
 	}
-
 }

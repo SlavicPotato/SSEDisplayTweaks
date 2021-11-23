@@ -50,14 +50,29 @@ namespace SDT
 
 	bool IEvents::Initialize()
 	{
-		if (!Hook::Call5(
-				ISKSE::GetBranchTrampoline(),
-				LoadPluginINI_C,
-				reinterpret_cast<std::uintptr_t>(PostLoadPluginINI_Hook),
-				m_Instance.LoadPluginINI_O))
+		if (IAL::IsAE())
 		{
-			m_Instance.FatalError("Could not install event hooks");
-			return false;
+			if (!Hook::Call5(
+					ISKSE::GetBranchTrampoline(),
+					LoadPluginINI_C,
+					reinterpret_cast<std::uintptr_t>(PostLoadPluginINI_AE_Hook),
+					m_Instance.LoadPluginINI_AE_O))
+			{
+				m_Instance.FatalError("Could not install event hooks");
+				return false;
+			}
+		}
+		else
+		{
+			if (!Hook::Call5(
+					ISKSE::GetBranchTrampoline(),
+					LoadPluginINI_C,
+					reinterpret_cast<std::uintptr_t>(PostLoadPluginINI_Hook),
+					m_Instance.LoadPluginINI_O))
+			{
+				m_Instance.FatalError("Could not install event hooks");
+				return false;
+			}
 		}
 
 		if (!Hook::Call5(
@@ -141,10 +156,16 @@ namespace SDT
 		m_Instance.TriggerEvent(Event::OnConfigLoad);
 	}
 
-	UIStringHolder* IEvents::PopulateUIStringHolder_Hook(UIStringHolder* a_dst)
+	void IEvents::PostLoadPluginINI_AE_Hook(void* a_unk)
+	{
+		m_Instance.LoadPluginINI_AE_O(a_unk);
+		m_Instance.TriggerEvent(Event::OnConfigLoad);
+	}
+
+	UIStringHolder* IEvents::PopulateUIStringHolder_Hook(void* a_dst)
 	{
 		auto dst = m_Instance.PopulateUIStringHolder_O(a_dst);
-		m_Instance.CreateMSTCMap(dst);
+		m_Instance.CreateMSTCMap();
 		return dst;
 	}
 
@@ -164,16 +185,23 @@ namespace SDT
 				m_Instance.Error("Could not add menu open/close event sink");
 			}
 		}
+		else if (a_message->type == SKSEMessagingInterface::kMessage_PostPostLoad)
+		{
+			IDDispatcher::InitializeDriversPost();
+		}
 
 		m_Instance.TriggerEvent(Event::OnMessage, static_cast<void*>(a_message));
 	}
 
-	void IEvents::CreateMSTCMap(UIStringHolder* a_holder)
+	void IEvents::CreateMSTCMap()
 	{
-		for (auto& e : s_mstc_map_desc)
+		if (auto sh = UIStringHolder::GetSingleton())
 		{
-			auto& str = a_holder->GetString(e.index);
-			m_mstc_map.try_emplace(str.data, e.event);
+			for (auto& e : s_mstc_map_desc)
+			{
+				auto& str = sh->GetString(e.index);
+				m_mstc_map.try_emplace(str.data, e.event);
+			}
 		}
 
 		BSFixedString customMenu("CustomMenu");

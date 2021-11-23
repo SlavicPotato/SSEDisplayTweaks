@@ -116,6 +116,27 @@ namespace SDT
 		}
 	}
 
+	void DHavok::Patch()
+	{
+		if (m_conf.havok_enabled)
+		{
+			if (IAL::IsAE())
+			{
+				constexpr std::uint8_t payload[] = {
+					0xEB,
+					0x1F,
+					0x90,
+					0x90,
+					0x90,
+					0x90,
+					0x90
+				};
+
+				Patching::safe_write(PhysCalc_AE_patch, payload);
+			}
+		}
+	}
+
 	bool DHavok::Prepare()
 	{
 		m_gv.fMaxTime = ISKSE::GetINISettingAddr<float>("fMaxTime:HAVOK");

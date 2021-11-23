@@ -8,6 +8,7 @@ namespace SDT
 	public:
 		static void RegisterDriver(IDriver* const);
 		static bool InitializeDrivers();
+		static bool InitializeDriversPost();
 		static bool DriverOK(DRIVER_ID const id);
 		static IDriver* GetDriver(DRIVER_ID const id);
 
@@ -21,6 +22,7 @@ namespace SDT
 
 		void PreProcessDrivers();
 		bool InitializeDrivers_Impl();
+		bool InitializeDriversPost_Impl();
 
 		std::vector<IDriver*> m_drivers;
 		std::unordered_map<DRIVER_ID, IDriver*> m_drivermap;

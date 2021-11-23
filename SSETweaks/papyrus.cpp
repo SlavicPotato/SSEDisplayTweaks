@@ -97,11 +97,11 @@ namespace SDT
 					L(callLabel);
 					if (enable_stats)
 					{
-						dq(std::uintptr_t(DPapyrus::CalculateUpdateBudgetStats));
+						dq(std::uintptr_t(CalculateUpdateBudgetStats));
 					}
 					else
 					{
-						dq(std::uintptr_t(DPapyrus::CalculateUpdateBudget));
+						dq(std::uintptr_t(CalculateUpdateBudget));
 					}
 				}
 			};
@@ -111,7 +111,7 @@ namespace SDT
 				UpdateBudgetInject code(UpdateBudgetGame, m_conf.stats_enabled);
 				ISKSE::GetBranchTrampoline().Write6Branch(UpdateBudgetGame, code.get());
 
-				safe_memset(UpdateBudgetGame + 0x6, 0xCC, 2);
+				//safe_memset(UpdateBudgetGame + 0x6, 0x90, 2);
 			}
 			LogPatchEnd("UpdateBudget (game)");
 
@@ -120,7 +120,7 @@ namespace SDT
 				UpdateBudgetInject code(UpdateBudgetUI, m_conf.stats_enabled);
 				ISKSE::GetBranchTrampoline().Write6Branch(UpdateBudgetUI, code.get());
 
-				safe_memset(UpdateBudgetUI + 0x6, 0xCC, 2);
+				//safe_memset(UpdateBudgetUI + 0x6, 0x90, 2);
 			}
 			LogPatchEnd("UpdateBudget (UI)");
 		}

@@ -12,7 +12,7 @@ namespace SDT
 		public ISKSEBase<
 			SKSEInterfaceFlags::kTrampoline |
 				SKSEInterfaceFlags::kMessaging,
-			320ui64,
+			360ui64,
 			1024ui64>,
 		public ISettingCollection
 	{
@@ -35,8 +35,8 @@ namespace SDT
 	private:
 		ISKSE() = default;
 
-		virtual void OnLogOpen() override;
 		virtual const char* GetLogPath() const override;
+		virtual void OnLogOpen() override;
 		virtual const char* GetPluginName() const override;
 		virtual std::uint32_t GetPluginVersion() const override;
 		virtual bool CheckRuntimeVersion(std::uint32_t a_version) const override;
