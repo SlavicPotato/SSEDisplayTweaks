@@ -437,8 +437,12 @@ namespace SDT
 				}
 			};
 
-			DialogueLookSmooth code(PlayerControls_InputEvent_ProcessEvent);
-			ISKSE::GetBranchTrampoline().Write5Branch(PlayerControls_InputEvent_ProcessEvent, code.get());
+			auto addr = IAL::IsAE() ?
+                            PlayerControls_InputEvent_ProcessEvent + 0x58C :
+                            PlayerControls_InputEvent_ProcessEvent + 0x1E6;
+
+			DialogueLookSmooth code(addr);
+			ISKSE::GetBranchTrampoline().Write5Branch(addr, code.get());
 
 			Message("%s patch done", CKEY_PC_DIALOGUE_LOOK);
 		}

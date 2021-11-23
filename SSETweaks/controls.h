@@ -77,7 +77,7 @@ namespace SDT
 		inline static auto FMHS_Inject = IAL::Addr(AID::UnkMM0, 50724, Offsets::FMHS_Inject, 0x125);
 		inline static auto MapLookHandler_ProcessButton = IAL::Addr<std::uintptr_t>(AID::MapLookHandler_ProcessButton, 53062);
 		inline static auto AutoVanityState_Update = IAL::Addr<std::uintptr_t>(AID::AutoVanityState_Update, 50709);
-		inline static auto PlayerControls_InputEvent_ProcessEvent = IAL::Addr<std::uintptr_t>(AID::PlayerControls_InputEvent_ProcessEvent, 42338, 0x1E6, 0x58C);
+		inline static auto PlayerControls_InputEvent_ProcessEvent = IAL::Addr<std::uintptr_t>(AID::PlayerControls_InputEvent_ProcessEvent, 42338);
 		inline static auto CursorMenu_MenuEventHandler_ProcessThumbstick = IAL::Addr<std::uintptr_t>(AID::CursorMenu_MenuEventHandler_ProcessThumbstick_Sub140ED3120, 82540);
 		inline static auto LockpickingMenu_ProcessMouseMove = IAL::Addr<std::uintptr_t>(AID::LockpickingMenu_ProcessMouseMove, 51955);
 		inline static auto unkCoordData = IAL::Addr<Structures::UnkCoordData**>(AID::UnkCoordData, 403551);
