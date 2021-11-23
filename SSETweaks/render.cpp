@@ -1325,8 +1325,7 @@ namespace SDT
 		}
 		else
 		{
-			m_Instance.FatalError("D3D11CreateDeviceAndSwapChain failed: 0x%lX", hr);
-			WinApi::MessageBoxErrorFmt("D3D11CreateDeviceAndSwapChain failed: 0x%lX", hr);
+			WinApi::MessageBoxErrorFmtLog(PLUGIN_NAME, "D3D11CreateDeviceAndSwapChain failed: 0x%lX", hr);
 		}
 
 		return hr;

@@ -29,6 +29,7 @@ namespace SDT
 
 			if (!skse.QueryInterfaces(a_skse))
 			{
+				gLog.FatalError("Could not query SKSE interfaces");
 				return false;
 			}
 
@@ -44,7 +45,12 @@ namespace SDT
 				auto usageBranch = skse.GetTrampolineUsage(TrampolineID::kBranch);
 				auto usageLocal = skse.GetTrampolineUsage(TrampolineID::kLocal);
 
-				gLog.Debug("[Trampoline] branch: %zu/%zu, codegen: %zu/%u", usageBranch.used, usageBranch.total, usageLocal.used, usageLocal.total);
+				gLog.Debug(
+					"[Trampoline] branch: %zu/%zu, codegen: %zu/%u",
+					usageBranch.used,
+					usageBranch.total,
+					usageLocal.used,
+					usageLocal.total);
 			}
 
 			ClearConfiguration();
@@ -104,13 +110,17 @@ extern "C" {
 
 		if (!IAL::IsLoaded())
 		{
-			gLog.FatalError("Could not load the address library, make sure it's installed");
+			WinApi::MessageBoxErrorLog(
+				PLUGIN_NAME,
+				"Could not load the address library");
 			return false;
 		}
 
 		if (IAL::HasBadQuery())
 		{
-			gLog.FatalError("One or more addresses could not be retrieved from the address library");
+			WinApi::MessageBoxErrorLog(
+				PLUGIN_NAME,
+				"One or more addresses could not be retrieved from the address library");
 			return false;
 		}
 
@@ -128,8 +138,8 @@ extern "C" {
 		{
 			WinApi::MessageBoxError(
 				PLUGIN_NAME,
-				"An unrecoverable error has occured during plugin initialization.\n\n"
-				"Some patches have already been applied before this error occured."
+				"An unrecoverable error has occured during plugin initialization. "
+				"Some patches were already applied."
 				"The game process will be terminated for safety reasons.\n\n"
 				"See the log for more info.");
 			std::_Exit(1);
@@ -147,16 +157,13 @@ extern "C" {
 
 		if (ok)
 		{
-			if (!IAL::IsAE())
-			{
-				gLog.Debug(
-					"[%s] db load: %.3f ms, init: %.3f ms, db unload: %.3f ms [%zu record(s)]",
-					__FUNCTION__,
-					IAL::GetLoadTime() * 1000.0f,
-					tInit * 1000.0f,
-					tUnload * 1000.0f,
-					dbEntries);
-			}
+			gLog.Debug(
+				"[%s] db load: %.3f ms, init: %.3f ms, db unload: %.3f ms [%zu record(s)]",
+				__FUNCTION__,
+				IAL::GetLoadTime() * 1000.0f,
+				tInit * 1000.0f,
+				tUnload * 1000.0f,
+				dbEntries);
 		}
 
 		return ok;
@@ -173,7 +180,7 @@ extern "C" {
 		PLUGIN_AUTHOR,
 		"n/a",
 		SKSEPluginVersionData::kVersionIndependent_AddressLibraryPostAE,
-		{ RUNTIME_VERSION_1_6_318, 0 },
+		{ RUNTIME_VERSION_1_6_318, RUNTIME_VERSION_1_6_323, 0 },
 		0,
 	};
 };
