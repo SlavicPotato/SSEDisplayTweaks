@@ -405,32 +405,47 @@ namespace SDT
 
 		if (m_gv.fPCDialogueLookStart)
 		{
-			bool result;
+			struct DialogueLookSmooth :
+				JITASM::JITASM
+			{
+				DialogueLookSmooth(
+					std::uintptr_t a_targetAddr) :
+					JITASM(ISKSE::GetLocalTrampoline())
+				{
+					Xbyak::Label retnLabel;
+					Xbyak::Label callLabel;
 
-			if (IAL::IsAE())
-			{
-				result = Hook::Call5(
-					ISKSE::GetBranchTrampoline(),
-					PlayerControls_InputEvent_ProcessEvent + 0x668,
-					std::uintptr_t(PlayerControls_InputEvent_ProcessEvent_Edge_Hook),
-					PlayerControls_InputEvent_ProcessEvent_Edge_o);
-			}
-			else
-			{
-				result = Hook::Call5(
-					ISKSE::GetBranchTrampoline(),
-					PlayerControls_InputEvent_ProcessEvent + 0x1EE,
-					std::uintptr_t(PlayerControls_InputEvent_ProcessEvent_Edge_Hook),
-					PlayerControls_InputEvent_ProcessEvent_Edge_o);
-			}
+					if (IAL::IsAE())
+					{
+						movss(dword[rdi + 0x4], xmm1);
+						mov(rcx, rbp);
+					}
+					else
+					{
+						movss(dword[rbx + 0x2C], xmm0);
+						mov(rcx, rbx);
+					}
 
-			if (result)
-			{
-				return;
-			}
+					call(ptr[rip + callLabel]);
+					jmp(ptr[rip + retnLabel]);
+
+					L(retnLabel);
+					dq(a_targetAddr + (IAL::IsAE() ? 0xD9 : 0xD));
+
+					L(callLabel);
+					dq(std::uintptr_t(PlayerControls_InputEvent_ProcessEvent_Edge_Hook));
+				}
+			};
+
+			DialogueLookSmooth code(PlayerControls_InputEvent_ProcessEvent);
+			ISKSE::GetBranchTrampoline().Write5Branch(PlayerControls_InputEvent_ProcessEvent, code.get());
+
+			Message("%s patch done", CKEY_PC_DIALOGUE_LOOK);
 		}
-
-		Error("%s: could not install hook", CKEY_PC_DIALOGUE_LOOK_SE);
+		else
+		{
+			Error("%s GetINISettingAddr failed", CKEY_PC_DIALOGUE_LOOK);
+		}
 	}
 
 	void DControls::Patch_GamepadCursor()
@@ -976,7 +991,7 @@ namespace SDT
 
 	void DControls::PlayerControls_InputEvent_ProcessEvent_Edge_Hook(PlayerControls* a_controls)
 	{
-		m_Instance.PlayerControls_InputEvent_ProcessEvent_Edge_o(a_controls);
+		m_Instance.m_Sub_140707110(a_controls);
 
 		float lookStart = *m_Instance.m_gv.fPCDialogueLookStart;
 		if (lookStart <= 0.0f)
