@@ -41,8 +41,8 @@ namespace SDT
 			bool warn_overstressed;
 		} m_conf;
 
-		inline static auto SetExpressionOverride_lea = IAL::Addr(AID::SetExpressionOverride, 54748, Offsets::SetExpressionOverride_lea, 0x18);
-		inline static auto SetExpressionOverride_cmp = IAL::Addr(AID::SetExpressionOverride, 54748, Offsets::SetExpressionOverride_cmp, 0x28);
+		inline static auto SetExpressionOverride_lea = IAL::Addr(AID::SetExpressionOverride, 54748, Offsets::SetExpressionOverride_lea, 0x1A);
+		inline static auto SetExpressionOverride_cmp = IAL::Addr(AID::SetExpressionOverride, 54748, Offsets::SetExpressionOverride_cmp, 0x2A);
 		inline static auto UpdateBudgetGame = IAL::Addr(AID::ScriptRunGame, 53928, Offsets::ScriptUpdateBudgetGame, 0x90);
 		inline static auto UpdateBudgetUI = IAL::Addr(AID::ScriptRunUI, 53929, Offsets::ScriptUpdateBudgetUI, 0x90);
 
