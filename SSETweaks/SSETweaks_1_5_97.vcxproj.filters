@@ -108,9 +108,6 @@
     <ClInclude Include="drv_ids.h">
       <Filter>Header Files\Drivers</Filter>
     </ClInclude>
-    <ClInclude Include="stats.h">
-      <Filter>Resource Files</Filter>
-    </ClInclude>
     <ClInclude Include="OS\SysCall.h">
       <Filter>Header Files\OS</Filter>
     </ClInclude>

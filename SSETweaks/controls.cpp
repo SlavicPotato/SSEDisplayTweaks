@@ -279,14 +279,42 @@ namespace SDT
 
 	void DControls::Patch_MapKBMovement()
 	{
-		LogPatchBegin(CKEY_MAP_KB_MOVEMENT);
+		if (auto fMapMoveKeyboardSpeed = ISKSE::GetINISettingAddr<float>("fMapMoveKeyboardSpeed:MapMenu"))
+		{
+			LogPatchBegin(CKEY_MAP_KB_MOVEMENT);
 
-		WriteKBMovementPatchDir(MapLookHandler_ProcessButton + (IAL::IsAE() ? OffsetsAE::MapLookHandler_ProcessButton_Up : Offsets::MapLookHandler_ProcessButton_Up), true);
-		WriteKBMovementPatchDir(MapLookHandler_ProcessButton + (IAL::IsAE() ? OffsetsAE::MapLookHandler_ProcessButton_Down : Offsets::MapLookHandler_ProcessButton_Down), true);
-		WriteKBMovementPatchDir(MapLookHandler_ProcessButton + (IAL::IsAE() ? OffsetsAE::MapLookHandler_ProcessButton_Left : Offsets::MapLookHandler_ProcessButton_Left));
-		WriteKBMovementPatchDir(MapLookHandler_ProcessButton + (IAL::IsAE() ? OffsetsAE::MapLookHandler_ProcessButton_Right : Offsets::MapLookHandler_ProcessButton_Right));
+			WriteKBMovementPatchDir(
+				MapLookHandler_ProcessButton + (IAL::IsAE() ?
+                                                    OffsetsAE::MapLookHandler_ProcessButton_Up :
+                                                    Offsets::MapLookHandler_ProcessButton_Up),
+				fMapMoveKeyboardSpeed,
+				true);
 
-		LogPatchEnd(CKEY_MAP_KB_MOVEMENT);
+			WriteKBMovementPatchDir(
+				MapLookHandler_ProcessButton + (IAL::IsAE() ?
+                                                    OffsetsAE::MapLookHandler_ProcessButton_Down :
+                                                    Offsets::MapLookHandler_ProcessButton_Down),
+				fMapMoveKeyboardSpeed,
+				true);
+
+			WriteKBMovementPatchDir(
+				MapLookHandler_ProcessButton + (IAL::IsAE() ?
+                                                    OffsetsAE::MapLookHandler_ProcessButton_Left :
+                                                    Offsets::MapLookHandler_ProcessButton_Left),
+				fMapMoveKeyboardSpeed);
+
+			WriteKBMovementPatchDir(
+				MapLookHandler_ProcessButton + (IAL::IsAE() ?
+                                                    OffsetsAE::MapLookHandler_ProcessButton_Right :
+                                                    Offsets::MapLookHandler_ProcessButton_Right),
+				fMapMoveKeyboardSpeed);
+
+			LogPatchEnd(CKEY_MAP_KB_MOVEMENT);
+		}
+		else
+		{
+			Error("%s could not apply patch", CKEY_MAP_KB_MOVEMENT);
+		}
 	}
 
 	void DControls::Patch_AutoVanityCamera()
@@ -319,7 +347,7 @@ namespace SDT
 					dq(a_targetAddr + 0x8);
 
 					L(timerLabel);
-					dq(std::uintptr_t(Game::g_frameTimer));
+					dq(std::uintptr_t(Game::g_frameTimerSlow));
 
 					L(magicLabel);
 					dd(0x42700000);  // 60.0f
@@ -386,7 +414,9 @@ namespace SDT
 			{
 				auto addr(
 					PlayerControls_InputEvent_ProcessEvent +
-					(IAL::IsAE() ? OffsetsAE::PlayerControls_InputEvent_ProcessEvent_LoadDLSpeed : Offsets::PlayerControls_InputEvent_ProcessEvent_LoadDLSpeed));
+					(IAL::IsAE() ?
+                         OffsetsAE::PlayerControls_InputEvent_ProcessEvent_LoadDLSpeed :
+                         Offsets::PlayerControls_InputEvent_ProcessEvent_LoadDLSpeed));
 
 				DialogueLookSpeedUpdate code(addr, std::uintptr_t(fPCDialogueLookSpeed));
 				ISKSE::GetBranchTrampoline().Write6Branch(addr, code.get());
@@ -437,10 +467,7 @@ namespace SDT
 				}
 			};
 
-			auto addr = IAL::IsAE() ?
-                            PlayerControls_InputEvent_ProcessEvent + 0x58C :
-                            PlayerControls_InputEvent_ProcessEvent + 0x1E6;
-
+			auto addr(PlayerControls_InputEvent_ProcessEvent + (IAL::IsAE() ? 0x58C : 0x1E6));
 			DialogueLookSmooth code(addr);
 			ISKSE::GetBranchTrampoline().Write5Branch(addr, code.get());
 
@@ -627,7 +654,7 @@ namespace SDT
 				dq(a_targetAddr + 0x6);
 
 				L(magicLabel);
-				dd(0x42700000);  // 60.0f
+				dd(0x41a00000);  // 20.0f
 			}
 		};
 
@@ -684,7 +711,7 @@ namespace SDT
 							dq(std::uintptr_t(Game::g_frameTimer));
 
 							L(magicLabel);
-							dd(0x42700000);  // 60.0f
+							dd(0x41a00000);  // 20.0f
 
 							L(fFreeCameraRunSpeedLabel);
 							dq(a_fFreeCameraRunSpeedAddr);
@@ -740,7 +767,7 @@ namespace SDT
 						dq(std::uintptr_t(Game::g_frameTimer));
 
 						L(magicLabel);
-						dd(0x42700000);  // 60.0f
+						dd(0x41a00000);  // 20.0f
 
 						L(fFreeCameraRunSpeedLabel);
 						dq(a_fFreeCameraRunSpeedAddr);
@@ -876,15 +903,17 @@ namespace SDT
 
 	void DControls::Patch_SlowTimeCameraMovement()
 	{
-		LogPatchBegin("SlowTimeCameraMovement");
-
 		if (IAL::IsAE())
 		{
+			LogPatchBegin("SlowTimeCameraMovement");
+
 			replace_st_timer(SlowTimeCameraMovementFix1 + 0x3F);
 			replace_st_timer(SlowTimeCameraMovementFix1 + 0xA1);
 			replace_st_timer(SlowTimeCameraMovementFix1 + 0x1BA);
 			replace_st_timer(SlowTimeCameraMovementFix2 + 0x268);
 			replace_st_timer(SlowTimeCameraMovementFix3 + 0x17);
+
+			LogPatchEnd("SlowTimeCameraMovement");
 		}
 		/*else
 		{
@@ -894,18 +923,18 @@ namespace SDT
 			replace_st_timer(SlowTimeCameraMovementFix2 + 0xBA);
 			replace_st_timer(SlowTimeCameraMovementFix3 + 0x17);
 		}*/
-
-		LogPatchEnd("SlowTimeCameraMovement");
 	}
 
 	void DControls::WriteKBMovementPatchDir(
 		std::uintptr_t a_address,
+		float* a_speedAddr,
 		bool a_isY)
 	{
 		struct MapKeyboardMovementSpeedInject : JITASM::JITASM
 		{
 			MapKeyboardMovementSpeedInject(
 				std::uintptr_t a_targetAddr,
+				const float* a_speedAddr,
 				const float* a_speedMult,
 				bool a_isY) :
 				JITASM(ISKSE::GetLocalTrampoline())
@@ -913,20 +942,25 @@ namespace SDT
 				Xbyak::Label retnLabel;
 				Xbyak::Label timerLabel;
 				Xbyak::Label speedLabel;
+				Xbyak::Label speedMultLabel;
+				Xbyak::Label magicLabel;
+
+				mov(rcx, ptr[rip + speedLabel]);
+				movss(xmm3, ptr[rcx]);
+				mulss(xmm3, ptr[rip + magicLabel]);
+				mulss(xmm3, ptr[rip + speedMultLabel]);
 
 				mov(rcx, ptr[rip + timerLabel]);
 
 				if (a_isY)
 				{
 					movss(xmm2, ptr[rcx]);
-					movss(xmm1, ptr[rip + speedLabel]);
-					mulss(xmm2, xmm1);
+					mulss(xmm2, xmm3);
 				}
 				else
 				{
 					movss(xmm1, ptr[rcx]);
-					movss(xmm2, ptr[rip + speedLabel]);
-					mulss(xmm1, xmm2);
+					mulss(xmm1, xmm3);
 				}
 
 				jmp(ptr[rip + retnLabel]);
@@ -938,12 +972,19 @@ namespace SDT
 				dq(std::uintptr_t(Game::g_frameTimer));
 
 				L(speedLabel);
+				dq(std::uintptr_t(a_speedAddr));
+
+				L(speedMultLabel);
 				db(reinterpret_cast<const Xbyak::uint8*>(a_speedMult), sizeof(float));
+
+				L(magicLabel);
+				dd(0x42700000);  // 60.0f
 			}
 		};
 
 		MapKeyboardMovementSpeedInject code(
 			a_address,
+			a_speedAddr,
 			std::addressof(m_conf.map_kb_movement_speedmult),
 			a_isY);
 

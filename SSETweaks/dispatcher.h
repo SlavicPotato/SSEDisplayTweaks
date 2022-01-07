@@ -1,5 +1,7 @@
 #pragma once
 
+#include <ext/Map.h>
+
 namespace SDT
 {
 	class IDDispatcher :

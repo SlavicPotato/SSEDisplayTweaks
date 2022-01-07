@@ -189,7 +189,7 @@ namespace SDT
 	void DOSD::ConfigParseColors(const std::string& in, XMVECTORF32& out)
 	{
 		std::vector<float> cols;
-		StrHelpers::SplitString<float>(in, ' ', cols);
+		StrHelpers::SplitString(in, ' ', cols);
 		if (cols.size() > 2)
 		{
 			for (int i = 0; i < 3; i++)
@@ -214,7 +214,7 @@ namespace SDT
 	void DOSD::ConfigParseScale(const std::string& in, DirectX::XMFLOAT2A& out)
 	{
 		std::vector<float> scale;
-		StrHelpers::SplitString<float>(in, ' ', scale);
+		StrHelpers::SplitString(in, ' ', scale);
 		if (scale.size() > 0)
 		{
 			if (scale.size() > 1)
@@ -238,7 +238,7 @@ namespace SDT
 	void DOSD::ConfigParseVector2(const std::string& in, DirectX::XMFLOAT2A& out)
 	{
 		std::vector<float> v2;
-		StrHelpers::SplitString<float>(in, ' ', v2);
+		StrHelpers::SplitString(in, ' ', v2);
 		if (v2.size() > 0)
 		{
 			out.x = v2[0];
@@ -251,7 +251,7 @@ namespace SDT
 
 	void DOSD::ConfigGetFlags(const std::string& in, std::uint32_t& out)
 	{
-		out = 0U;
+		out = 0;
 
 		std::vector<std::string> items;
 		StrHelpers::SplitString(in, ',', items);
@@ -346,7 +346,10 @@ namespace SDT
 
 		try
 		{
-			m_font = std::make_unique<SpriteFont>(m_pDevice, reinterpret_cast<std::uint8_t* const>(pData), dSize);
+			m_font = std::make_unique<SpriteFont>(
+				m_pDevice,
+				reinterpret_cast<std::uint8_t* const>(pData),
+				dSize);
 		}
 		catch (const std::exception& e)
 		{

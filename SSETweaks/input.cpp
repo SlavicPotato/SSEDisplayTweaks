@@ -78,12 +78,14 @@ namespace SDT
 		}
 	}
 
-	auto DInput::KeyPressHandler::ReceiveEvent(InputEvent** evns, InputEventDispatcher* dispatcher)
+	auto DInput::KeyPressHandler::ReceiveEvent(
+		InputEvent* const* evns,
+		BSTEventSource<InputEvent*>* dispatcher)
 		-> EventResult
 	{
-		if (!*evns)
+		if (!evns)
 		{
-			return kEvent_Continue;
+			return EventResult::kContinue;
 		}
 
 		for (auto inputEvent = *evns; inputEvent; inputEvent = inputEvent->next)
@@ -116,6 +118,6 @@ namespace SDT
 			}
 		}
 
-		return kEvent_Continue;
+		return EventResult::kContinue;
 	}
 }

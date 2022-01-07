@@ -413,7 +413,7 @@ namespace SDT
 	bool DRender::ConfigParseResolution(const std::string& in, std::int32_t (&a_out)[2])
 	{
 		std::vector<std::int32_t> v2;
-		StrHelpers::SplitString<std::int32_t>(in, 'x', v2);
+		StrHelpers::SplitString(in, 'x', v2);
 
 		if (v2.size() < 2)
 			return false;
@@ -933,7 +933,7 @@ namespace SDT
 		});
 	}
 
-	bool DRender::HandleMenuEvent(MenuEvent a_code, MenuOpenCloseEvent* a_evn)
+	bool DRender::HandleMenuEvent(MenuEvent a_code, const MenuOpenCloseEvent* a_evn)
 	{
 		auto mm = MenuManager::GetSingleton();
 		if (!mm)
@@ -985,7 +985,7 @@ namespace SDT
 		return true;
 	}
 
-	bool DRender::OnMenuEvent(MenuEvent a_code, MenuOpenCloseEvent* a_evn, EventDispatcher<MenuOpenCloseEvent>*)
+	bool DRender::OnMenuEvent(MenuEvent a_code, const MenuOpenCloseEvent* a_evn, BSTEventSource<MenuOpenCloseEvent>*)
 	{
 		return m_Instance.HandleMenuEvent(a_code, a_evn);
 	}

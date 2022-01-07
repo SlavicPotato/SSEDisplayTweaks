@@ -12,8 +12,8 @@ namespace SDT
 		public ISKSEBase<
 			SKSEInterfaceFlags::kTrampoline |
 				SKSEInterfaceFlags::kMessaging,
-			360ui64,
-			1024ui64>,
+			400ui64,
+			1120ui64>,
 		public ISettingCollection
 	{
 	public:
@@ -40,7 +40,10 @@ namespace SDT
 		virtual const char* GetPluginName() const override;
 		virtual std::uint32_t GetPluginVersion() const override;
 		virtual bool CheckRuntimeVersion(std::uint32_t a_version) const override;
-		virtual bool CheckInterfaceVersion(std::uint32_t a_interfaceID, std::uint32_t a_interfaceVersion, std::uint32_t a_compiledInterfaceVersion) const override;
+		virtual bool CheckInterfaceVersion(
+			std::uint32_t a_interfaceID,
+			std::uint32_t a_interfaceVersion,
+			std::uint32_t a_compiledInterfaceVersion) const override;
 
 		static ISKSE m_Instance;
 	};

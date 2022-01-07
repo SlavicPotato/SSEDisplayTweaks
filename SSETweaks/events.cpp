@@ -89,7 +89,10 @@ namespace SDT
 		auto& skse = ISKSE::GetSingleton();
 
 		auto messagingInterface = skse.GetInterface<SKSEMessagingInterface>();
+
+		m_Instance.Debug("Registering SKSE message listener..");
 		messagingInterface->RegisterListener(skse.GetPluginHandle(), "SKSE", MessageHandler);
+		m_Instance.Debug("OK");
 
 		return true;
 	}
@@ -114,12 +117,19 @@ namespace SDT
 			evtd.m_callback(a_code, a_args);
 	}
 
-	void IEvents::TriggerMenuEventAny(MenuEvent a_code, MenuOpenCloseEvent* a_evn, EventDispatcher<MenuOpenCloseEvent>* a_dispatcher)
+	void IEvents::TriggerMenuEventAny(
+		MenuEvent a_code,
+		const MenuOpenCloseEvent* a_evn,
+		BSTEventSource<MenuOpenCloseEvent>* a_dispatcher)
 	{
 		m_Instance.TriggerMenuEventImpl(MenuEvent::OnAnyMenu, a_code, a_evn, a_dispatcher);
 	}
 
-	void IEvents::TriggerMenuEventImpl(MenuEvent a_triggercode, MenuEvent a_code, MenuOpenCloseEvent* a_evn, EventDispatcher<MenuOpenCloseEvent>* a_dispatcher)
+	void IEvents::TriggerMenuEventImpl(
+		MenuEvent a_triggercode,
+		MenuEvent a_code,
+		const MenuOpenCloseEvent* a_evn,
+		BSTEventSource<MenuOpenCloseEvent>* a_dispatcher)
 	{
 		auto it = m_menu_events.find(a_triggercode);
 		if (it == m_menu_events.end())
@@ -208,7 +218,9 @@ namespace SDT
 		m_mstc_map.try_emplace(customMenu.data, MenuEvent::OnCustomMenu);
 	}
 
-	auto MenuOpenCloseEventHandler::ReceiveEvent(MenuOpenCloseEvent* a_evn, EventDispatcher<MenuOpenCloseEvent>* a_dispatcher)
+	auto MenuOpenCloseEventHandler::ReceiveEvent(
+		const MenuOpenCloseEvent* a_evn,
+		BSTEventSource<MenuOpenCloseEvent>* a_dispatcher)
 		-> EventResult
 	{
 		if (a_evn)
@@ -217,7 +229,7 @@ namespace SDT
 			IEvents::TriggerMenuEventAny(code, a_evn, a_dispatcher);
 		}
 
-		return EventResult::kEvent_Continue;
+		return EventResult::kContinue;
 	}
 
 	MenuEventTrack::MenuEventTrack(const trackSet_t& a_set)

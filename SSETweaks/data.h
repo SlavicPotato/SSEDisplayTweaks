@@ -4,6 +4,8 @@
 
 namespace SDT
 {
+	static inline constexpr std::uint64_t VER_1_6_342 = 0x0001000601560000;
+
 	namespace AID
 	{
 		static inline constexpr unsigned long long DXGIData = 524728;
@@ -252,10 +254,8 @@ namespace SDT
 
 		static inline constexpr std::uintptr_t UnkCoordData = 0x2FC1C10;
 
-		
 		static inline constexpr std::uintptr_t CursorMenu_MenuEventHandler_ProcessThumbstick_Sub140F1A3B0 = 0xF1A3B0;
 		static inline constexpr std::uintptr_t CursorMenu_MenuEventHandler_ProcessThumbstick_MulCS = 0x5A;
-
 
 		static inline constexpr std::uintptr_t LockpickingMenu_ProcessMouseMove = 0x8C70D0;
 		static inline constexpr std::uintptr_t LockpickingMenu_ProcessMouseMove_MulFT = 0x42;

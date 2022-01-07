@@ -34,7 +34,7 @@ namespace SDT
 	void DMisc::ParseLoadscreenRules()
 	{
 		std::vector<std::string> elems;
-		StrHelpers::SplitString(GetConfigValue("LoadScreenBlock", "All"), ',', elems);
+		StrHelpers::SplitString(std::string(GetConfigValue("LoadScreenBlock", "All")), ',', elems);
 
 		std::string kall("All");
 
@@ -56,7 +56,7 @@ namespace SDT
 		}
 
 		elems.clear();
-		StrHelpers::SplitString(GetConfigValue("LoadScreenAllow", ""), ',', elems);
+		StrHelpers::SplitString(std::string(GetConfigValue("LoadScreenAllow", "")), ',', elems);
 
 		for (auto& e : elems)
 		{

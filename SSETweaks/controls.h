@@ -54,7 +54,10 @@ namespace SDT
 		void Patch_VerticalLookSensitivity();
 		void Patch_SlowTimeCameraMovement();
 
-		void WriteKBMovementPatchDir(std::uintptr_t a_address, bool a_isY = false);
+		void WriteKBMovementPatchDir(
+			std::uintptr_t a_address,
+			float* a_speedAddr,
+			bool a_isY = false);
 
 		static void MouseSens_Hook(PlayerControls* a_controls, FirstPersonState* a_fpState);
 		static void MouseSens_AE_Hook(FirstPersonState* a_fpState);

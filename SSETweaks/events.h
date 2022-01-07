@@ -73,7 +73,9 @@ namespace SDT
 		public BSTEventSink<MenuOpenCloseEvent>
 	{
 	public:
-		virtual EventResult ReceiveEvent(MenuOpenCloseEvent* evn, EventDispatcher<MenuOpenCloseEvent>* dispatcher) override;
+		virtual EventResult ReceiveEvent(
+			const MenuOpenCloseEvent* evn,
+			BSTEventSource<MenuOpenCloseEvent>* dispatcher) override;
 
 		static MenuOpenCloseEventHandler* GetSingleton()
 		{
@@ -83,14 +85,15 @@ namespace SDT
 	};
 
 	typedef void (*EventCallback)(Event, void*);
-	typedef bool (*MenuEventCallback)(MenuEvent, MenuOpenCloseEvent*, EventDispatcher<MenuOpenCloseEvent>*);
+	typedef bool (*MenuEventCallback)(MenuEvent, const MenuOpenCloseEvent*, BSTEventSource<MenuOpenCloseEvent>*);
 
-	template <typename E, typename C>
+	template <class E, class C>
 	class EventTriggerDescriptor
 	{
 	public:
 		EventTriggerDescriptor(E m_code, C callback) :
-			m_code(m_code), m_callback(callback)
+			m_code(m_code),
+			m_callback(callback)
 		{}
 
 		E m_code;
@@ -142,9 +145,9 @@ namespace SDT
 		static void RegisterForEvent(Event a_code, EventCallback a_fn);
 		static void RegisterForEvent(MenuEvent a_code, MenuEventCallback a_fn);
 		static void TriggerEvent(Event a_code, void* a_args = nullptr);
-		static void TriggerMenuEventAny(MenuEvent a_code, MenuOpenCloseEvent* a_evn, EventDispatcher<MenuOpenCloseEvent>* a_dispatcher);
+		static void TriggerMenuEventAny(MenuEvent a_code, const MenuOpenCloseEvent* a_evn, BSTEventSource<MenuOpenCloseEvent>* a_dispatcher);
 
-		void TriggerMenuEventImpl(MenuEvent a_triggercode, MenuEvent a_code, MenuOpenCloseEvent* a_evn, EventDispatcher<MenuOpenCloseEvent>* a_dispatcher);
+		void TriggerMenuEventImpl(MenuEvent a_triggercode, MenuEvent a_code, const MenuOpenCloseEvent* a_evn, BSTEventSource<MenuOpenCloseEvent>* a_dispatcher);
 
 		static MenuEvent GetMenuEventCode(const BSFixedString& a_str);
 
@@ -171,8 +174,8 @@ namespace SDT
 
 		PopulateUIStringHolder_t PopulateUIStringHolder_O;
 
-		inline static auto LoadPluginINI_C = IAL::Addr(AID::Init0, 36547, Offsets::LoadPluginINI_C, 0xA71);
-		inline static auto PopulateUIStringHolder_C = IAL::Addr(AID::Init0, 36547, Offsets::PopulateUIStringHolder_C, 0xE85);
+		inline static const auto LoadPluginINI_C = IAL::Addr(AID::Init0, 36547, Offsets::LoadPluginINI_C, IAL::ver() >= VER_1_6_342 ? 0xA91 : 0xA71);
+		inline static const auto PopulateUIStringHolder_C = IAL::Addr(AID::Init0, 36547, Offsets::PopulateUIStringHolder_C, IAL::ver() >= VER_1_6_342 ? 0xEA4 : 0xE85);
 
 		mstcMap_t m_mstc_map;
 

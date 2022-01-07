@@ -60,10 +60,10 @@ namespace SDT
 		public IDriver,
 		IConfig
 	{
-		class KeyPressHandler : public BSTEventSink<InputEvent>
+		class KeyPressHandler : public BSTEventSink<InputEvent*>
 		{
 		public:
-			virtual EventResult ReceiveEvent(InputEvent** evns, InputEventDispatcher* dispatcher) override;
+			virtual EventResult ReceiveEvent(InputEvent* const* evns, BSTEventSource<InputEvent*>* dispatcher) override;
 
 			static KeyPressHandler* GetSingleton()
 			{

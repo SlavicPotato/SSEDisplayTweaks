@@ -52,9 +52,12 @@ namespace SDT
 	{
 		PreProcessDrivers();
 
-		std::sort(m_drivers.begin(), m_drivers.end(), [](const auto& a, const auto& b) {
-			return a->GetPriority() < b->GetPriority();
-		});
+		std::sort(
+			m_drivers.begin(),
+			m_drivers.end(),
+			[](const auto& a, const auto& b) {
+				return a->GetPriority() < b->GetPriority();
+			});
 
 		for (const auto& drv : m_drivers)
 		{
@@ -136,9 +139,9 @@ namespace SDT
 		{
 			ASSERT(drv->GetPriority() > -1);
 
-			auto& e = m_drivermap.try_emplace(drv->GetID(), drv);
+			auto r = m_drivermap.try_emplace(drv->GetID(), drv);
 
-			ASSERT(e.second == true);
+			ASSERT(r.second == true);
 		}
 	}
 }

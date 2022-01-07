@@ -195,8 +195,8 @@ namespace SDT
 		static void MessageHandler(Event m_code, void* args);
 		static void OnConfigLoad(Event m_code, void* args);
 
-		bool HandleMenuEvent(MenuEvent a_code, MenuOpenCloseEvent* a_evn);
-		static bool OnMenuEvent(MenuEvent m_code, MenuOpenCloseEvent* evn, EventDispatcher<MenuOpenCloseEvent>* dispatcher);
+		bool HandleMenuEvent(MenuEvent a_code, const MenuOpenCloseEvent* a_evn);
+		static bool OnMenuEvent(MenuEvent m_code, const MenuOpenCloseEvent* evn, BSTEventSource<MenuOpenCloseEvent>* dispatcher);
 
 		void SetFPSLimitOverride(long long max, bool disable_vsync);
 		void SetFPSLimitPost(long long a_max, long long a_expire);
@@ -258,11 +258,11 @@ namespace SDT
 		inline static auto Present_Flags_Inject = IAL::Addr(AID::Present, 77246, Offsets ::Present_Flags_Inject, 0x8E);
 		inline static auto presentAddr = IAL::Addr(AID::Present, 77246, Offsets::Present, 0x9F);
 
-		inline static auto bFullscreen_Patch = IAL::Addr(AID::Init0, 36547, Offsets::bFullscreen_Patch, 0xCB0);
-		inline static auto bBorderless_Patch = IAL::Addr(AID::Init0, 36547, Offsets ::bBorderless_Patch, 0xCBB);
-		inline static auto iSizeW_Patch = IAL::Addr(AID::Init0, 36547, Offsets ::iSizeW_Patch, 0xCC6);
-		inline static auto iSizeH_Patch = IAL::Addr(AID::Init0, 36547, Offsets ::iSizeH_Patch, 0xCD0);
-		inline static auto DisplayRefreshRate = IAL::Addr(AID::Init0, 36547, Offsets ::DisplayRefreshRate, 0xCEE);
+		inline static auto bFullscreen_Patch = IAL::Addr(AID::Init0, 36547, Offsets::bFullscreen_Patch, IAL::ver() >= VER_1_6_342 ? 0xCCF : 0xCB0);
+		inline static auto bBorderless_Patch = IAL::Addr(AID::Init0, 36547, Offsets ::bBorderless_Patch, IAL::ver() >= VER_1_6_342 ? 0xCDA : 0xCBB);
+		inline static auto iSizeW_Patch = IAL::Addr(AID::Init0, 36547, Offsets ::iSizeW_Patch, IAL::ver() >= VER_1_6_342 ? 0xCE5 : 0xCC6);
+		inline static auto iSizeH_Patch = IAL::Addr(AID::Init0, 36547, Offsets ::iSizeH_Patch, IAL::ver() >= VER_1_6_342 ? 0xCEF : 0xCD0);
+		inline static auto DisplayRefreshRate = IAL::Addr(AID::Init0, 36547, Offsets ::DisplayRefreshRate, IAL::ver() >= VER_1_6_342 ? 0xD0D : 0xCEE);
 
 		//inline static auto DXGIData = IAL::Addr<Structures::IDXGIData**>(AID::DXGIData);
 
