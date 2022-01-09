@@ -483,46 +483,9 @@ namespace SDT
 	{
 		if (IAL::IsAE())
 		{
-			struct GamepadCursorSpeed : JITASM::JITASM
-			{
-				GamepadCursorSpeed(
-					std::uintptr_t a_targetAddr) :
-					JITASM(ISKSE::GetLocalTrampoline())
-				{
-					Xbyak::Label retnLabel;
-					Xbyak::Label timerLabel;
-					Xbyak::Label magicLabel;
-
-					mulss(xmm0, dword[rcx + 0x1C]);
-					mulss(xmm0, dword[rip + magicLabel]);
-					mov(rax, ptr[rip + timerLabel]);
-					mulss(xmm0, dword[rax]);
-					jmp(ptr[rip + retnLabel]);
-
-					L(retnLabel);
-					dq(a_targetAddr + 0x5);
-
-					L(timerLabel);
-					dq(std::uintptr_t(Game::g_frameTimer));
-
-					L(magicLabel);
-					dd(0x42700000);  // 60.0f
-				}
-			};
-
-			LogPatchBegin(CKEY_GP_CURSOR);
-			{
-				auto addr(
-					CursorMenu_MenuEventHandler_ProcessThumbstick +
-					OffsetsAE::CursorMenu_MenuEventHandler_ProcessThumbstick_MulCS);
-
-				GamepadCursorSpeed code(addr);
-				ISKSE::GetBranchTrampoline().Write5Branch(addr, code.get());
-			}
-			LogPatchEnd(CKEY_GP_CURSOR);
+			replace_st_timer(CursorMenu_MenuEventHandler_ProcessThumbstick + 0x49);
 		}
 		else
-
 		{
 			struct GamepadCursorSpeed : JITASM::JITASM
 			{
