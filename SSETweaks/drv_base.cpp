@@ -22,14 +22,16 @@ namespace SDT
 
 		if (IsOK())
 		{
-			if (InstallHooks())
-			{  // can't softfail atm
-				Patch();
-			}
-			else
-			{
-				SetOK(false);
-			}
+			Patch();
+
+			//if (InstallHooks())
+			//{  // can't softfail atm
+			//	Patch();
+			//}
+			//else
+			//{
+			//	SetOK(false);
+			//}
 		}
 
 		m_Initialized = true;
@@ -37,7 +39,7 @@ namespace SDT
 		return true;
 	};
 
-	void IHook::RegisterHook(std::uintptr_t target, std::uintptr_t hook)
+	/*void IHook::RegisterHook(std::uintptr_t target, std::uintptr_t hook)
 	{
 		m_hooks.emplace_back(target, hook, HookDescriptor::HookType::kWR5Call);
 	}
@@ -85,5 +87,5 @@ namespace SDT
 		Debug("%u hook(s) installed", c);
 
 		return true;
-	}
+	}*/
 }

@@ -2,7 +2,7 @@
 
 namespace SDT
 {
-	static constexpr const char* CONF_SECT_MAIN = "Main";
+	static constexpr const char* CONF_SECT_MAIN        = "Main";
 	static constexpr const char* CONF_MAIN_KEY_LOGGING = "LogLevel";
 
 	class Initializer :
@@ -43,7 +43,7 @@ namespace SDT
 			if (result == 0)
 			{
 				auto usageBranch = skse.GetTrampolineUsage(TrampolineID::kBranch);
-				auto usageLocal = skse.GetTrampolineUsage(TrampolineID::kLocal);
+				auto usageLocal  = skse.GetTrampolineUsage(TrampolineID::kLocal);
 
 				gLog.Debug(
 					"[Trampoline] branch: %zu/%zu, codegen: %zu/%u",
@@ -94,7 +94,7 @@ extern "C" {
 		if (IAL::IsAE())
 		{
 			iskse.SetPluginHandle(skse->GetPluginHandle());
-			iskse.OpenLog();
+			iskse.OpenLog(skse->runtimeVersion);
 		}
 
 		ASSERT(iskse.ModuleHandle() != nullptr);
@@ -118,14 +118,15 @@ extern "C" {
 
 		if (IAL::HasBadQuery())
 		{
-			WinApi::MessageBoxErrorLog(
+			WinApi::MessageBoxErrorFmtLog(
 				PLUGIN_NAME,
-				"One or more addresses could not be retrieved from the address library");
+				"One or more addresses could not be retrieved from the address library\n\nLast bad ID: '%llu'",
+				IAL::GetLastBadQueryID());
 			return false;
 		}
 
-		PerfTimer timer;
-		timer.Start();
+		/*PerfTimer timer;
+		timer.Start();*/
 
 		bool ok(false);
 
@@ -139,13 +140,13 @@ extern "C" {
 			WinApi::MessageBoxError(
 				PLUGIN_NAME,
 				"An unrecoverable error has occured during plugin initialization. "
-				"Some patches were already applied."
+				"Some patches have already been applied.\n"
 				"The game process will be terminated for safety reasons.\n\n"
 				"See the log for more info.");
 			std::_Exit(1);
 		}
 
-		auto tInit = timer.Stop();
+		/*auto tInit = timer.Stop();
 
 		auto dbEntries = IAL::Size();
 
@@ -164,7 +165,9 @@ extern "C" {
 				tInit * 1000.0f,
 				tUnload * 1000.0f,
 				dbEntries);
-		}
+		}*/
+
+		IAL::Release();
 
 		return ok;
 	}
@@ -179,6 +182,7 @@ extern "C" {
 		PLUGIN_NAME,
 		PLUGIN_AUTHOR,
 		"n/a",
+		SKSEPluginVersionData::kVersionIndependentEx_NoStructUse,
 		SKSEPluginVersionData::kVersionIndependent_AddressLibraryPostAE,
 		{ RUNTIME_VERSION_1_6_318, RUNTIME_VERSION_1_6_323, 0 },
 		0,
@@ -187,8 +191,8 @@ extern "C" {
 
 BOOL APIENTRY DllMain(
 	HMODULE hModule,
-	DWORD ul_reason_for_call,
-	LPVOID lpReserved)
+	DWORD   ul_reason_for_call,
+	LPVOID  lpReserved)
 {
 	switch (ul_reason_for_call)
 	{

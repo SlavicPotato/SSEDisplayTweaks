@@ -2,41 +2,41 @@
 
 namespace SDT
 {
-	static constexpr const char* CKEY_DAMPINGFIX = "ThirdPersonMovementFix";
-	static constexpr const char* CKEY_DAMPINGFIX1 = "ThirdPersonMovementFix1";
-	static constexpr const char* CKEY_DAMPINGFIX2 = "ThirdPersonMovementFix2";
-	static constexpr const char* CKEY_TCPFTHRESH = "MovementThreshold";
-	static constexpr const char* CKEY_FSHS = "SittingHorizontalLookSensitivityFix";
-	static constexpr const char* CKEY_MAP_KB_MOVEMENT = "MapMoveKeyboardSpeedFix";
+	static constexpr const char* CKEY_DAMPINGFIX            = "ThirdPersonMovementFix";
+	static constexpr const char* CKEY_DAMPINGFIX1           = "ThirdPersonMovementFix1";
+	static constexpr const char* CKEY_DAMPINGFIX2           = "ThirdPersonMovementFix2";
+	static constexpr const char* CKEY_TCPFTHRESH            = "MovementThreshold";
+	static constexpr const char* CKEY_FSHS                  = "SittingHorizontalLookSensitivityFix";
+	static constexpr const char* CKEY_MAP_KB_MOVEMENT       = "MapMoveKeyboardSpeedFix";
 	static constexpr const char* CKEY_MAP_KB_MOVEMENT_SPEED = "MapMoveKeyboardSpeedMult";
-	static constexpr const char* CKEY_AUTO_VANITY_CAMERA = "AutoVanityCameraSpeedFix";
-	static constexpr const char* CKEY_PC_DIALOGUE_LOOK = "DialogueLookSpeedFix";
-	static constexpr const char* CKEY_PC_DIALOGUE_LOOK_SE = "DialogueLookSmoothEdge";
-	static constexpr const char* CKEY_GP_CURSOR = "GamepadCursorSpeedFix";
-	static constexpr const char* CKEY_LOCKPICK_ROTATION = "LockpickRotationSpeedFix";
-	static constexpr const char* CKEY_FREECAM_VERTICALSENS = "FreeCameraVerticalSensitivityFix";
-	static constexpr const char* CKEY_FREECAM_TRANSLATION = "FreeCameraMovementSpeedFix";
-	static constexpr const char* CKEY_VERTICAL_LOOK_SENS = "VerticalLookSensitivityFix";
-	static constexpr const char* CKEY_SLOT_TIME_CAM = "SlowTimeCameraMovementFix";
+	static constexpr const char* CKEY_AUTO_VANITY_CAMERA    = "AutoVanityCameraSpeedFix";
+	static constexpr const char* CKEY_PC_DIALOGUE_LOOK      = "DialogueLookSpeedFix";
+	static constexpr const char* CKEY_PC_DIALOGUE_LOOK_SE   = "DialogueLookSmoothEdge";
+	static constexpr const char* CKEY_GP_CURSOR             = "GamepadCursorSpeedFix";
+	static constexpr const char* CKEY_LOCKPICK_ROTATION     = "LockpickRotationSpeedFix";
+	static constexpr const char* CKEY_FREECAM_VERTICALSENS  = "FreeCameraVerticalSensitivityFix";
+	static constexpr const char* CKEY_FREECAM_TRANSLATION   = "FreeCameraMovementSpeedFix";
+	static constexpr const char* CKEY_VERTICAL_LOOK_SENS    = "VerticalLookSensitivityFix";
+	static constexpr const char* CKEY_SLOT_TIME_CAM         = "SlowTimeCameraMovementFix";
 
 	DControls DControls::m_Instance;
 
 	void DControls::LoadConfig()
 	{
-		m_conf.damping_fix = GetConfigValue(CKEY_DAMPINGFIX, true);
-		m_conf.tcpf_threshold = std::clamp(GetConfigValue(CKEY_TCPFTHRESH, 0.25f), 0.01f, 5.0f);
-		m_conf.fp_mount_horiz_sens = GetConfigValue(CKEY_FSHS, true);
-		m_conf.map_kb_movement = GetConfigValue(CKEY_MAP_KB_MOVEMENT, true);
+		m_conf.damping_fix               = GetConfigValue(CKEY_DAMPINGFIX, true);
+		m_conf.tcpf_threshold            = std::clamp(GetConfigValue(CKEY_TCPFTHRESH, 0.25f), 0.01f, 5.0f);
+		m_conf.fp_mount_horiz_sens       = GetConfigValue(CKEY_FSHS, true);
+		m_conf.map_kb_movement           = GetConfigValue(CKEY_MAP_KB_MOVEMENT, true);
 		m_conf.map_kb_movement_speedmult = std::clamp(GetConfigValue(CKEY_MAP_KB_MOVEMENT_SPEED, 1.0f), -20.0f, 20.0f);
-		m_conf.auto_vanity_camera = GetConfigValue(CKEY_AUTO_VANITY_CAMERA, true);
-		m_conf.dialogue_look = GetConfigValue(CKEY_PC_DIALOGUE_LOOK, true);
-		m_conf.dialogue_look_se = GetConfigValue(CKEY_PC_DIALOGUE_LOOK_SE, false);
-		m_conf.gamepad_cursor_speed = GetConfigValue(CKEY_GP_CURSOR, true);
-		m_conf.lockpick_rotation = GetConfigValue(CKEY_LOCKPICK_ROTATION, true);
-		m_conf.freecam_verticalsens = GetConfigValue(CKEY_FREECAM_VERTICALSENS, true);
-		m_conf.freecam_translation = GetConfigValue(CKEY_FREECAM_TRANSLATION, true);
-		m_conf.vertical_look_sens = GetConfigValue(CKEY_VERTICAL_LOOK_SENS, true);
-		m_conf.slow_time_cam = GetConfigValue(CKEY_SLOT_TIME_CAM, true);
+		m_conf.auto_vanity_camera        = GetConfigValue(CKEY_AUTO_VANITY_CAMERA, true);
+		m_conf.dialogue_look             = GetConfigValue(CKEY_PC_DIALOGUE_LOOK, true);
+		m_conf.dialogue_look_se          = GetConfigValue(CKEY_PC_DIALOGUE_LOOK_SE, false);
+		m_conf.gamepad_cursor_speed      = GetConfigValue(CKEY_GP_CURSOR, true);
+		m_conf.lockpick_rotation         = GetConfigValue(CKEY_LOCKPICK_ROTATION, true);
+		m_conf.freecam_verticalsens      = GetConfigValue(CKEY_FREECAM_VERTICALSENS, true);
+		m_conf.freecam_translation       = GetConfigValue(CKEY_FREECAM_TRANSLATION, true);
+		m_conf.vertical_look_sens        = GetConfigValue(CKEY_VERTICAL_LOOK_SENS, true);
+		m_conf.slow_time_cam             = GetConfigValue(CKEY_SLOT_TIME_CAM, true);
 	}
 
 	void DControls::PostLoadConfig()
@@ -54,6 +54,33 @@ namespace SDT
 		{
 			Patch_SlowTimeCameraMovement();
 		}
+	}
+
+	void DControls::OnGameConfigLoaded()
+	{
+		m_gv.fMouseHeadingXScale = ISKSE::GetINISettingAddr<float>("fMouseHeadingXScale:Controls");
+		ASSERT(m_gv.fMouseHeadingXScale);
+
+		m_gv.fMouseHeadingSensitivity = ISKSE::GetINIPrefSettingAddr<float>("fMouseHeadingSensitivity:Controls");
+		ASSERT(m_gv.fMouseHeadingSensitivity);
+
+		m_gv.fPCDialogueLookStart = ISKSE::GetINISettingAddr<float>("fPCDialogueLookStart:Controls");
+		ASSERT(m_gv.fPCDialogueLookStart);
+
+		m_gv.fMapMoveKeyboardSpeed = ISKSE::GetINISettingAddr<float>("fMapMoveKeyboardSpeed:MapMenu");
+		ASSERT(m_gv.fMapMoveKeyboardSpeed);
+
+		m_gv.fAutoVanityIncrement = ISKSE::GetINISettingAddr<float>("fAutoVanityIncrement:Camera");
+		ASSERT(m_gv.fAutoVanityIncrement);
+
+		m_gv.fPCDialogueLookSpeed = ISKSE::GetINISettingAddr<float>("fPCDialogueLookSpeed:Controls");
+		ASSERT(m_gv.fPCDialogueLookSpeed);
+
+		m_gv.fFreeCameraRunSpeed = ISKSE::GetINISettingAddr<float>("fFreeCameraRunSpeed:Camera");
+		ASSERT(m_gv.fFreeCameraRunSpeed);
+
+		m_gv.fFreeCameraTranslationSpeed = ISKSE::GetINISettingAddr<float>("fFreeCameraTranslationSpeed:Camera");
+		ASSERT(m_gv.fFreeCameraTranslationSpeed);
 	}
 
 	void DControls::Patch()
@@ -118,7 +145,7 @@ namespace SDT
 	{
 		if (m_conf.map_kb_movement)
 		{
-			if (!Hook::Call5(
+			if (!hook::call5(
 					ISKSE::GetBranchTrampoline(),
 					MapLookHandler_ProcessButton + (IAL::IsAE() ? OffsetsAE::MapLookHandler_ProcessButton_Add : Offsets::MapLookHandler_ProcessButton_Add),
 					std::uintptr_t(AddMapCameraPos_Hook),
@@ -206,277 +233,231 @@ namespace SDT
 
 	void DControls::Patch_FPMountHorizontalSens()
 	{
-		m_gv.fMouseHeadingXScale = ISKSE::GetINISettingAddr<float>("fMouseHeadingXScale:Controls");
-		m_gv.fMouseHeadingSensitivity = ISKSE::GetINIPrefSettingAddr<float>("fMouseHeadingSensitivity:Controls");
-
-		if (m_gv.fMouseHeadingXScale && m_gv.fMouseHeadingSensitivity)
+		if (IAL::IsAE())
 		{
-			if (IAL::IsAE())
+			struct FirstPersonSitHorizontal : JITASM::JITASM
 			{
-				struct FirstPersonSitHorizontal : JITASM::JITASM
-				{
-					FirstPersonSitHorizontal(std::uintptr_t retnAddr, std::uintptr_t callAddr) :
-						JITASM(ISKSE::GetLocalTrampoline())
-					{
-						Xbyak::Label retnLabel;
-						Xbyak::Label callLabel;
-
-						mov(rcx, rsi);  // FirstPersonState
-						call(ptr[rip + callLabel]);
-						jmp(ptr[rip + retnLabel]);
-
-						L(retnLabel);
-						dq(retnAddr);
-
-						L(callLabel);
-						dq(callAddr);
-					}
-				};
-
-				LogPatchBegin(CKEY_FSHS);
-				{
-					FirstPersonSitHorizontal code(FMHS_Inject + 0x1E, std::uintptr_t(MouseSens_AE_Hook));
-					ISKSE::GetBranchTrampoline().Write6Branch(FMHS_Inject, code.get());
-				}
-				LogPatchEnd(CKEY_FSHS);
-			}
-			else
-			{
-				struct FirstPersonSitHorizontal : JITASM::JITASM
-				{
-					FirstPersonSitHorizontal(std::uintptr_t retnAddr, std::uintptr_t callAddr) :
-						JITASM(ISKSE::GetLocalTrampoline())
-					{
-						Xbyak::Label retnLabel;
-						Xbyak::Label callLabel;
-
-						mov(rcx, rax);  // PlayerControls
-						mov(rdx, rbx);  // FirstPersonState
-						call(ptr[rip + callLabel]);
-						jmp(ptr[rip + retnLabel]);
-
-						L(retnLabel);
-						dq(retnAddr);
-
-						L(callLabel);
-						dq(callAddr);
-					}
-				};
-
-				LogPatchBegin(CKEY_FSHS);
-				{
-					FirstPersonSitHorizontal code(FMHS_Inject + 0x17, std::uintptr_t(MouseSens_Hook));
-					ISKSE::GetBranchTrampoline().Write6Branch(FMHS_Inject, code.get());
-				}
-				LogPatchEnd(CKEY_FSHS);
-			}
-		}
-		else
-		{
-			Error("%s: could not apply patch", CKEY_FSHS);
-		}
-	}
-
-	void DControls::Patch_MapKBMovement()
-	{
-		if (auto fMapMoveKeyboardSpeed = ISKSE::GetINISettingAddr<float>("fMapMoveKeyboardSpeed:MapMenu"))
-		{
-			LogPatchBegin(CKEY_MAP_KB_MOVEMENT);
-
-			WriteKBMovementPatchDir(
-				MapLookHandler_ProcessButton + (IAL::IsAE() ?
-                                                    OffsetsAE::MapLookHandler_ProcessButton_Up :
-                                                    Offsets::MapLookHandler_ProcessButton_Up),
-				fMapMoveKeyboardSpeed,
-				true);
-
-			WriteKBMovementPatchDir(
-				MapLookHandler_ProcessButton + (IAL::IsAE() ?
-                                                    OffsetsAE::MapLookHandler_ProcessButton_Down :
-                                                    Offsets::MapLookHandler_ProcessButton_Down),
-				fMapMoveKeyboardSpeed,
-				true);
-
-			WriteKBMovementPatchDir(
-				MapLookHandler_ProcessButton + (IAL::IsAE() ?
-                                                    OffsetsAE::MapLookHandler_ProcessButton_Left :
-                                                    Offsets::MapLookHandler_ProcessButton_Left),
-				fMapMoveKeyboardSpeed);
-
-			WriteKBMovementPatchDir(
-				MapLookHandler_ProcessButton + (IAL::IsAE() ?
-                                                    OffsetsAE::MapLookHandler_ProcessButton_Right :
-                                                    Offsets::MapLookHandler_ProcessButton_Right),
-				fMapMoveKeyboardSpeed);
-
-			LogPatchEnd(CKEY_MAP_KB_MOVEMENT);
-		}
-		else
-		{
-			Error("%s could not apply patch", CKEY_MAP_KB_MOVEMENT);
-		}
-	}
-
-	void DControls::Patch_AutoVanityCamera()
-	{
-		auto fAutoVanityIncrement = ISKSE::GetINISettingAddr<float>("fAutoVanityIncrement:Camera");
-
-		if (fAutoVanityIncrement)
-		{
-			struct AutoVanityStateUpdate : JITASM::JITASM
-			{
-				AutoVanityStateUpdate(
-					std::uintptr_t a_targetAddr,
-					std::uintptr_t a_fAutoVanityIncrementAddr) :
-					JITASM(ISKSE::GetLocalTrampoline())
-				{
-					Xbyak::Label retnLabel;
-					Xbyak::Label timerLabel;
-					Xbyak::Label magicLabel;
-					Xbyak::Label fAutoVanityIncrementLabel;
-
-					mov(rcx, ptr[rip + fAutoVanityIncrementLabel]);
-					movss(xmm1, dword[rcx]);
-					mulss(xmm1, dword[rip + magicLabel]);
-					mov(rcx, ptr[rip + timerLabel]);
-					mulss(xmm1, dword[rcx]);
-					subss(xmm0, xmm1);
-					jmp(ptr[rip + retnLabel]);
-
-					L(retnLabel);
-					dq(a_targetAddr + 0x8);
-
-					L(timerLabel);
-					dq(std::uintptr_t(Game::g_frameTimerSlow));
-
-					L(magicLabel);
-					dd(0x42700000);  // 60.0f
-
-					L(fAutoVanityIncrementLabel);
-					dq(a_fAutoVanityIncrementAddr);
-				}
-			};
-
-			LogPatchBegin(CKEY_AUTO_VANITY_CAMERA);
-			{
-				auto addr(AutoVanityState_Update + (IAL::IsAE() ? OffsetsAE::AutoVanityState_Update_IncrementAngle : Offsets::AutoVanityState_Update_IncrementAngle));
-				AutoVanityStateUpdate code(addr, std::uintptr_t(fAutoVanityIncrement));
-				ISKSE::GetBranchTrampoline().Write6Branch(addr, code.get());
-			}
-			LogPatchEnd(CKEY_AUTO_VANITY_CAMERA);
-		}
-		else
-		{
-			Error("%s: could not apply patch", CKEY_AUTO_VANITY_CAMERA);
-		}
-	}
-
-	void DControls::Patch_DialogueLook()
-	{
-		auto fPCDialogueLookSpeed = ISKSE::GetINISettingAddr<float>("fPCDialogueLookSpeed:Controls");
-
-		if (fPCDialogueLookSpeed)
-		{
-			struct DialogueLookSpeedUpdate : JITASM::JITASM
-			{
-				DialogueLookSpeedUpdate(
-					std::uintptr_t a_targetAddr,
-					std::uintptr_t a_fPCDialogueLookSpeedAddr) :
-					JITASM(ISKSE::GetLocalTrampoline())
-				{
-					Xbyak::Label retnLabel;
-					Xbyak::Label timerLabel;
-					Xbyak::Label magicLabel;
-					Xbyak::Label fPCDialogueLookSpeedLabel;
-
-					mov(rcx, ptr[rip + fPCDialogueLookSpeedLabel]);
-					movss(xmm1, dword[rcx]);
-					mulss(xmm1, dword[rip + magicLabel]);
-					mov(rcx, ptr[rip + timerLabel]);
-					mulss(xmm1, dword[rcx]);
-					jmp(ptr[rip + retnLabel]);
-
-					L(retnLabel);
-					dq(a_targetAddr + 0x8);
-
-					L(timerLabel);
-					dq(std::uintptr_t(Game::g_frameTimer));
-
-					L(magicLabel);
-					dd(0x42700000);  // 60.0f
-
-					L(fPCDialogueLookSpeedLabel);
-					dq(a_fPCDialogueLookSpeedAddr);
-				}
-			};
-
-			LogPatchBegin(CKEY_PC_DIALOGUE_LOOK);
-			{
-				auto addr(
-					PlayerControls_InputEvent_ProcessEvent +
-					(IAL::IsAE() ?
-                         OffsetsAE::PlayerControls_InputEvent_ProcessEvent_LoadDLSpeed :
-                         Offsets::PlayerControls_InputEvent_ProcessEvent_LoadDLSpeed));
-
-				DialogueLookSpeedUpdate code(addr, std::uintptr_t(fPCDialogueLookSpeed));
-				ISKSE::GetBranchTrampoline().Write6Branch(addr, code.get());
-			}
-			LogPatchEnd(CKEY_PC_DIALOGUE_LOOK);
-		}
-		else
-		{
-			Error("Could not apply patch: %s", CKEY_PC_DIALOGUE_LOOK);
-		}
-	}
-
-	void DControls::Patch_DialogueLook_Edge()
-	{
-		m_gv.fPCDialogueLookStart = ISKSE::GetINISettingAddr<float>("fPCDialogueLookStart:Controls");
-
-		if (m_gv.fPCDialogueLookStart)
-		{
-			struct DialogueLookSmooth :
-				JITASM::JITASM
-			{
-				DialogueLookSmooth(
-					std::uintptr_t a_targetAddr) :
+				FirstPersonSitHorizontal(std::uintptr_t retnAddr, std::uintptr_t callAddr) :
 					JITASM(ISKSE::GetLocalTrampoline())
 				{
 					Xbyak::Label retnLabel;
 					Xbyak::Label callLabel;
 
-					if (IAL::IsAE())
-					{
-						movss(dword[rdi + 0x4], xmm1);
-						mov(rcx, rbp);
-					}
-					else
-					{
-						movss(dword[rbx + 0x2C], xmm0);
-						mov(rcx, rbx);
-					}
-
+					mov(rcx, rsi);  // FirstPersonState
 					call(ptr[rip + callLabel]);
 					jmp(ptr[rip + retnLabel]);
 
 					L(retnLabel);
-					dq(a_targetAddr + (IAL::IsAE() ? 0xD9 : 0xD));
+					dq(retnAddr);
 
 					L(callLabel);
-					dq(std::uintptr_t(PlayerControls_InputEvent_ProcessEvent_Edge_Hook));
+					dq(callAddr);
 				}
 			};
 
-			auto addr(PlayerControls_InputEvent_ProcessEvent + (IAL::IsAE() ? 0x58C : 0x1E6));
-			DialogueLookSmooth code(addr);
-			ISKSE::GetBranchTrampoline().Write5Branch(addr, code.get());
-
-			Message("%s patch done", CKEY_PC_DIALOGUE_LOOK);
+			LogPatchBegin(CKEY_FSHS);
+			{
+				FirstPersonSitHorizontal code(FMHS_Inject + 0x1E, std::uintptr_t(MouseSens_AE_Hook));
+				ISKSE::GetBranchTrampoline().Write6Branch(FMHS_Inject, code.get());
+			}
+			LogPatchEnd(CKEY_FSHS);
 		}
 		else
 		{
-			Error("%s GetINISettingAddr failed", CKEY_PC_DIALOGUE_LOOK);
+			struct FirstPersonSitHorizontal : JITASM::JITASM
+			{
+				FirstPersonSitHorizontal(std::uintptr_t retnAddr, std::uintptr_t callAddr) :
+					JITASM(ISKSE::GetLocalTrampoline())
+				{
+					Xbyak::Label retnLabel;
+					Xbyak::Label callLabel;
+
+					mov(rcx, rax);  // PlayerControls
+					mov(rdx, rbx);  // FirstPersonState
+					call(ptr[rip + callLabel]);
+					jmp(ptr[rip + retnLabel]);
+
+					L(retnLabel);
+					dq(retnAddr);
+
+					L(callLabel);
+					dq(callAddr);
+				}
+			};
+
+			LogPatchBegin(CKEY_FSHS);
+			{
+				FirstPersonSitHorizontal code(FMHS_Inject + 0x17, std::uintptr_t(MouseSens_Hook));
+				ISKSE::GetBranchTrampoline().Write6Branch(FMHS_Inject, code.get());
+			}
+			LogPatchEnd(CKEY_FSHS);
 		}
+	}
+
+	void DControls::Patch_MapKBMovement()
+	{
+		LogPatchBegin(CKEY_MAP_KB_MOVEMENT);
+
+		WriteKBMovementPatchDir(
+			MapLookHandler_ProcessButton + (IAL::IsAE() ?
+		                                        OffsetsAE::MapLookHandler_ProcessButton_Up :
+                                                Offsets::MapLookHandler_ProcessButton_Up),
+			true);
+
+		WriteKBMovementPatchDir(
+			MapLookHandler_ProcessButton + (IAL::IsAE() ?
+		                                        OffsetsAE::MapLookHandler_ProcessButton_Down :
+                                                Offsets::MapLookHandler_ProcessButton_Down),
+			true);
+
+		WriteKBMovementPatchDir(
+			MapLookHandler_ProcessButton + (IAL::IsAE() ?
+		                                        OffsetsAE::MapLookHandler_ProcessButton_Left :
+                                                Offsets::MapLookHandler_ProcessButton_Left));
+
+		WriteKBMovementPatchDir(
+			MapLookHandler_ProcessButton + (IAL::IsAE() ?
+		                                        OffsetsAE::MapLookHandler_ProcessButton_Right :
+                                                Offsets::MapLookHandler_ProcessButton_Right));
+
+		LogPatchEnd(CKEY_MAP_KB_MOVEMENT);
+	}
+
+	void DControls::Patch_AutoVanityCamera()
+	{
+		struct AutoVanityStateUpdate : JITASM::JITASM
+		{
+			AutoVanityStateUpdate(
+				std::uintptr_t a_targetAddr,
+				std::uintptr_t a_fAutoVanityIncrementAddr) :
+				JITASM(ISKSE::GetLocalTrampoline())
+			{
+				Xbyak::Label retnLabel;
+				Xbyak::Label timerLabel;
+				Xbyak::Label magicLabel;
+				Xbyak::Label fAutoVanityIncrementLabel;
+
+				mov(rcx, ptr[rip + fAutoVanityIncrementLabel]);
+				mov(rcx, ptr[rcx]);
+				movss(xmm1, dword[rcx]);
+				mulss(xmm1, dword[rip + magicLabel]);
+				mov(rcx, ptr[rip + timerLabel]);
+				mulss(xmm1, dword[rcx]);
+				subss(xmm0, xmm1);
+				jmp(ptr[rip + retnLabel]);
+
+				L(retnLabel);
+				dq(a_targetAddr + 0x8);
+
+				L(timerLabel);
+				dq(std::uintptr_t(Game::g_frameTimerSlow));
+
+				L(magicLabel);
+				dd(0x42700000);  // 60.0f
+
+				L(fAutoVanityIncrementLabel);
+				dq(a_fAutoVanityIncrementAddr);
+			}
+		};
+
+		LogPatchBegin(CKEY_AUTO_VANITY_CAMERA);
+		{
+			auto                  addr(AutoVanityState_Update + (IAL::IsAE() ? OffsetsAE::AutoVanityState_Update_IncrementAngle : Offsets::AutoVanityState_Update_IncrementAngle));
+			AutoVanityStateUpdate code(addr, std::uintptr_t(std::addressof(m_gv.fAutoVanityIncrement)));
+			ISKSE::GetBranchTrampoline().Write6Branch(addr, code.get());
+		}
+		LogPatchEnd(CKEY_AUTO_VANITY_CAMERA);
+	}
+
+	void DControls::Patch_DialogueLook()
+	{
+		struct DialogueLookSpeedUpdate : JITASM::JITASM
+		{
+			DialogueLookSpeedUpdate(
+				std::uintptr_t a_targetAddr,
+				std::uintptr_t a_fPCDialogueLookSpeedAddr) :
+				JITASM(ISKSE::GetLocalTrampoline())
+			{
+				Xbyak::Label retnLabel;
+				Xbyak::Label timerLabel;
+				Xbyak::Label magicLabel;
+				Xbyak::Label fPCDialogueLookSpeedLabel;
+
+				mov(rcx, ptr[rip + fPCDialogueLookSpeedLabel]);
+				mov(rcx, ptr[rcx]);
+				movss(xmm1, dword[rcx]);
+				mulss(xmm1, dword[rip + magicLabel]);
+				mov(rcx, ptr[rip + timerLabel]);
+				mulss(xmm1, dword[rcx]);
+				jmp(ptr[rip + retnLabel]);
+
+				L(retnLabel);
+				dq(a_targetAddr + 0x8);
+
+				L(timerLabel);
+				dq(std::uintptr_t(Game::g_frameTimer));
+
+				L(magicLabel);
+				dd(0x42700000);  // 60.0f
+
+				L(fPCDialogueLookSpeedLabel);
+				dq(a_fPCDialogueLookSpeedAddr);
+			}
+		};
+
+		LogPatchBegin(CKEY_PC_DIALOGUE_LOOK);
+		{
+			auto addr(
+				PlayerControls_InputEvent_ProcessEvent +
+				(IAL::IsAE() ?
+			         OffsetsAE::PlayerControls_InputEvent_ProcessEvent_LoadDLSpeed :
+                     Offsets::PlayerControls_InputEvent_ProcessEvent_LoadDLSpeed));
+
+			DialogueLookSpeedUpdate code(addr, std::uintptr_t(std::addressof(m_gv.fPCDialogueLookSpeed)));
+			ISKSE::GetBranchTrampoline().Write6Branch(addr, code.get());
+		}
+		LogPatchEnd(CKEY_PC_DIALOGUE_LOOK);
+	}
+
+	void DControls::Patch_DialogueLook_Edge()
+	{
+		struct DialogueLookSmooth :
+			JITASM::JITASM
+		{
+			DialogueLookSmooth(
+				std::uintptr_t a_targetAddr) :
+				JITASM(ISKSE::GetLocalTrampoline())
+			{
+				Xbyak::Label retnLabel;
+				Xbyak::Label callLabel;
+
+				if (IAL::IsAE())
+				{
+					movss(dword[rdi + 0x4], xmm1);
+					mov(rcx, rbp);
+				}
+				else
+				{
+					movss(dword[rbx + 0x2C], xmm0);
+					mov(rcx, rbx);
+				}
+
+				call(ptr[rip + callLabel]);
+				jmp(ptr[rip + retnLabel]);
+
+				L(retnLabel);
+				dq(a_targetAddr + (IAL::IsAE() ? 0xD9 : 0xD));
+
+				L(callLabel);
+				dq(std::uintptr_t(PlayerControls_InputEvent_ProcessEvent_Edge_Hook));
+			}
+		};
+
+		auto               addr(PlayerControls_InputEvent_ProcessEvent + (IAL::IsAE() ? 0x58C : 0x1E6));
+		DialogueLookSmooth code(addr);
+		ISKSE::GetBranchTrampoline().Write5Branch(addr, code.get());
+
+		Message("%s patch done", CKEY_PC_DIALOGUE_LOOK);
 	}
 
 	void DControls::Patch_GamepadCursor()
@@ -556,7 +537,7 @@ namespace SDT
 			auto addr(
 				LockpickingMenu_ProcessMouseMove +
 				(IAL::IsAE() ?
-                     OffsetsAE::LockpickingMenu_ProcessMouseMove_MulFT :
+			         OffsetsAE::LockpickingMenu_ProcessMouseMove_MulFT :
                      Offsets::LockpickingMenu_ProcessMouseMove_MulFT));
 
 			LockpickRotationSpeedMouse code(addr);
@@ -590,7 +571,7 @@ namespace SDT
 
 		LogPatchBegin(CKEY_FREECAM_VERTICALSENS);
 		{
-			auto addr(FreeCameraState_Update + (IAL::IsAE() ? 0x9D : 0x97));
+			auto                          addr(FreeCameraState_Update + (IAL::IsAE() ? 0x9D : 0x97));
 			FreeCameraVerticalSensitivity code(addr);
 			ISKSE::GetBranchTrampoline().Write6Branch(addr, code.get());
 		}
@@ -623,132 +604,121 @@ namespace SDT
 
 		LogPatchBegin("FreeCameraMovementSpeedFix (forward/back)");
 		{
-			auto addr(FreeCameraState_Update + (IAL::IsAE() ? 0x8A : 0x74));
+			auto                              addr(FreeCameraState_Update + (IAL::IsAE() ? 0x8A : 0x74));
 			FreeCameraTranslationSpeedFwdBack code(addr);
 			ISKSE::GetBranchTrampoline().Write6Branch(addr, code.get());
 		}
 		LogPatchEnd("FreeCameraMovementSpeedFix (forward/back)");
 
-		auto fFreeCameraRunSpeed = ISKSE::GetINISettingAddr<float>("fFreeCameraRunSpeed:Camera");
-
-		if (fFreeCameraRunSpeed)
+		if (IAL::IsAE())
 		{
-			if (IAL::IsAE())
+			struct FreeCameraTranslationSpeedUpDown :
+				JITASM::JITASM
 			{
-				auto fFreeCameraTranslationSpeed = ISKSE::GetINISettingAddr<float>("fFreeCameraTranslationSpeed:Camera");
-
-				if (fFreeCameraTranslationSpeed)
+				FreeCameraTranslationSpeedUpDown(
+					std::uintptr_t a_targetAddr,
+					std::uintptr_t a_fFreeCameraTranslationSpeedAddr,
+					std::uintptr_t a_fFreeCameraRunSpeedAddr) :
+					JITASM(ISKSE::GetLocalTrampoline())
 				{
-					struct FreeCameraTranslationSpeedUpDown :
-						JITASM::JITASM
-					{
-						FreeCameraTranslationSpeedUpDown(
-							std::uintptr_t a_targetAddr,
-							std::uintptr_t a_fFreeCameraTranslationSpeedAddr,
-							std::uintptr_t a_fFreeCameraRunSpeedAddr) :
-							JITASM(ISKSE::GetLocalTrampoline())
-						{
-							Xbyak::Label retnLabel;
-							Xbyak::Label timerLabel;
-							Xbyak::Label magicLabel;
-							Xbyak::Label fFreeCameraTranslationSpeedAddr;
-							Xbyak::Label fFreeCameraRunSpeedLabel;
+					Xbyak::Label retnLabel;
+					Xbyak::Label timerLabel;
+					Xbyak::Label magicLabel;
+					Xbyak::Label fFreeCameraTranslationSpeedAddr;
+					Xbyak::Label fFreeCameraRunSpeedLabel;
 
-							Xbyak::Label notRunningLabel;
+					Xbyak::Label notRunningLabel;
 
-							mov(rcx, ptr[rip + fFreeCameraTranslationSpeedAddr]);
-							mulss(xmm6, ptr[rcx]);
-							je(notRunningLabel);
-							mov(rcx, ptr[rip + fFreeCameraRunSpeedLabel]);
-							mulss(xmm6, ptr[rcx]);
-							L(notRunningLabel);
-							mulss(xmm6, dword[rip + magicLabel]);
-							mov(rcx, ptr[rip + timerLabel]);
-							mulss(xmm6, dword[rcx]);
-							jmp(ptr[rip + retnLabel]);
+					mov(rcx, ptr[rip + fFreeCameraTranslationSpeedAddr]);
+					mov(rcx, ptr[rcx]);
+					mulss(xmm6, ptr[rcx]);
+					je(notRunningLabel);
+					mov(rcx, ptr[rip + fFreeCameraRunSpeedLabel]);
+					mov(rcx, ptr[rcx]);
+					mulss(xmm6, ptr[rcx]);
+					L(notRunningLabel);
+					mulss(xmm6, dword[rip + magicLabel]);
+					mov(rcx, ptr[rip + timerLabel]);
+					mulss(xmm6, dword[rcx]);
+					jmp(ptr[rip + retnLabel]);
 
-							L(retnLabel);
-							dq(a_targetAddr + 0xA);
+					L(retnLabel);
+					dq(a_targetAddr + 0xA);
 
-							L(timerLabel);
-							dq(std::uintptr_t(Game::g_frameTimer));
+					L(timerLabel);
+					dq(std::uintptr_t(Game::g_frameTimer));
 
-							L(magicLabel);
-							dd(0x41a00000);  // 20.0f
+					L(magicLabel);
+					dd(0x41a00000);  // 20.0f
 
-							L(fFreeCameraRunSpeedLabel);
-							dq(a_fFreeCameraRunSpeedAddr);
+					L(fFreeCameraRunSpeedLabel);
+					dq(a_fFreeCameraRunSpeedAddr);
 
-							L(fFreeCameraTranslationSpeedAddr);
-							dq(a_fFreeCameraTranslationSpeedAddr);
-						}
-					};
-
-					LogPatchBegin("FreeCameraMovementSpeedFix (up/down)");
-					{
-						auto addr(FreeCameraState_Update + 0x2DC);
-						FreeCameraTranslationSpeedUpDown code(
-							addr,
-							std::uintptr_t(fFreeCameraTranslationSpeed),
-							std::uintptr_t(fFreeCameraRunSpeed));
-						ISKSE::GetBranchTrampoline().Write6Branch(addr, code.get());
-					}
-					LogPatchEnd("FreeCameraMovementSpeedFix (up/down)");
+					L(fFreeCameraTranslationSpeedAddr);
+					dq(a_fFreeCameraTranslationSpeedAddr);
 				}
-			}
-			else
+			};
+
+			LogPatchBegin("FreeCameraMovementSpeedFix (up/down)");
 			{
-				struct FreeCameraTranslationSpeedUpDown :
-					JITASM::JITASM
-				{
-					FreeCameraTranslationSpeedUpDown(
-						std::uintptr_t a_targetAddr,
-						std::uintptr_t a_fFreeCameraRunSpeedAddr) :
-						JITASM(ISKSE::GetLocalTrampoline())
-					{
-						Xbyak::Label retnLabel;
-						Xbyak::Label timerLabel;
-						Xbyak::Label magicLabel;
-						Xbyak::Label fFreeCameraRunSpeedLabel;
-
-						Xbyak::Label notRunningLabel;
-
-						movaps(xmm3, xmm0);
-						je(notRunningLabel);
-						mov(rcx, ptr[rip + fFreeCameraRunSpeedLabel]);
-						mulss(xmm3, ptr[rcx]);
-						L(notRunningLabel);
-						mulss(xmm3, dword[rip + magicLabel]);
-						mov(rcx, ptr[rip + timerLabel]);
-						mulss(xmm3, dword[rcx]);
-						jmp(ptr[rip + retnLabel]);
-
-						L(retnLabel);
-						dq(a_targetAddr + 0x5);
-
-						L(timerLabel);
-						dq(std::uintptr_t(Game::g_frameTimer));
-
-						L(magicLabel);
-						dd(0x41a00000);  // 20.0f
-
-						L(fFreeCameraRunSpeedLabel);
-						dq(a_fFreeCameraRunSpeedAddr);
-					}
-				};
-
-				LogPatchBegin("FreeCameraMovementSpeedFix (up/down)");
-				{
-					auto addr(FreeCameraState_Update + 0x285);
-					FreeCameraTranslationSpeedUpDown code(addr, std::uintptr_t(fFreeCameraRunSpeed));
-					ISKSE::GetBranchTrampoline().Write5Branch(addr, code.get());
-				}
-				LogPatchEnd("FreeCameraMovementSpeedFix (up/down)");
+				auto                             addr(FreeCameraState_Update + 0x2DC);
+				FreeCameraTranslationSpeedUpDown code(
+					addr,
+					std::uintptr_t(std::addressof(m_gv.fFreeCameraTranslationSpeed)),
+					std::uintptr_t(std::addressof(m_gv.fFreeCameraRunSpeed)));
+				ISKSE::GetBranchTrampoline().Write6Branch(addr, code.get());
 			}
+			LogPatchEnd("FreeCameraMovementSpeedFix (up/down)");
 		}
 		else
 		{
-			Error("%s: up/down patch failed", CKEY_FREECAM_TRANSLATION);
+			struct FreeCameraTranslationSpeedUpDown :
+				JITASM::JITASM
+			{
+				FreeCameraTranslationSpeedUpDown(
+					std::uintptr_t a_targetAddr,
+					std::uintptr_t a_fFreeCameraRunSpeedAddr) :
+					JITASM(ISKSE::GetLocalTrampoline())
+				{
+					Xbyak::Label retnLabel;
+					Xbyak::Label timerLabel;
+					Xbyak::Label magicLabel;
+					Xbyak::Label fFreeCameraRunSpeedLabel;
+
+					Xbyak::Label notRunningLabel;
+
+					movaps(xmm3, xmm0);
+					je(notRunningLabel);
+					mov(rcx, ptr[rip + fFreeCameraRunSpeedLabel]);
+					mov(rcx, ptr[rcx]);
+					mulss(xmm3, ptr[rcx]);
+					L(notRunningLabel);
+					mulss(xmm3, dword[rip + magicLabel]);
+					mov(rcx, ptr[rip + timerLabel]);
+					mulss(xmm3, dword[rcx]);
+					jmp(ptr[rip + retnLabel]);
+
+					L(retnLabel);
+					dq(a_targetAddr + 0x5);
+
+					L(timerLabel);
+					dq(std::uintptr_t(Game::g_frameTimer));
+
+					L(magicLabel);
+					dd(0x41a00000);  // 20.0f
+
+					L(fFreeCameraRunSpeedLabel);
+					dq(a_fFreeCameraRunSpeedAddr);
+				}
+			};
+
+			LogPatchBegin("FreeCameraMovementSpeedFix (up/down)");
+			{
+				auto                             addr(FreeCameraState_Update + 0x285);
+				FreeCameraTranslationSpeedUpDown code(addr, std::uintptr_t(std::addressof(m_gv.fFreeCameraRunSpeed)));
+				ISKSE::GetBranchTrampoline().Write5Branch(addr, code.get());
+			}
+			LogPatchEnd("FreeCameraMovementSpeedFix (up/down)");
 		}
 	}
 
@@ -779,7 +749,7 @@ namespace SDT
 
 			LogPatchBegin("VerticalLookSensitivity (ThirdPerson)");
 			{
-				auto addr(VerticalLookSens_ThirdPerson + 0x65);
+				auto     addr(VerticalLookSens_ThirdPerson + 0x65);
 				Assembly code(addr);
 				ISKSE::GetBranchTrampoline().Write6Branch(addr, code.get());
 			}
@@ -787,7 +757,7 @@ namespace SDT
 
 			LogPatchBegin("VerticalLookSensitivity (Dragon)");
 			{
-				auto addr(VerticalLookSens_Dragon + 0x53);
+				auto     addr(VerticalLookSens_Dragon + 0x53);
 				Assembly code(addr);
 				ISKSE::GetBranchTrampoline().Write6Branch(addr, code.get());
 			}
@@ -795,7 +765,7 @@ namespace SDT
 
 			LogPatchBegin("VerticalLookSensitivity (Horse)");
 			{
-				auto addr(VerticalLookSens_Horse + 0x53);
+				auto     addr(VerticalLookSens_Horse + 0x53);
 				Assembly code(addr);
 				ISKSE::GetBranchTrampoline().Write6Branch(addr, code.get());
 			}
@@ -890,16 +860,15 @@ namespace SDT
 
 	void DControls::WriteKBMovementPatchDir(
 		std::uintptr_t a_address,
-		float* a_speedAddr,
-		bool a_isY)
+		bool           a_isY)
 	{
 		struct MapKeyboardMovementSpeedInject : JITASM::JITASM
 		{
 			MapKeyboardMovementSpeedInject(
 				std::uintptr_t a_targetAddr,
-				const float* a_speedAddr,
-				const float* a_speedMult,
-				bool a_isY) :
+				float**        a_speedAddr,
+				const float*   a_speedMult,
+				bool           a_isY) :
 				JITASM(ISKSE::GetLocalTrampoline())
 			{
 				Xbyak::Label retnLabel;
@@ -909,6 +878,7 @@ namespace SDT
 				Xbyak::Label magicLabel;
 
 				mov(rcx, ptr[rip + speedLabel]);
+				mov(rcx, ptr[rcx]);
 				movss(xmm3, ptr[rcx]);
 				mulss(xmm3, ptr[rip + magicLabel]);
 				mulss(xmm3, ptr[rip + speedMultLabel]);
@@ -947,7 +917,7 @@ namespace SDT
 
 		MapKeyboardMovementSpeedInject code(
 			a_address,
-			a_speedAddr,
+			std::addressof(m_gv.fMapMoveKeyboardSpeed),
 			std::addressof(m_conf.map_kb_movement_speedmult),
 			a_isY);
 
@@ -980,9 +950,9 @@ namespace SDT
 
 	void DControls::AddMapCameraPos_Hook(
 		MapCamera* a_camera,
-		float a_x,
-		float a_y,
-		float a_z  // 0
+		float      a_x,
+		float      a_y,
+		float      a_z  // 0
 	)
 	{
 		m_Instance.addCameraPos_o(a_camera, a_x, a_y, a_z);
@@ -1009,59 +979,59 @@ namespace SDT
 
 		auto data = *unkCoordData;
 
-		float pRight = data->bottomRight.x - lookStart;
-		float pLeft = data->topLeft.x + lookStart;
-		float pTop = data->topLeft.y + lookStart;
+		float pRight  = data->bottomRight.x - lookStart;
+		float pLeft   = data->topLeft.x + lookStart;
+		float pTop    = data->topLeft.y + lookStart;
 		float pBottom = data->bottomRight.y - lookStart;
 
-		bool isRight = data->cursorPos.x > pRight;
-		bool isLeft = data->cursorPos.x < pLeft;
-		bool isTop = data->cursorPos.y < pTop;
+		bool isRight  = data->cursorPos.x > pRight;
+		bool isLeft   = data->cursorPos.x < pLeft;
+		bool isTop    = data->cursorPos.y < pTop;
 		bool isBottom = data->cursorPos.y > pBottom;
 
 		float m;
 
 		if (isRight)
 		{
-			m = Math::NormalizeSafeClamp(data->cursorPos.x, pRight, data->bottomRight.x);
+			m = stl::normalize_safe_clamp(data->cursorPos.x, pRight, data->bottomRight.x);
 
 			if (isTop)
 			{
-				auto mb = 1.0f - Math::NormalizeSafeClamp(data->cursorPos.y, data->topLeft.y, pTop);
+				auto mb = 1.0f - stl::normalize_safe_clamp(data->cursorPos.y, data->topLeft.y, pTop);
 				if (mb > m)
 					m = mb;
 			}
 			else if (isBottom)
 			{
-				auto mb = Math::NormalizeSafeClamp(data->cursorPos.y, pBottom, data->bottomRight.y);
+				auto mb = stl::normalize_safe_clamp(data->cursorPos.y, pBottom, data->bottomRight.y);
 				if (mb > m)
 					m = mb;
 			}
 		}
 		else if (isLeft)
 		{
-			m = 1.0f - Math::NormalizeSafeClamp(data->cursorPos.x, data->topLeft.x, pLeft);
+			m = 1.0f - stl::normalize_safe_clamp(data->cursorPos.x, data->topLeft.x, pLeft);
 
 			if (isTop)
 			{
-				auto mb = 1.0f - Math::NormalizeSafeClamp(data->cursorPos.y, data->topLeft.y, pTop);
+				auto mb = 1.0f - stl::normalize_safe_clamp(data->cursorPos.y, data->topLeft.y, pTop);
 				if (mb > m)
 					m = mb;
 			}
 			else if (isBottom)
 			{
-				auto mb = Math::NormalizeSafeClamp(data->cursorPos.y, pBottom, data->bottomRight.y);
+				auto mb = stl::normalize_safe_clamp(data->cursorPos.y, pBottom, data->bottomRight.y);
 				if (mb > m)
 					m = mb;
 			}
 		}
 		else if (isTop)
 		{
-			m = 1.0f - Math::NormalizeSafeClamp(data->cursorPos.y, data->topLeft.y, pTop);
+			m = 1.0f - stl::normalize_safe_clamp(data->cursorPos.y, data->topLeft.y, pTop);
 		}
 		else if (isBottom)
 		{
-			m = Math::NormalizeSafeClamp(data->cursorPos.y, pBottom, data->bottomRight.y);
+			m = stl::normalize_safe_clamp(data->cursorPos.y, pBottom, data->bottomRight.y);
 		}
 		else
 		{

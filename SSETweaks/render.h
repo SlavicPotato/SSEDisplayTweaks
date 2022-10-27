@@ -2,9 +2,9 @@
 
 namespace SDT
 {
-	static constexpr std::uint32_t DXGI_CAP_FLIP_DISCARD = 0x00000001U;
+	static constexpr std::uint32_t DXGI_CAP_FLIP_DISCARD    = 0x00000001U;
 	static constexpr std::uint32_t DXGI_CAP_FLIP_SEQUENTIAL = 0x00000002U;
-	static constexpr std::uint32_t DXGI_CAP_TEARING = 0x00000004U;
+	static constexpr std::uint32_t DXGI_CAP_TEARING         = 0x00000004U;
 
 	static constexpr std::uint32_t DXGI_CAPS_ALL = 0xFFFFFFFFU;
 
@@ -13,14 +13,14 @@ namespace SDT
 		MenuFramerateLimitDescriptor() :
 			enabled(false){};
 		MenuFramerateLimitDescriptor(
-			bool a_disable_vsync,
+			bool      a_disable_vsync,
 			long long a_limit) :
 			enabled(true),
 			disable_vsync(a_disable_vsync),
 			limit(a_limit){};
 
-		bool enabled;
-		bool disable_vsync;
+		bool      enabled;
+		bool      disable_vsync;
 		long long limit;
 	};
 
@@ -39,7 +39,7 @@ namespace SDT
 
 	private:
 		MenuFramerateLimitDescriptor m_limits[stl::underlying(MenuEvent::Max)];
-		bool m_hasLimits;
+		bool                         m_hasLimits;
 	};
 
 	class FramerateLimiter;
@@ -48,11 +48,11 @@ namespace SDT
 		public IDriver,
 		IConfig
 	{
-		typedef stl::iunordered_map<std::string, int, std::allocator<std::pair<const std::string, int>>> SEMap;
-		static SEMap cfgSwapEffectMap;
+		typedef stl::iunordered_map<std::string, int> SEMap;
+		static SEMap                                  cfgSwapEffectMap;
 
-		typedef stl::iunordered_map<std::string, DXGI_MODE_SCALING, std::allocator<std::pair<const std::string, DXGI_MODE_SCALING>>> SMMap;
-		static SMMap cfgScalingModeMap;
+		typedef stl::iunordered_map<std::string, DXGI_MODE_SCALING> SMMap;
+		static SMMap                                                cfgScalingModeMap;
 
 		typedef HRESULT(WINAPI* CreateDXGIFactory_T)(REFIID riid, _COM_Outptr_ void** ppFactory);
 
@@ -66,23 +66,23 @@ namespace SDT
 
 		struct
 		{
-			std::uint8_t fullscreen;
-			std::uint8_t borderless;
-			bool upscale;
-			bool upscale_select_primary_monitor;
-			bool disablebufferresize;
-			bool disabletargetresize;
-			bool vsync_on;
-			std::uint32_t vsync_present_interval;
-			int swap_effect;
+			std::uint8_t      fullscreen;
+			std::uint8_t      borderless;
+			bool              upscale;
+			bool              upscale_select_primary_monitor;
+			bool              disablebufferresize;
+			bool              disabletargetresize;
+			bool              vsync_on;
+			std::uint32_t     vsync_present_interval;
+			int               swap_effect;
 			DXGI_MODE_SCALING scaling_mode;
-			std::int32_t max_rr;
-			std::int32_t buffer_count;
-			std::int32_t max_frame_latency;
-			bool enable_tearing;
-			std::int32_t resolution[2];
-			float resolution_scale;
-			std::uint8_t limit_mode;
+			std::int32_t      max_rr;
+			std::int32_t      buffer_count;
+			std::int32_t      max_frame_latency;
+			bool              enable_tearing;
+			std::int32_t      resolution[2];
+			float             resolution_scale;
+			std::uint8_t      limit_mode;
 
 			struct
 			{
@@ -126,11 +126,7 @@ namespace SDT
 		} m_conf;
 
 		[[nodiscard]] float GetMaxFramerate(const DXGI_SWAP_CHAIN_DESC* pSwapChainDesc) const;
-		[[nodiscard]] bool IsLimiterInstalled() { return limiter_installed; }
-
-		[[nodiscard]] bool QueryVideoMemoryInfo(
-			IDXGISwapChain* a_swapChain,
-			DXGI_QUERY_VIDEO_MEMORY_INFO& a_out) const;
+		[[nodiscard]] bool  IsLimiterInstalled() { return limiter_installed; }
 
 		SKMP_FORCEINLINE void AddPresentCallbackPre(presentCallback_t f)
 		{
@@ -155,47 +151,48 @@ namespace SDT
 		virtual void RegisterHooks() override;
 		virtual bool Prepare() override;
 		virtual void PostInit() override;
+		virtual void OnGameConfigLoaded() override;
 
 		std::uint8_t GetScreenModeSetting(IConfigGame& a_gameConfig, const char* a_key, const char* a_prefkey, bool a_default);
 
 		static DXGI_SWAP_EFFECT GetSwapEffect(int a_code);
-		static const char* GetMenuDescription(MenuEvent a_event);
-		static const char* GetSwapEffectOption(DXGI_SWAP_EFFECT a_swapEffect);
+		static const char*      GetMenuDescription(MenuEvent a_event);
+		static const char*      GetSwapEffectOption(DXGI_SWAP_EFFECT a_swapEffect);
 
 		void UISetLimit(MenuEvent code, float limit, bool disable_vsync);
 
-		bool ConfigTranslateSwapEffect(const std::string& param, int& out) const;
-		bool ConfigTranslateScalingMode(const std::string& param, DXGI_MODE_SCALING& out) const;
+		bool        ConfigTranslateSwapEffect(const std::string& param, int& out) const;
+		bool        ConfigTranslateScalingMode(const std::string& param, DXGI_MODE_SCALING& out) const;
 		static bool ConfigParseResolution(const std::string& in, std::int32_t (&a_out)[2]);
 
-		bool ValidateDisplayMode(const DXGI_SWAP_CHAIN_DESC* pSwapChainDesc) const;
-		UINT GetRefreshRate(const DXGI_SWAP_CHAIN_DESC* pSwapChainDesc) const;
+		bool             ValidateDisplayMode(const DXGI_SWAP_CHAIN_DESC* pSwapChainDesc) const;
+		UINT             GetRefreshRate(const DXGI_SWAP_CHAIN_DESC* pSwapChainDesc) const;
 		DXGI_SWAP_EFFECT AutoGetSwapEffect(const DXGI_SWAP_CHAIN_DESC* pSwapChainDesc) const;
 		DXGI_SWAP_EFFECT ManualGetSwapEffect(const DXGI_SWAP_CHAIN_DESC* pSwapChainDesc);
-		void ApplyD3DSettings(DXGI_SWAP_CHAIN_DESC* pSwapChainDesc);
+		void             ApplyD3DSettings(DXGI_SWAP_CHAIN_DESC* pSwapChainDesc);
 
 		SKMP_FORCEINLINE static long long GetCurrentFramerateLimit();
-		static void Throttle(IDXGISwapChain*);
+		static void                       Throttle(IDXGISwapChain*);
 
-		static void OnD3D11PreCreate(IDXGIAdapter* pAdapter, const DXGI_SWAP_CHAIN_DESC* pSwapChainDesc);
+		void OnD3D11PreCreate(IDXGIAdapter* pAdapter, const DXGI_SWAP_CHAIN_DESC* pSwapChainDesc);
 		//static void OnD3D11PostCreate(const DXGI_SWAP_CHAIN_DESC* pSwapChainDesc, ID3D11Device** ppDevice);
 
 		static HRESULT WINAPI D3D11CreateDeviceAndSwapChain_Hook(_In_opt_ IDXGIAdapter* pAdapter, D3D_DRIVER_TYPE DriverType, HMODULE Software, UINT Flags, _In_reads_opt_(FeatureLevels) CONST D3D_FEATURE_LEVEL* pFeatureLevels, UINT FeatureLevels, UINT SDKVersion, _In_opt_ CONST DXGI_SWAP_CHAIN_DESC* pSwapChainDesc, _COM_Outptr_opt_ IDXGISwapChain** ppSwapChain, _COM_Outptr_opt_ ID3D11Device** ppDevice, _Out_opt_ D3D_FEATURE_LEVEL* pFeatureLevel, _COM_Outptr_opt_ ID3D11DeviceContext** ppImmediateContext);
 
-		static HRESULT WINAPI CreateDXGIFactory_Hook(REFIID riid, _COM_Outptr_ void** ppFactory);
+		static HRESULT WINAPI            CreateDXGIFactory_Hook(REFIID riid, _COM_Outptr_ void** ppFactory);
 		static HRESULT STDMETHODCALLTYPE Present_Hook(
 			IDXGISwapChain4* pSwapChain,
-			UINT SyncInterval,
-			UINT PresentFlags);
+			UINT             SyncInterval,
+			UINT             PresentFlags);
 
 		IDXGIFactory* DXGI_GetFactory() const;
-		void DXGI_GetCapabilities();
-		bool HasWindowedHWCompositionSupport(IDXGIAdapter* adapter) const;
+		void          DXGI_GetCapabilities();
+		bool          HasWindowedHWCompositionSupport(IDXGIAdapter* adapter) const;
 
 		static void MessageHandler(Event m_code, void* args);
 		static void OnConfigLoad(Event m_code, void* args);
 
-		bool HandleMenuEvent(MenuEvent a_code, const MenuOpenCloseEvent* a_evn);
+		bool        HandleMenuEvent(MenuEvent a_code, const MenuOpenCloseEvent* a_evn);
 		static bool OnMenuEvent(MenuEvent m_code, const MenuOpenCloseEvent* evn, BSTEventSource<MenuOpenCloseEvent>* dispatcher);
 
 		void SetFPSLimitOverride(long long max, bool disable_vsync);
@@ -206,19 +203,19 @@ namespace SDT
 		void QueueFPSLimitPost(long long a_max, long long a_expire);
 		void QueueFPSLimitOverrideReset();
 
-		long long tts;
-		int fps_limit;
-		bool has_swap_effect;
-		bool has_scaling_mode;
-		float fmt_max;
-		float fmt_min;
-		long long fps_max;
-		bool tearing_enabled;
-		long long current_fps_max, oo_current_fps_max, oo_expire_time;
-		long long lslExtraTime, lslPostLoadExtraTime;
+		long long    tts;
+		int          fps_limit;
+		bool         has_swap_effect;
+		bool         has_scaling_mode;
+		float        fmt_max;
+		float        fmt_min;
+		long long    fps_max;
+		bool         tearing_enabled;
+		long long    current_fps_max, oo_current_fps_max, oo_expire_time;
+		long long    lslExtraTime, lslPostLoadExtraTime;
 		std::uint8_t gameLoadState;
-		bool has_fl_override;
-		bool limiter_installed;
+		bool         has_fl_override;
+		bool         limiter_installed;
 
 		MenuFramerateLimit m_fl;
 
@@ -237,40 +234,43 @@ namespace SDT
 		UINT m_current_vsync_present_interval;
 		UINT m_present_flags;
 
+		std::int64_t m_originalResW{ 0 };
+		std::int64_t m_originalResH{ 0 };
+
 		struct
 		{
-			std::uint8_t* bLockFramerate;
-			std::int32_t* iFPSClamp;
-			std::int32_t* iSizeW;
-			std::int32_t* iSizeH;
+			std::uint8_t* bLockFramerate{ nullptr };
+			std::int32_t* iFPSClamp{ nullptr };
+			std::int32_t* iSizeW{ nullptr };
+			std::int32_t* iSizeH{ nullptr };
 		} m_gv;
 
 		IDXGIFactory* m_dxgiFactory;
 
 		PFN_D3D11_CREATE_DEVICE_AND_SWAP_CHAIN m_D3D11CreateDeviceAndSwapChain_O;
-		CreateDXGIFactory_T m_createDXGIFactory_O;
+		CreateDXGIFactory_T                    m_createDXGIFactory_O;
 
 		std::vector<presentCallback_t> m_presentCallbacksPre;
 		std::vector<presentCallback_t> m_presentCallbacksPost;
 
-		inline static auto CreateDXGIFactory_C = IAL::Addr(AID::D3D11Create, 77396, Offsets::CreateDXGIFactory_C, 0x25);
+		inline static auto CreateDXGIFactory_C             = IAL::Addr(AID::D3D11Create, 77396, Offsets::CreateDXGIFactory_C, 0x25);
 		inline static auto D3D11CreateDeviceAndSwapChain_C = IAL::Addr(AID::D3D11Create, 77396, Offsets::D3D11CreateDeviceAndSwapChain_C, 0x2C0);
-		inline static auto Present_Flags_Inject = IAL::Addr(AID::Present, 77246, Offsets ::Present_Flags_Inject, 0x8E);
-		inline static auto presentAddr = IAL::Addr(AID::Present, 77246, Offsets::Present, 0x9F);
+		inline static auto Present_Flags_Inject            = IAL::Addr(AID::Present, 77246, Offsets::Present_Flags_Inject, 0x8E);
+		inline static auto presentAddr                     = IAL::Addr(AID::Present, 77246, Offsets::Present, 0x9F);
 
-		inline static auto bFullscreen_Patch = IAL::Addr(AID::Init0, 36547, Offsets::bFullscreen_Patch, IAL::ver() >= VER_1_6_342 ? 0xCCF : 0xCB0);
-		inline static auto bBorderless_Patch = IAL::Addr(AID::Init0, 36547, Offsets ::bBorderless_Patch, IAL::ver() >= VER_1_6_342 ? 0xCDA : 0xCBB);
-		inline static auto iSizeW_Patch = IAL::Addr(AID::Init0, 36547, Offsets ::iSizeW_Patch, IAL::ver() >= VER_1_6_342 ? 0xCE5 : 0xCC6);
-		inline static auto iSizeH_Patch = IAL::Addr(AID::Init0, 36547, Offsets ::iSizeH_Patch, IAL::ver() >= VER_1_6_342 ? 0xCEF : 0xCD0);
-		inline static auto DisplayRefreshRate = IAL::Addr(AID::Init0, 36547, Offsets ::DisplayRefreshRate, IAL::ver() >= VER_1_6_342 ? 0xD0D : 0xCEE);
+		inline static auto bFullscreen_Patch  = IAL::Addr(AID::Init0, 36547, Offsets::bFullscreen_Patch, IAL::ver() >= VER_1_6_342 ? IAL::ver() >= VER_1_6_629 ? 0xCEF : 0xCCF : 0xCB0);
+		inline static auto bBorderless_Patch  = IAL::Addr(AID::Init0, 36547, Offsets::bBorderless_Patch, IAL::ver() >= VER_1_6_342 ? IAL::ver() >= VER_1_6_629 ? 0xCFA : 0xCDA : 0xCBB);
+		inline static auto iSizeW_Patch       = IAL::Addr(AID::Init0, 36547, Offsets::iSizeW_Patch, IAL::ver() >= VER_1_6_342 ? IAL::ver() >= VER_1_6_629 ? 0xD05 : 0xCE5 : 0xCC6);
+		inline static auto iSizeH_Patch       = IAL::Addr(AID::Init0, 36547, Offsets::iSizeH_Patch, IAL::ver() >= VER_1_6_342 ? IAL::ver() >= VER_1_6_629 ? 0xD0F : 0xCEF : 0xCD0);
+		inline static auto DisplayRefreshRate = IAL::Addr(AID::Init0, 36547, Offsets::DisplayRefreshRate, IAL::ver() >= VER_1_6_342 ? IAL::ver() >= VER_1_6_629 ? 0xD2D : 0xD0D : 0xCEE);
 
 		//inline static auto DXGIData = IAL::Addr<Structures::IDXGIData**>(AID::DXGIData);
 
-		inline static auto MaxFrameLatency = IAL::Addr(AID::D3DInit, 77226, Offsets::MaxFrameLatency, 0x2FE);
+		inline static auto MaxFrameLatency      = IAL::Addr(AID::D3DInit, 77226, Offsets::MaxFrameLatency, 0x2FE);
 		inline static auto ResizeBuffers_Inject = IAL::Addr(AID::WindowSwapChainAdjust, 77238, Offsets::ResizeBuffers_Inject, 0x2C4);
 		inline static auto ResizeBuffersDisable = IAL::Addr(AID::WindowSwapChainAdjust, 77238, Offsets ::ResizeBuffersDisable, 0x26);
-		inline static auto ResizeTargetDisable = IAL::Addr(AID::WindowSwapChain2, 77239, Offsets::ResizeTargetDisable, 0x24);
-		inline static auto ResizeTarget = IAL::Addr(AID::WindowSwapChain2, 77239, Offsets::ResizeTarget, 0xF9);
+		inline static auto ResizeTargetDisable  = IAL::Addr(AID::WindowSwapChain2, 77239, Offsets::ResizeTargetDisable, 0x24);
+		inline static auto ResizeTarget         = IAL::Addr(AID::WindowSwapChain2, 77239, Offsets::ResizeTarget, 0xF9);
 
 		struct
 		{
@@ -286,7 +286,7 @@ namespace SDT
 			std::uint32_t caps;
 		} m_dxgi;
 
-		TaskQueue m_afTasks;
+		TaskQueue                         m_afTasks;
 		std::unique_ptr<FramerateLimiter> m_limiter;
 
 		static DRender m_Instance;
@@ -311,10 +311,10 @@ namespace SDT
 	public:
 		D3D11CreateEventPost(
 			CONST DXGI_SWAP_CHAIN_DESC* pSwapChainDesc,
-			ID3D11Device* pDevice,
-			ID3D11DeviceContext* pImmediateContext,
-			IDXGISwapChain* pSwapChain,
-			IDXGIAdapter* pAdapter) :
+			ID3D11Device*               pDevice,
+			ID3D11DeviceContext*        pImmediateContext,
+			IDXGISwapChain*             pSwapChain,
+			IDXGIAdapter*               pAdapter) :
 			D3D11CreateEvent(pSwapChainDesc),
 			m_pDevice(pDevice),
 			m_pImmediateContext(pImmediateContext),
@@ -322,10 +322,10 @@ namespace SDT
 			m_pAdapter(pAdapter)
 		{}
 
-		ID3D11Device* const m_pDevice;
+		ID3D11Device* const        m_pDevice;
 		ID3D11DeviceContext* const m_pImmediateContext;
-		IDXGISwapChain* const m_pSwapChain;
-		IDXGIAdapter* const m_pAdapter;
+		IDXGISwapChain* const      m_pSwapChain;
+		IDXGIAdapter* const        m_pAdapter;
 	};
 
 }

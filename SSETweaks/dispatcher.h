@@ -1,17 +1,16 @@
 #pragma once
 
-#include <ext/Map.h>
-
 namespace SDT
 {
 	class IDDispatcher :
 		ILog
 	{
 	public:
-		static void RegisterDriver(IDriver* const);
-		static bool InitializeDrivers();
-		static bool InitializeDriversPost();
-		static bool DriverOK(DRIVER_ID const id);
+		static void     RegisterDriver(IDriver* const);
+		static bool     InitializeDrivers();
+		static bool     InitializeDriversPost();
+		static void     DriversOnGameConfigLoaded();
+		static bool     DriverOK(DRIVER_ID const id);
 		static IDriver* GetDriver(DRIVER_ID const id);
 
 		template <class T>
@@ -25,8 +24,9 @@ namespace SDT
 		void PreProcessDrivers();
 		bool InitializeDrivers_Impl();
 		bool InitializeDriversPost_Impl();
+		void DriversOnGameConfigLoadedImpl();
 
-		std::vector<IDriver*> m_drivers;
+		std::vector<IDriver*>                   m_drivers;
 		std::unordered_map<DRIVER_ID, IDriver*> m_drivermap;
 
 		static IDDispatcher m_Instance;

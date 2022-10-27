@@ -1,7 +1,5 @@
 #include "pch.h"
 
-#include <Src/PlatformHelpers.h>
-
 #include "Render/FramerateLimiter.h"
 
 using namespace Microsoft::WRL;
@@ -10,60 +8,60 @@ namespace SDT
 {
 	static constexpr const char* SECTION_GENERAL = "General";
 
-	static constexpr const char* CKEY_FULLSCREEN = "Fullscreen";
-	static constexpr const char* CKEY_BORDERLESS = "Borderless";
-	static constexpr const char* CKEY_UPSCALE = "BorderlessUpscale";
+	static constexpr const char* CKEY_FULLSCREEN          = "Fullscreen";
+	static constexpr const char* CKEY_BORDERLESS          = "Borderless";
+	static constexpr const char* CKEY_UPSCALE             = "BorderlessUpscale";
 	static constexpr const char* CKEY_UPSCALE_PRIMARY_MON = "BorderlessUpscaleRelativeToPrimaryMonitor";
 	static constexpr const char* CKEY_DISABLEBUFFERRESIZE = "DisableBufferResizing";
 	static constexpr const char* CKEY_DISABLETARGETRESIZE = "DisableTargetResizing";
-	static constexpr const char* CKEY_VSYNC = "EnableVSync";
-	static constexpr const char* CKEY_VSYNCPRESENTINT = "VSyncPresentInterval";
-	static constexpr const char* CKEY_MAXRR = "MaximumRefreshRate";
-	static constexpr const char* CKEY_BUFFERCOUNT = "SwapBufferCount";
-	static constexpr const char* CKEY_SWAPEFFECT = "SwapEffect";
-	static constexpr const char* CKEY_SCALINGMODE = "ScalingMode";
-	static constexpr const char* CKEY_MAXFRAMELAT = "MaxFrameLatency";
-	static constexpr const char* CKEY_ENABLETEARING = "EnableTearing";
+	static constexpr const char* CKEY_VSYNC               = "EnableVSync";
+	static constexpr const char* CKEY_VSYNCPRESENTINT     = "VSyncPresentInterval";
+	static constexpr const char* CKEY_MAXRR               = "MaximumRefreshRate";
+	static constexpr const char* CKEY_BUFFERCOUNT         = "SwapBufferCount";
+	static constexpr const char* CKEY_SWAPEFFECT          = "SwapEffect";
+	static constexpr const char* CKEY_SCALINGMODE         = "ScalingMode";
+	static constexpr const char* CKEY_MAXFRAMELAT         = "MaxFrameLatency";
+	static constexpr const char* CKEY_ENABLETEARING       = "EnableTearing";
 
-	static constexpr const char* CKEY_FPSLIMIT = "FramerateLimit";
+	static constexpr const char* CKEY_FPSLIMIT      = "FramerateLimit";
 	static constexpr const char* CKEY_FPSLIMIT_MODE = "FramerateLimitMode";
 
-	static constexpr const char* CKEY_LOADSCRFPSLIMIT = "LoadingScreenFramerateLimit";
-	static constexpr const char* CKEY_LOADSCRFPSLIMITEX = "LoadingScreenLimitExtraTime";
+	static constexpr const char* CKEY_LOADSCRFPSLIMIT    = "LoadingScreenFramerateLimit";
+	static constexpr const char* CKEY_LOADSCRFPSLIMITEX  = "LoadingScreenLimitExtraTime";
 	static constexpr const char* CKEY_INITIALLOADLIMITEX = "LoadingScreenLimitExtraTimePostLoad";
-	static constexpr const char* CKEY_UIFPSLIMIT = "UIFramerateLimit";
-	static constexpr const char* CKEY_UIMAPFPSLIMIT = "UIFramerateLimitMap";
-	static constexpr const char* CKEY_UIINVFPSLIMIT = "UIFramerateLimitInventory";
-	static constexpr const char* CKEY_UIJOURFPSLIMIT = "UIFramerateLimitJournal";
-	static constexpr const char* CKEY_UICUSTOMFPSLIMIT = "UIFramerateLimitCustom";
-	static constexpr const char* CKEY_UIMAINFPSLIMIT = "UIFramerateLimitMain";
-	static constexpr const char* CKEY_UIRACEFPSLIMIT = "UIFramerateLimitRace";
-	static constexpr const char* CKEY_UIPERKFPSLIMIT = "UIFramerateLimitPerk";
-	static constexpr const char* CKEY_UIBOOKFPSLIMIT = "UIFramerateLimitBook";
-	static constexpr const char* CKEY_UILOCKFPSLIMIT = "UIFramerateLimitLockpick";
-	static constexpr const char* CKEY_UICONSOLEFPSLIMIT = "UIFramerateLimitConsole";
-	static constexpr const char* CKEY_UITWEENFPSLIMIT = "UIFramerateLimitTween";
-	static constexpr const char* CKEY_UISWFPSLIMIT = "UIFramerateLimitSleepWait";
+	static constexpr const char* CKEY_UIFPSLIMIT         = "UIFramerateLimit";
+	static constexpr const char* CKEY_UIMAPFPSLIMIT      = "UIFramerateLimitMap";
+	static constexpr const char* CKEY_UIINVFPSLIMIT      = "UIFramerateLimitInventory";
+	static constexpr const char* CKEY_UIJOURFPSLIMIT     = "UIFramerateLimitJournal";
+	static constexpr const char* CKEY_UICUSTOMFPSLIMIT   = "UIFramerateLimitCustom";
+	static constexpr const char* CKEY_UIMAINFPSLIMIT     = "UIFramerateLimitMain";
+	static constexpr const char* CKEY_UIRACEFPSLIMIT     = "UIFramerateLimitRace";
+	static constexpr const char* CKEY_UIPERKFPSLIMIT     = "UIFramerateLimitPerk";
+	static constexpr const char* CKEY_UIBOOKFPSLIMIT     = "UIFramerateLimitBook";
+	static constexpr const char* CKEY_UILOCKFPSLIMIT     = "UIFramerateLimitLockpick";
+	static constexpr const char* CKEY_UICONSOLEFPSLIMIT  = "UIFramerateLimitConsole";
+	static constexpr const char* CKEY_UITWEENFPSLIMIT    = "UIFramerateLimitTween";
+	static constexpr const char* CKEY_UISWFPSLIMIT       = "UIFramerateLimitSleepWait";
 
-	static constexpr const char* CKEY_LOADSCRFPSLIMIT_DV = "LoadingScreenFramerateLimitVSyncOff";
-	static constexpr const char* CKEY_UIFPSLIMIT_DV = "UIFramerateLimitVSyncOff";
-	static constexpr const char* CKEY_UIMAPFPSLIMIT_DV = "UIFramerateLimitMapVSyncOff";
-	static constexpr const char* CKEY_UIINVFPSLIMIT_DV = "UIFramerateLimitInventoryVSyncOff";
-	static constexpr const char* CKEY_UIJOURFPSLIMIT_DV = "UIFramerateLimitJournalVSyncOff";
-	static constexpr const char* CKEY_UICUSTOMFPSLIMIT_DV = "UIFramerateLimitCustomVSyncOff";
-	static constexpr const char* CKEY_UIMAINFPSLIMIT_DV = "UIFramerateLimitMainVSyncOff";
-	static constexpr const char* CKEY_UIRACEFPSLIMIT_DV = "UIFramerateLimitRaceVSyncOff";
-	static constexpr const char* CKEY_UIPERKFPSLIMIT_DV = "UIFramerateLimitPerkVSyncOff";
-	static constexpr const char* CKEY_UIBOOKFPSLIMIT_DV = "UIFramerateLimitBookVSyncOff";
-	static constexpr const char* CKEY_UILOCKFPSLIMIT_DV = "UIFramerateLimitLockpickVSyncOff";
+	static constexpr const char* CKEY_LOADSCRFPSLIMIT_DV   = "LoadingScreenFramerateLimitVSyncOff";
+	static constexpr const char* CKEY_UIFPSLIMIT_DV        = "UIFramerateLimitVSyncOff";
+	static constexpr const char* CKEY_UIMAPFPSLIMIT_DV     = "UIFramerateLimitMapVSyncOff";
+	static constexpr const char* CKEY_UIINVFPSLIMIT_DV     = "UIFramerateLimitInventoryVSyncOff";
+	static constexpr const char* CKEY_UIJOURFPSLIMIT_DV    = "UIFramerateLimitJournalVSyncOff";
+	static constexpr const char* CKEY_UICUSTOMFPSLIMIT_DV  = "UIFramerateLimitCustomVSyncOff";
+	static constexpr const char* CKEY_UIMAINFPSLIMIT_DV    = "UIFramerateLimitMainVSyncOff";
+	static constexpr const char* CKEY_UIRACEFPSLIMIT_DV    = "UIFramerateLimitRaceVSyncOff";
+	static constexpr const char* CKEY_UIPERKFPSLIMIT_DV    = "UIFramerateLimitPerkVSyncOff";
+	static constexpr const char* CKEY_UIBOOKFPSLIMIT_DV    = "UIFramerateLimitBookVSyncOff";
+	static constexpr const char* CKEY_UILOCKFPSLIMIT_DV    = "UIFramerateLimitLockpickVSyncOff";
 	static constexpr const char* CKEY_UICONSOLEFPSLIMIT_DV = "UIFramerateLimitConsoleVSyncOff";
-	static constexpr const char* CKEY_UITWEENFPSLIMIT_DV = "UIFramerateLimitTweenVSyncOff";
-	static constexpr const char* CKEY_UISWFPSLIMIT_DV = "UIFramerateLimitSleepWaitVSyncOff";
+	static constexpr const char* CKEY_UITWEENFPSLIMIT_DV   = "UIFramerateLimitTweenVSyncOff";
+	static constexpr const char* CKEY_UISWFPSLIMIT_DV      = "UIFramerateLimitSleepWaitVSyncOff";
 
 	static constexpr const char* CKEY_ADJUSTINICFG = "AdjustGameSettings";
 
 	static constexpr const char* CKEY_RESOLUTON = "Resolution";
-	static constexpr const char* CKEY_RESSCALE = "ResolutionScale";
+	static constexpr const char* CKEY_RESSCALE  = "ResolutionScale";
 
 	using namespace Structures;
 	using namespace Patching;
@@ -275,16 +273,16 @@ namespace SDT
 	           MenuEvent::OnModManagerMenu,
 	           MenuEvent::OnBookMenu })
 	{
-		m_swapchain.flags = 0;
-		m_swapchain.width = 0;
+		m_swapchain.flags  = 0;
+		m_swapchain.width  = 0;
 		m_swapchain.height = 0;
 	}
 
 	std::uint8_t DRender::GetScreenModeSetting(
 		IConfigGame& a_gameConfig,
-		const char* a_key,
-		const char* a_prefkey,
-		bool a_default)
+		const char*  a_key,
+		const char*  a_prefkey,
+		bool         a_default)
 	{
 		if (!HasConfigValue(a_key))
 		{
@@ -304,21 +302,27 @@ namespace SDT
 
 	void DRender::LoadConfig()
 	{
-		IConfigGame gameConfig(SKYRIM_PREFS_INI_FILE);
+		IConfigGame gameConfig(
+			IAL::ver() >= VER_1_6_659 ?
+				SKYRIM_PREFS_INI_FILE_GOG :
+                SKYRIM_PREFS_INI_FILE);
 
-		m_conf.fullscreen = GetScreenModeSetting(gameConfig, CKEY_FULLSCREEN, "bFull Screen", false);
-		m_conf.borderless = GetScreenModeSetting(gameConfig, CKEY_BORDERLESS, "bBorderless", true);
-		m_conf.upscale = GetConfigValue(CKEY_UPSCALE, false);
+		gameConfig.Get("Display", "iSize W", 0i64, m_originalResW);
+		gameConfig.Get("Display", "iSize H", 0i64, m_originalResH);
+
+		m_conf.fullscreen                     = GetScreenModeSetting(gameConfig, CKEY_FULLSCREEN, "bFull Screen", false);
+		m_conf.borderless                     = GetScreenModeSetting(gameConfig, CKEY_BORDERLESS, "bBorderless", true);
+		m_conf.upscale                        = GetConfigValue(CKEY_UPSCALE, false);
 		m_conf.upscale_select_primary_monitor = GetConfigValue(CKEY_UPSCALE_PRIMARY_MON, true);
-		m_conf.disablebufferresize = GetConfigValue(CKEY_DISABLEBUFFERRESIZE, false);
-		m_conf.disabletargetresize = GetConfigValue(CKEY_DISABLETARGETRESIZE, false);
+		m_conf.disablebufferresize            = GetConfigValue(CKEY_DISABLEBUFFERRESIZE, false);
+		m_conf.disabletargetresize            = GetConfigValue(CKEY_DISABLETARGETRESIZE, false);
 
-		m_conf.vsync_on = GetConfigValue(CKEY_VSYNC, true);
+		m_conf.vsync_on               = GetConfigValue(CKEY_VSYNC, true);
 		m_conf.vsync_present_interval = std::clamp<std::uint32_t>(GetConfigValue<std::uint32_t>(CKEY_VSYNCPRESENTINT, 1), 1, 4);
-		m_conf.max_rr = GetConfigValue(CKEY_MAXRR, 0);
-		has_swap_effect = ConfigTranslateSwapEffect(
-			GetConfigValue(CKEY_SWAPEFFECT, "auto"),
-			m_conf.swap_effect);
+		m_conf.max_rr                 = GetConfigValue(CKEY_MAXRR, 0);
+		has_swap_effect               = ConfigTranslateSwapEffect(
+            GetConfigValue(CKEY_SWAPEFFECT, "auto"),
+            m_conf.swap_effect);
 		has_scaling_mode = ConfigTranslateScalingMode(
 			GetConfigValue(CKEY_SCALINGMODE, "default"),
 			m_conf.scaling_mode);
@@ -338,37 +342,37 @@ namespace SDT
 
 		m_conf.limits.game = GetConfigValue(CKEY_FPSLIMIT, -1.0f);
 
-		m_conf.limits.ui = GetConfigValue(CKEY_UIFPSLIMIT, 0.0f);
-		m_conf.limits.ui_map = GetConfigValue(CKEY_UIMAPFPSLIMIT, 0.0f);
-		m_conf.limits.ui_inventory = GetConfigValue(CKEY_UIINVFPSLIMIT, 0.0f);
-		m_conf.limits.ui_journal = GetConfigValue(CKEY_UIJOURFPSLIMIT, 0.0f);
-		m_conf.limits.ui_custom = GetConfigValue(CKEY_UICUSTOMFPSLIMIT, 0.0f);
-		m_conf.limits.ui_main = GetConfigValue(CKEY_UIMAINFPSLIMIT, 0.0f);
-		m_conf.limits.ui_race = GetConfigValue(CKEY_UIRACEFPSLIMIT, 0.0f);
-		m_conf.limits.ui_perk = GetConfigValue(CKEY_UIPERKFPSLIMIT, 0.0f);
-		m_conf.limits.ui_book = GetConfigValue(CKEY_UIBOOKFPSLIMIT, 0.0f);
-		m_conf.limits.ui_lockpick = GetConfigValue(CKEY_UILOCKFPSLIMIT, 0.0f);
+		m_conf.limits.ui            = GetConfigValue(CKEY_UIFPSLIMIT, 0.0f);
+		m_conf.limits.ui_map        = GetConfigValue(CKEY_UIMAPFPSLIMIT, 0.0f);
+		m_conf.limits.ui_inventory  = GetConfigValue(CKEY_UIINVFPSLIMIT, 0.0f);
+		m_conf.limits.ui_journal    = GetConfigValue(CKEY_UIJOURFPSLIMIT, 0.0f);
+		m_conf.limits.ui_custom     = GetConfigValue(CKEY_UICUSTOMFPSLIMIT, 0.0f);
+		m_conf.limits.ui_main       = GetConfigValue(CKEY_UIMAINFPSLIMIT, 0.0f);
+		m_conf.limits.ui_race       = GetConfigValue(CKEY_UIRACEFPSLIMIT, 0.0f);
+		m_conf.limits.ui_perk       = GetConfigValue(CKEY_UIPERKFPSLIMIT, 0.0f);
+		m_conf.limits.ui_book       = GetConfigValue(CKEY_UIBOOKFPSLIMIT, 0.0f);
+		m_conf.limits.ui_lockpick   = GetConfigValue(CKEY_UILOCKFPSLIMIT, 0.0f);
 		m_conf.limits.ui_loadscreen = GetConfigValue(CKEY_LOADSCRFPSLIMIT, 0.0f);
-		m_conf.limits.ui_console = GetConfigValue(CKEY_UICONSOLEFPSLIMIT, 0.0f);
-		m_conf.limits.ui_tween = GetConfigValue(CKEY_UITWEENFPSLIMIT, 0.0f);
-		m_conf.limits.ui_sw = GetConfigValue(CKEY_UISWFPSLIMIT, 0.0f);
+		m_conf.limits.ui_console    = GetConfigValue(CKEY_UICONSOLEFPSLIMIT, 0.0f);
+		m_conf.limits.ui_tween      = GetConfigValue(CKEY_UITWEENFPSLIMIT, 0.0f);
+		m_conf.limits.ui_sw         = GetConfigValue(CKEY_UISWFPSLIMIT, 0.0f);
 
-		m_conf.limits.ui_dv = GetConfigValue(CKEY_UIFPSLIMIT_DV, true);
-		m_conf.limits.ui_map_dv = GetConfigValue(CKEY_UIMAPFPSLIMIT_DV, true);
-		m_conf.limits.ui_inventory_dv = GetConfigValue(CKEY_UIINVFPSLIMIT_DV, true);
-		m_conf.limits.ui_journal_dv = GetConfigValue(CKEY_UIJOURFPSLIMIT_DV, true);
-		m_conf.limits.ui_custom_dv = GetConfigValue(CKEY_UICUSTOMFPSLIMIT_DV, true);
-		m_conf.limits.ui_main_dv = GetConfigValue(CKEY_UIMAINFPSLIMIT_DV, true);
-		m_conf.limits.ui_race_dv = GetConfigValue(CKEY_UIRACEFPSLIMIT_DV, true);
-		m_conf.limits.ui_perk_dv = GetConfigValue(CKEY_UIPERKFPSLIMIT_DV, true);
-		m_conf.limits.ui_book_dv = GetConfigValue(CKEY_UIBOOKFPSLIMIT_DV, true);
-		m_conf.limits.ui_lockpick_dv = GetConfigValue(CKEY_UILOCKFPSLIMIT_DV, true);
+		m_conf.limits.ui_dv            = GetConfigValue(CKEY_UIFPSLIMIT_DV, true);
+		m_conf.limits.ui_map_dv        = GetConfigValue(CKEY_UIMAPFPSLIMIT_DV, true);
+		m_conf.limits.ui_inventory_dv  = GetConfigValue(CKEY_UIINVFPSLIMIT_DV, true);
+		m_conf.limits.ui_journal_dv    = GetConfigValue(CKEY_UIJOURFPSLIMIT_DV, true);
+		m_conf.limits.ui_custom_dv     = GetConfigValue(CKEY_UICUSTOMFPSLIMIT_DV, true);
+		m_conf.limits.ui_main_dv       = GetConfigValue(CKEY_UIMAINFPSLIMIT_DV, true);
+		m_conf.limits.ui_race_dv       = GetConfigValue(CKEY_UIRACEFPSLIMIT_DV, true);
+		m_conf.limits.ui_perk_dv       = GetConfigValue(CKEY_UIPERKFPSLIMIT_DV, true);
+		m_conf.limits.ui_book_dv       = GetConfigValue(CKEY_UIBOOKFPSLIMIT_DV, true);
+		m_conf.limits.ui_lockpick_dv   = GetConfigValue(CKEY_UILOCKFPSLIMIT_DV, true);
 		m_conf.limits.ui_loadscreen_dv = GetConfigValue(CKEY_LOADSCRFPSLIMIT_DV, true);
-		m_conf.limits.ui_console_dv = GetConfigValue(CKEY_UICONSOLEFPSLIMIT_DV, true);
-		m_conf.limits.ui_tween_dv = GetConfigValue(CKEY_UITWEENFPSLIMIT_DV, true);
-		m_conf.limits.ui_sw_dv = GetConfigValue(CKEY_UISWFPSLIMIT_DV, true);
+		m_conf.limits.ui_console_dv    = GetConfigValue(CKEY_UICONSOLEFPSLIMIT_DV, true);
+		m_conf.limits.ui_tween_dv      = GetConfigValue(CKEY_UITWEENFPSLIMIT_DV, true);
+		m_conf.limits.ui_sw_dv         = GetConfigValue(CKEY_UISWFPSLIMIT_DV, true);
 
-		m_conf.limits.ui_loadscreenex = std::clamp<std::int32_t>(GetConfigValue<std::int32_t>(CKEY_LOADSCRFPSLIMITEX, 0), 0, 15);
+		m_conf.limits.ui_loadscreenex  = std::clamp<std::int32_t>(GetConfigValue<std::int32_t>(CKEY_LOADSCRFPSLIMITEX, 0), 0, 15);
 		m_conf.limits.ui_initialloadex = std::clamp<std::int32_t>(GetConfigValue<std::int32_t>(CKEY_INITIALLOADLIMITEX, 4), 0, 30);
 
 		m_conf.adjust_ini = IConfigS(SECTION_GENERAL).GetConfigValue(CKEY_ADJUSTINICFG, true);
@@ -459,7 +463,7 @@ namespace SDT
 		if (m_conf.limits.game > 0.0f)
 		{
 			current_fps_max = fps_max = static_cast<long long>((1.0L / static_cast<long double>(m_conf.limits.game)) * 1000000.0L);
-			fps_limit = 1;
+			fps_limit                 = 1;
 			Message("Framerate limit (game): %.6g", m_conf.limits.game);
 		}
 		else if (m_conf.limits.game == 0.0f)
@@ -605,7 +609,7 @@ namespace SDT
 				Debug("Disabled swap chain target resizing");
 			}
 
-			bool patchRes(false);
+			bool         doPatch = false;
 			std::int32_t w, h;
 
 			if (m_conf.resolution[0] > 0 && m_conf.resolution[1] > 0)
@@ -613,12 +617,12 @@ namespace SDT
 				w = m_conf.resolution[0];
 				h = m_conf.resolution[1];
 
-				patchRes = true;
+				doPatch = true;
 			}
 			else
 			{
-				w = *m_gv.iSizeW;
-				h = *m_gv.iSizeH;
+				w = static_cast<std::int32_t>(m_originalResW);
+				h = static_cast<std::int32_t>(m_originalResH);
 			}
 
 			if (m_conf.resolution_scale > 0.0f)
@@ -626,13 +630,13 @@ namespace SDT
 				w = static_cast<std::int32_t>(static_cast<float>(w) * m_conf.resolution_scale);
 				h = static_cast<std::int32_t>(static_cast<float>(h) * m_conf.resolution_scale);
 
-				patchRes = true;
+				doPatch = true;
 			}
 
-			if (patchRes)
+			if (doPatch)
 			{
-				w = std::max<std::int32_t>(w, 1);
-				h = std::max<std::int32_t>(h, 1);
+				w = std::max<std::int32_t>(w, 32);
+				h = std::max<std::int32_t>(h, 32);
 
 				safe_write(
 					iSizeW_Patch,
@@ -731,7 +735,7 @@ namespace SDT
 
 	void DRender::RegisterHooks()
 	{
-		if (!Hook::Call5(
+		if (!hook::call5(
 				ISKSE::GetBranchTrampoline(),
 				CreateDXGIFactory_C,
 				reinterpret_cast<std::uintptr_t>(CreateDXGIFactory_Hook),
@@ -740,7 +744,7 @@ namespace SDT
 			Warning("CreateDXGIFactory hook failed");
 		}
 
-		if (!Hook::Call5(
+		if (!hook::call5(
 				ISKSE::GetBranchTrampoline(),
 				D3D11CreateDeviceAndSwapChain_C,
 				reinterpret_cast<std::uintptr_t>(D3D11CreateDeviceAndSwapChain_Hook),
@@ -792,7 +796,7 @@ namespace SDT
 		}
 		LogPatchEnd("IDXGISwapChain::Present");
 
-		auto numPre = m_Instance.m_presentCallbacksPre.size();
+		auto numPre  = m_Instance.m_presentCallbacksPre.size();
 		auto numPost = m_Instance.m_presentCallbacksPost.size();
 
 		Message("Installed present hook (pre:%zu post:%zu)", numPre, numPost);
@@ -800,31 +804,22 @@ namespace SDT
 
 	bool DRender::Prepare()
 	{
+		return true;
+	}
+
+	void DRender::OnGameConfigLoaded()
+	{
 		m_gv.bLockFramerate = ISKSE::GetINISettingAddr<std::uint8_t>("bLockFramerate:Display");
-		if (!m_gv.bLockFramerate)
-		{
-			return false;
-		}
+		ASSERT(m_gv.bLockFramerate);
 
 		m_gv.iFPSClamp = ISKSE::GetINISettingAddr<std::int32_t>("iFPSClamp:General");
-		if (!m_gv.iFPSClamp)
-		{
-			return false;
-		}
+		ASSERT(m_gv.iFPSClamp);
 
 		m_gv.iSizeW = ISKSE::GetINIPrefSettingAddr<std::int32_t>("iSize W:Display");
-		if (!m_gv.iSizeW)
-		{
-			return false;
-		}
+		ASSERT(m_gv.iSizeW);
 
 		m_gv.iSizeH = ISKSE::GetINIPrefSettingAddr<std::int32_t>("iSize H:Display");
-		if (!m_gv.iSizeH)
-		{
-			return false;
-		}
-
-		return true;
+		ASSERT(m_gv.iSizeH);
 	}
 
 	void DRender::MessageHandler(Event m_code, void* args)
@@ -889,7 +884,7 @@ namespace SDT
 	void DRender::SetFPSLimitPost(long long a_max, long long a_expire)
 	{
 		m_Instance.oo_current_fps_max = a_max;
-		m_Instance.oo_expire_time = a_expire;
+		m_Instance.oo_expire_time     = a_expire;
 	}
 
 	void DRender::ResetFPSLimitOverride()
@@ -1171,7 +1166,7 @@ namespace SDT
 
 		if (flip_model)
 		{
-			pSwapChainDesc->SampleDesc.Count = 1;
+			pSwapChainDesc->SampleDesc.Count   = 1;
 			pSwapChainDesc->SampleDesc.Quality = 0;
 
 			if (pSwapChainDesc->BufferCount < 2)
@@ -1183,7 +1178,7 @@ namespace SDT
 
 		if (m_conf.upscale)
 		{
-			m_swapchain.width = pSwapChainDesc->BufferDesc.Width;
+			m_swapchain.width  = pSwapChainDesc->BufferDesc.Width;
 			m_swapchain.height = pSwapChainDesc->BufferDesc.Height;
 		}
 
@@ -1197,94 +1192,95 @@ namespace SDT
 		m_swapchain.flags = pSwapChainDesc->Flags;
 	}
 
+	static std::string GetAdapterName(IDXGIAdapter* pAdapter)
+	{
+		DXGI_ADAPTER_DESC ad;
+		if (SUCCEEDED(pAdapter->GetDesc(&ad)))
+		{
+			return str_conv::to_native(std::wstring(ad.Description));
+		}
+		else
+		{
+			return {};
+		}
+	}
+
 	void DRender::OnD3D11PreCreate(IDXGIAdapter* pAdapter, const DXGI_SWAP_CHAIN_DESC* pSwapChainDesc)
 	{
-		if (!m_Instance.ValidateDisplayMode(pSwapChainDesc))
+		if (!ValidateDisplayMode(pSwapChainDesc))
 		{
-			m_Instance.Warning("Invalid refresh rate: (%u/%u)", pSwapChainDesc->BufferDesc.RefreshRate.Numerator, pSwapChainDesc->BufferDesc.RefreshRate.Denominator);
+			Warning(
+				"Invalid refresh rate: (%u/%u)",
+				pSwapChainDesc->BufferDesc.RefreshRate.Numerator,
+				pSwapChainDesc->BufferDesc.RefreshRate.Denominator);
 		}
 
-		m_Instance.ApplyD3DSettings(const_cast<DXGI_SWAP_CHAIN_DESC*>(pSwapChainDesc));
+		Message("Adapter: %s", GetAdapterName(pAdapter).c_str());
 
-		m_Instance.Message(
+		ApplyD3DSettings(const_cast<DXGI_SWAP_CHAIN_DESC*>(pSwapChainDesc));
+
+		Message(
 			"[D3D] Requesting mode: %ux%u@%u | VSync: %u | Windowed: %d",
 			pSwapChainDesc->BufferDesc.Width,
 			pSwapChainDesc->BufferDesc.Height,
-			m_Instance.GetRefreshRate(pSwapChainDesc),
-			m_Instance.m_vsync_present_interval,
+			GetRefreshRate(pSwapChainDesc),
+			m_vsync_present_interval,
 			pSwapChainDesc->Windowed);
 
-		m_Instance.Debug("[D3D] SwapEffect: %s | SwapBufferCount: %u | Tearing: %d | Flags: 0x%.8X", GetSwapEffectOption(pSwapChainDesc->SwapEffect), pSwapChainDesc->BufferCount, m_Instance.tearing_enabled, pSwapChainDesc->Flags);
+		Debug(
+			"[D3D] SwapEffect: %s | SwapBufferCount: %u | Tearing: %d | Flags: 0x%.8X",
+			GetSwapEffectOption(pSwapChainDesc->SwapEffect),
+			pSwapChainDesc->BufferCount,
+			tearing_enabled,
+			pSwapChainDesc->Flags);
 
-		m_Instance.Message("[D3D] Windowed hardware composition support: %s", m_Instance.HasWindowedHWCompositionSupport(pAdapter) ? "yes" : "no");
+		Message(
+			"[D3D] Windowed hardware composition support: %s",
+			HasWindowedHWCompositionSupport(pAdapter) ? "yes" : "no");
 
 		if (pSwapChainDesc->Windowed == TRUE)
 		{
-			if (!m_Instance.IsFlipOn(pSwapChainDesc))
+			if (!IsFlipOn(pSwapChainDesc))
 			{
-				if (!(m_Instance.m_dxgi.caps & (DXGI_CAP_FLIP_DISCARD | DXGI_CAP_FLIP_SEQUENTIAL)))
+				if (!(m_dxgi.caps & (DXGI_CAP_FLIP_DISCARD | DXGI_CAP_FLIP_SEQUENTIAL)))
 				{
-					m_Instance.Warning("Flip not supported on your system, switch to exclusive fullscreen for better peformance");
+					Warning("Flip not supported on your system, switch to exclusive fullscreen for better peformance");
 				}
 				else
 				{
-					m_Instance.Warning("Switch to exclusive fullscreen or set SwapEffect to flip_discard or flip_sequential for better peformance");
+					Warning("Switch to exclusive fullscreen or set SwapEffect to flip_discard or flip_sequential for better peformance");
 				}
 			}
 		}
 		else
 		{
-			if (m_Instance.IsFlipOn(pSwapChainDesc))
+			if (IsFlipOn(pSwapChainDesc))
 			{
-				m_Instance.Warning("Using flip in exclusive fullscreen may cause issues");
+				Warning("Using flip in exclusive fullscreen may cause issues");
 			}
 		}
 	}
 
-	/*void DRender::OnD3D11PostCreate(const DXGI_SWAP_CHAIN_DESC* pSwapChainDesc, ID3D11Device** ppDevice)
-    {
-    }*/
-
-	inline static auto is_dxgi_status_code(HRESULT a_hr) noexcept
-	{
-		switch (a_hr)
-		{
-		case DXGI_STATUS_CLIPPED:
-		case DXGI_STATUS_DDA_WAS_STILL_DRAWING:
-		case DXGI_STATUS_GRAPHICS_VIDPN_SOURCE_IN_USE:
-		case DXGI_STATUS_MODE_CHANGED:
-		case DXGI_STATUS_MODE_CHANGE_IN_PROGRESS:
-		case DXGI_STATUS_NO_DESKTOP_ACCESS:
-		case DXGI_STATUS_NO_REDIRECTION:
-		case DXGI_STATUS_OCCLUDED:
-		case DXGI_STATUS_PRESENT_REQUIRED:
-		case DXGI_STATUS_UNOCCLUDED:
-			return true;
-		default:
-			return false;
-		}
-	}
-
 	HRESULT WINAPI DRender::D3D11CreateDeviceAndSwapChain_Hook(
-		_In_opt_ IDXGIAdapter* pAdapter,
-		D3D_DRIVER_TYPE DriverType,
-		HMODULE Software,
-		UINT Flags,
+		_In_opt_ IDXGIAdapter*                                 pAdapter,
+		D3D_DRIVER_TYPE                                        DriverType,
+		HMODULE                                                Software,
+		UINT                                                   Flags,
 		_In_reads_opt_(FeatureLevels) CONST D3D_FEATURE_LEVEL* pFeatureLevels,
-		UINT FeatureLevels,
-		UINT SDKVersion,
-		_In_opt_ CONST DXGI_SWAP_CHAIN_DESC* pSwapChainDesc,
-		_COM_Outptr_opt_ IDXGISwapChain** ppSwapChain,
-		_COM_Outptr_opt_ ID3D11Device** ppDevice,
-		_Out_opt_ D3D_FEATURE_LEVEL* pFeatureLevel,
-		_COM_Outptr_opt_ ID3D11DeviceContext** ppImmediateContext)
+		UINT                                                   FeatureLevels,
+		UINT                                                   SDKVersion,
+		_In_opt_ CONST DXGI_SWAP_CHAIN_DESC*                   pSwapChainDesc,
+		_COM_Outptr_opt_ IDXGISwapChain**                      ppSwapChain,
+		_COM_Outptr_opt_ ID3D11Device**                        ppDevice,
+		_Out_opt_ D3D_FEATURE_LEVEL*                           pFeatureLevel,
+		_COM_Outptr_opt_ ID3D11DeviceContext**                 ppImmediateContext)
 	{
 		m_Instance.OnD3D11PreCreate(pAdapter, pSwapChainDesc);
 
 		D3D11CreateEventPre evd_pre(pSwapChainDesc);
 		IEvents::TriggerEvent(Event::OnD3D11PreCreate, reinterpret_cast<void*>(&evd_pre));
 
-		HRESULT hr = m_Instance.m_D3D11CreateDeviceAndSwapChain_O(
+		auto hr = m_Instance.m_D3D11CreateDeviceAndSwapChain_O(
 			pAdapter,
 			DriverType,
 			Software,
@@ -1298,34 +1294,40 @@ namespace SDT
 			pFeatureLevel,
 			ppImmediateContext);
 
-		bool isStatus = is_dxgi_status_code(hr);
+		//bool isStatus = is_dxgi_status_code(hr);
 
-		if (isStatus)
+		if (hr > 0)
 		{
 			m_Instance.Warning("D3D11CreateDeviceAndSwapChain returned status: 0x%lX", hr);
 		}
 
-		if (hr == S_OK || isStatus)
+		if (SUCCEEDED(hr))
 		{
 			//m_Instance.OnD3D11PostCreate(pSwapChainDesc, ppDevice);
 
-			D3D11CreateEventPost evd_post(
-				pSwapChainDesc,
-				*ppDevice,
-				*ppImmediateContext,
-				*ppSwapChain,
-				pAdapter);
-
-			if (evd_post.m_pDevice &&
-			    evd_post.m_pImmediateContext)
+			if (ppDevice && ppSwapChain)
 			{
-				IEvents::TriggerEvent(Event::OnD3D11PostCreate, reinterpret_cast<void*>(&evd_post));
-				IEvents::TriggerEvent(Event::OnD3D11PostPostCreate, reinterpret_cast<void*>(&evd_post));
+				D3D11CreateEventPost evd_post(
+					pSwapChainDesc,
+					*ppDevice,
+					*ppImmediateContext,
+					*ppSwapChain,
+					pAdapter);
+
+				if (evd_post.m_pDevice &&
+				    evd_post.m_pImmediateContext)
+				{
+					IEvents::TriggerEvent(Event::OnD3D11PostCreate, reinterpret_cast<void*>(&evd_post));
+					IEvents::TriggerEvent(Event::OnD3D11PostPostCreate, reinterpret_cast<void*>(&evd_post));
+				}
 			}
 		}
 		else
 		{
-			WinApi::MessageBoxErrorFmtLog(PLUGIN_NAME, "D3D11CreateDeviceAndSwapChain failed: 0x%lX", hr);
+			WinApi::MessageBoxErrorFmtLog(
+				PLUGIN_NAME,
+				"D3D11CreateDeviceAndSwapChain failed: 0x%lX",
+				hr);
 		}
 
 		return hr;
@@ -1347,8 +1349,8 @@ namespace SDT
 
 	HRESULT STDMETHODCALLTYPE DRender::Present_Hook(
 		IDXGISwapChain4* pSwapChain,
-		UINT SyncInterval,
-		UINT PresentFlags)
+		UINT             SyncInterval,
+		UINT             PresentFlags)
 	{
 		for (const auto& f : m_Instance.m_presentCallbacksPre)
 		{
@@ -1384,7 +1386,7 @@ namespace SDT
 
 	void DRender::DXGI_GetCapabilities()
 	{
-		bool release;
+		bool          release;
 		IDXGIFactory* factory;
 
 		if (!m_dxgiFactory)
@@ -1417,7 +1419,7 @@ namespace SDT
 				{
 					m_dxgi.caps = (DXGI_CAP_FLIP_SEQUENTIAL | DXGI_CAP_FLIP_DISCARD);
 
-					BOOL allowTearing;
+					BOOL    allowTearing;
 					HRESULT hr = tmp->CheckFeatureSupport(
 						DXGI_FEATURE_PRESENT_ALLOW_TEARING,
 						&allowTearing,
@@ -1473,7 +1475,7 @@ namespace SDT
 			ComPtr<IDXGIOutput6> output6;
 			if (SUCCEEDED(output.As(&output6)))
 			{
-				UINT flags;
+				UINT    flags;
 				HRESULT hr = output6->CheckHardwareCompositionSupport(&flags);
 
 				if (SUCCEEDED(hr) && (flags & DXGI_HARDWARE_COMPOSITION_SUPPORT_FLAG_WINDOWED))
@@ -1484,31 +1486,6 @@ namespace SDT
 		}
 
 		return false;
-	}
-
-	bool DRender::QueryVideoMemoryInfo(
-		IDXGISwapChain* a_swapChain,
-		DXGI_QUERY_VIDEO_MEMORY_INFO& a_out) const
-	{
-		try
-		{
-			ComPtr<IDXGIDevice> pDXGIDevice;
-			DirectX::ThrowIfFailed(a_swapChain->GetDevice(IID_PPV_ARGS(pDXGIDevice.GetAddressOf())));
-
-			ComPtr<IDXGIAdapter> pDXGIAdapter;
-			DirectX::ThrowIfFailed(pDXGIDevice->GetAdapter(pDXGIAdapter.GetAddressOf()));
-
-			ComPtr<IDXGIAdapter3> adapter;
-			DirectX::ThrowIfFailed(pDXGIAdapter.As(&adapter));
-
-			DirectX::ThrowIfFailed(adapter->QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_LOCAL, std::addressof(a_out)));
-
-			return true;
-		}
-		catch (const std::exception&)
-		{
-			return false;
-		}
 	}
 
 }

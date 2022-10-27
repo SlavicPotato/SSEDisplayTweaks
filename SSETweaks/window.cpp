@@ -2,12 +2,12 @@
 
 namespace SDT
 {
-	static constexpr const char* CKEY_GHOSTING = "DisableProcessWindowsGhosting";
+	static constexpr const char* CKEY_GHOSTING   = "DisableProcessWindowsGhosting";
 	static constexpr const char* CKEY_LOCKCURSOR = "LockCursor";
-	static constexpr const char* CKEY_FORCEMIN = "ForceMinimize";
-	static constexpr const char* CKEY_CENTER = "AutoCenter";
-	static constexpr const char* CKEY_OFFSETX = "OffsetX";
-	static constexpr const char* CKEY_OFFSETY = "OffsetY";
+	static constexpr const char* CKEY_FORCEMIN   = "ForceMinimize";
+	static constexpr const char* CKEY_CENTER     = "AutoCenter";
+	static constexpr const char* CKEY_OFFSETX    = "OffsetX";
+	static constexpr const char* CKEY_OFFSETY    = "OffsetY";
 
 	DWindow DWindow::m_Instance;
 
@@ -33,7 +33,7 @@ namespace SDT
 			{
 				auto fd = reinterpret_cast<FindDesc*>(a_out);
 
-				fd->found = true;
+				fd->found  = true;
 				fd->handle = a_handle;
 				return FALSE;
 			}
@@ -51,12 +51,12 @@ namespace SDT
 	void DWindow::LoadConfig()
 	{
 		m_conf.disable_ghosting = GetConfigValue(CKEY_GHOSTING, false);
-		m_conf.lock_cursor = GetConfigValue(CKEY_LOCKCURSOR, false);
-		m_conf.force_minimize = GetConfigValue(CKEY_FORCEMIN, false);
-		m_conf.offset_x = GetConfigValue<int>(CKEY_OFFSETX, 0);
-		m_conf.offset_y = GetConfigValue<int>(CKEY_OFFSETY, 0);
+		m_conf.lock_cursor      = GetConfigValue(CKEY_LOCKCURSOR, false);
+		m_conf.force_minimize   = GetConfigValue(CKEY_FORCEMIN, false);
+		m_conf.offset_x         = GetConfigValue<int>(CKEY_OFFSETX, 0);
+		m_conf.offset_y         = GetConfigValue<int>(CKEY_OFFSETY, 0);
 
-		auto rd = IDDispatcher::GetDriver<DRender>();
+		auto rd        = IDDispatcher::GetDriver<DRender>();
 		m_conf.upscale = rd && rd->IsOK() && rd->m_conf.upscale;
 
 		if (rd->m_conf.fullscreen)
@@ -88,12 +88,6 @@ namespace SDT
 			SetupForceMinimizeMP();
 			Message("Forcing minimize on focus loss");
 		}
-
-		if (m_conf.upscale || m_conf.center_window || m_conf.offset_x != 0 || m_conf.offset_y != 0)
-		{
-			m_gv.iLocationX = ISKSE::GetINISettingAddr<int>("iLocation X:Display");
-			m_gv.iLocationY = ISKSE::GetINISettingAddr<int>("iLocation Y:Display");
-		}
 	}
 
 	void DWindow::SetupCursorLockMP()
@@ -112,7 +106,7 @@ namespace SDT
 
 		m_mp.Add(WM_ACTIVATE, [&](HWND hWnd, UINT, WPARAM wParam, LPARAM) {
 			auto fMinimized = static_cast<BOOL>(HIWORD(wParam));
-			WORD fActive = LOWORD(wParam);
+			WORD fActive    = LOWORD(wParam);
 
 			if (fActive == WA_ACTIVE)
 			{
@@ -147,9 +141,9 @@ namespace SDT
 
 	void DWindow::RegisterHooks()
 	{
-		if (m_mp.HasProcessors() || m_conf.upscale)
+		if (m_mp.HasProcessors() || m_conf.upscale || m_conf.center_window)
 		{
-			if (!Hook::Call6(
+			if (!hook::call6(
 					ISKSE::GetBranchTrampoline(),
 					CreateWindowEx_C,
 					reinterpret_cast<std::uintptr_t>(CreateWindowExA_Hook),
@@ -163,7 +157,7 @@ namespace SDT
 
 		if (m_conf.upscale)
 		{
-			if (Hook::Call6(
+			if (hook::call6(
 					ISKSE::GetBranchTrampoline(),
 					GetClientRect1_C,
 					reinterpret_cast<std::uintptr_t>(GetClientRect_Hook),
@@ -187,6 +181,17 @@ namespace SDT
 	bool DWindow::Prepare()
 	{
 		return true;
+	}
+
+	void DWindow::OnGameConfigLoaded()
+	{
+		if (m_conf.upscale || m_conf.center_window || m_conf.offset_x != 0 || m_conf.offset_y != 0)
+		{
+			m_gv.iLocationX = ISKSE::GetINISettingAddr<int>("iLocation X:Display");
+			ASSERT(m_gv.iLocationX);
+			m_gv.iLocationY = ISKSE::GetINISettingAddr<int>("iLocation Y:Display");
+			ASSERT(m_gv.iLocationY);
+		}
 	}
 
 	void DWindow::PostConfigLoad(Event code, void* data)
@@ -227,7 +232,7 @@ namespace SDT
 	static bool GetMI(HWND a_windowHandle, bool a_primary, MONITORINFO* a_out)
 	{
 		HMONITOR hMonitor;
-		bool gotHandle(false);
+		bool     gotHandle(false);
 
 		if (a_primary)
 			gotHandle = MonitorInfo::GetPrimary(hMonitor);
@@ -259,7 +264,7 @@ namespace SDT
 			offsety = *m_gv.iLocationY;
 		}
 
-		int monWidth = static_cast<int>(mi.rcMonitor.right - mi.rcMonitor.left);
+		int monWidth  = static_cast<int>(mi.rcMonitor.right - mi.rcMonitor.left);
 		int monHeight = static_cast<int>(mi.rcMonitor.bottom - mi.rcMonitor.top);
 
 		int newX = static_cast<int>(mi.rcMonitor.left) + offsetx;
@@ -273,9 +278,9 @@ namespace SDT
 
 		if (::SetWindowPos(a_windowHandle, HWND_TOP, newX, newY, monWidth, monHeight, SWP_NOSENDCHANGING | SWP_ASYNCWINDOWPOS))
 		{
-			X = newX;
-			Y = newY;
-			nWidth = monWidth;
+			X       = newX;
+			Y       = newY;
+			nWidth  = monWidth;
 			nHeight = monHeight;
 
 			m_upscaling.resized = true;
@@ -297,7 +302,7 @@ namespace SDT
 			return;
 		}
 
-		int monWidth = static_cast<int>(mi.rcMonitor.right - mi.rcMonitor.left);
+		int monWidth  = static_cast<int>(mi.rcMonitor.right - mi.rcMonitor.left);
 		int monHeight = static_cast<int>(mi.rcMonitor.bottom - mi.rcMonitor.top);
 
 		int newX = static_cast<int>(mi.rcMonitor.left) + (monWidth - nWidth) / 2;
@@ -323,18 +328,18 @@ namespace SDT
 	}
 
 	HWND WINAPI DWindow::CreateWindowExA_Hook(
-		_In_ DWORD dwExStyle,
-		_In_opt_ LPCSTR lpClassName,
-		_In_opt_ LPCSTR lpWindowName,
-		_In_ DWORD dwStyle,
-		_In_ int X,
-		_In_ int Y,
-		_In_ int nWidth,
-		_In_ int nHeight,
-		_In_opt_ HWND hWndParent,
-		_In_opt_ HMENU hMenu,
+		_In_ DWORD         dwExStyle,
+		_In_opt_ LPCSTR    lpClassName,
+		_In_opt_ LPCSTR    lpWindowName,
+		_In_ DWORD         dwStyle,
+		_In_ int           X,
+		_In_ int           Y,
+		_In_ int           nWidth,
+		_In_ int           nHeight,
+		_In_opt_ HWND      hWndParent,
+		_In_opt_ HMENU     hMenu,
 		_In_opt_ HINSTANCE hInstance,
-		_In_opt_ LPVOID lpParam)
+		_In_opt_ LPVOID    lpParam)
 	{
 		HWND hWnd = m_Instance.m_createWindowExA_O(
 			dwExStyle,
@@ -399,8 +404,8 @@ namespace SDT
 	}
 
 	LRESULT CALLBACK DWindow::WndProc_Hook(
-		HWND hWnd,
-		UINT uMsg,
+		HWND   hWnd,
+		UINT   uMsg,
 		WPARAM wParam,
 		LPARAM lParam)
 	{
@@ -410,7 +415,7 @@ namespace SDT
 	}
 
 	BOOL WINAPI DWindow::GetClientRect_Hook(
-		_In_ HWND hWnd,
+		_In_ HWND    hWnd,
 		_Out_ LPRECT lpRect)
 	{
 		if (m_Instance.m_upscaling.hWnd != nullptr &&
@@ -432,11 +437,11 @@ namespace SDT
 
 		if (info->m_pSwapChainDesc->Windowed == TRUE)
 		{
-			m_Instance.m_upscaling.resolution.top = 0;
-			m_Instance.m_upscaling.resolution.left = 0;
-			m_Instance.m_upscaling.resolution.right = info->m_pSwapChainDesc->BufferDesc.Width;
+			m_Instance.m_upscaling.resolution.top    = 0;
+			m_Instance.m_upscaling.resolution.left   = 0;
+			m_Instance.m_upscaling.resolution.right  = info->m_pSwapChainDesc->BufferDesc.Width;
 			m_Instance.m_upscaling.resolution.bottom = info->m_pSwapChainDesc->BufferDesc.Height;
-			m_Instance.m_upscaling.hWnd = info->m_pSwapChainDesc->OutputWindow;
+			m_Instance.m_upscaling.hWnd              = info->m_pSwapChainDesc->OutputWindow;
 		}
 	}
 }

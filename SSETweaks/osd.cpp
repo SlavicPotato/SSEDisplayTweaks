@@ -6,35 +6,33 @@
 #define DIRECTINPUT_VERSION 0x0800
 #include <dinput.h>
 
-#include <Src/PlatformHelpers.h>
-
 namespace SDT
 {
-	static constexpr const char* CKEY_ENABLESTATS = "Enable";
-	static constexpr const char* CKEY_OSDINITIAL = "InitiallyOn";
-	static constexpr const char* CKEY_STATSFONT = "Font";
-	static constexpr const char* CKEY_STATSFONTFILE = "FontFile";
-	static constexpr const char* CKEY_STATSFONTCOLOR = "Color";
+	static constexpr const char* CKEY_ENABLESTATS           = "Enable";
+	static constexpr const char* CKEY_OSDINITIAL            = "InitiallyOn";
+	static constexpr const char* CKEY_STATSFONT             = "Font";
+	static constexpr const char* CKEY_STATSFONTFILE         = "FontFile";
+	static constexpr const char* CKEY_STATSFONTCOLOR        = "Color";
 	static constexpr const char* CKEY_STATSFONTOUTLINECOLOR = "OutlineColor";
-	static constexpr const char* CKEY_STATSOUTLINESIZE = "OutlineOffset";
-	static constexpr const char* CKEY_STATSKEY = "ToggleKey";
-	static constexpr const char* CKEY_STATSALIGN = "Align";
-	static constexpr const char* CKEY_STATSOFFSET = "Offset";
-	static constexpr const char* CKEY_STATSSCALE = "Scale";
-	static constexpr const char* CKEY_STATSAUTOSCALE = "AutoScale";
-	static constexpr const char* CKEY_STATSINTERVAL = "UpdateInterval";
-	static constexpr const char* CKEY_STATSFLAGS = "Flags";
-	static constexpr const char* CKEY_STATSITEMS = "Show";
-	static constexpr const char* CKEY_COMBOKEY = "ComboKey";
-	static constexpr const char* CKEY_SCALETOWINDOW = "ScaleToWindow";
+	static constexpr const char* CKEY_STATSOUTLINESIZE      = "OutlineOffset";
+	static constexpr const char* CKEY_STATSKEY              = "ToggleKey";
+	static constexpr const char* CKEY_STATSALIGN            = "Align";
+	static constexpr const char* CKEY_STATSOFFSET           = "Offset";
+	static constexpr const char* CKEY_STATSSCALE            = "Scale";
+	static constexpr const char* CKEY_STATSAUTOSCALE        = "AutoScale";
+	static constexpr const char* CKEY_STATSINTERVAL         = "UpdateInterval";
+	static constexpr const char* CKEY_STATSFLAGS            = "Flags";
+	static constexpr const char* CKEY_STATSITEMS            = "Show";
+	static constexpr const char* CKEY_COMBOKEY              = "ComboKey";
+	static constexpr const char* CKEY_SCALETOWINDOW         = "ScaleToWindow";
 
-	static constexpr std::uint32_t F_SHOW_FPS = 1U << 0;
-	static constexpr std::uint32_t F_SHOW_FPS_SIMPLE = 1U << 2;
-	static constexpr std::uint32_t F_SHOW_FRAMETIME = 1U << 3;
+	static constexpr std::uint32_t F_SHOW_FPS              = 1U << 0;
+	static constexpr std::uint32_t F_SHOW_FPS_SIMPLE       = 1U << 2;
+	static constexpr std::uint32_t F_SHOW_FRAMETIME        = 1U << 3;
 	static constexpr std::uint32_t F_SHOW_FRAMETIME_SIMPLE = 1U << 4;
-	static constexpr std::uint32_t F_SHOW_COUNTER = 1U << 5;
-	static constexpr std::uint32_t F_SHOW_VRAM_USAGE = 1U << 6;
-	static constexpr std::uint32_t F_SHOW_ALL = (F_SHOW_FPS | F_SHOW_FRAMETIME | F_SHOW_COUNTER | F_SHOW_VRAM_USAGE);
+	static constexpr std::uint32_t F_SHOW_COUNTER          = 1U << 5;
+	static constexpr std::uint32_t F_SHOW_VRAM_USAGE       = 1U << 6;
+	static constexpr std::uint32_t F_SHOW_ALL              = (F_SHOW_FPS | F_SHOW_FRAMETIME | F_SHOW_COUNTER | F_SHOW_VRAM_USAGE);
 
 	using namespace DirectX;
 
@@ -57,31 +55,31 @@ namespace SDT
 		m_bufStats3[0] = 0x0;
 		m_bufStats4[0] = 0x0;
 
-		m_stats.lastUpdate = IPerfCounter::Query();
-		m_stats.frameCounter = 0;
+		m_stats.lastUpdate     = IPerfCounter::Query();
+		m_stats.frameCounter   = 0;
 		m_stats.lastFrameCount = 0;
-		m_stats.draw = false;
-		m_stats.warmup = 0;
+		m_stats.draw           = false;
+		m_stats.warmup         = 0;
 	}
 
 	void DOSD::LoadConfig()
 	{
-		m_conf.enabled = GetConfigValue(CKEY_ENABLESTATS, false);
-		m_conf.initial = GetConfigValue(CKEY_OSDINITIAL, true);
-		m_conf.font = GetConfigValue<Font>(CKEY_STATSFONT, Font::DroidSans);
-		m_conf.font_file = GetConfigValue(CKEY_STATSFONTFILE, "");
-		m_conf.font_color = GetConfigValue(CKEY_STATSFONTCOLOR, "255 255 255");
+		m_conf.enabled            = GetConfigValue(CKEY_ENABLESTATS, false);
+		m_conf.initial            = GetConfigValue(CKEY_OSDINITIAL, true);
+		m_conf.font               = GetConfigValue<Font>(CKEY_STATSFONT, Font::DroidSans);
+		m_conf.font_file          = GetConfigValue(CKEY_STATSFONTFILE, "");
+		m_conf.font_color         = GetConfigValue(CKEY_STATSFONTCOLOR, "255 255 255");
 		m_conf.font_outline_color = GetConfigValue(CKEY_STATSFONTOUTLINECOLOR, "0 0 0");
-		m_conf.outline_size = GetConfigValue(CKEY_STATSOUTLINESIZE, 1.0f);
-		m_conf.combo_key = ConfigGetComboKey(GetConfigValue<std::int32_t>(CKEY_COMBOKEY, 1));
-		m_conf.key = GetConfigValue<std::uint32_t>(CKEY_STATSKEY, DIK_INSERT);
-		m_conf.align = ConfigGetStatsRendererAlignment(GetConfigValue(CKEY_STATSALIGN, 1));
-		m_conf.offset = GetConfigValue(CKEY_STATSOFFSET, "4 4");
-		m_conf.font_scale = GetConfigValue(CKEY_STATSSCALE, "1 1");
-		m_conf.font_autoscale = GetConfigValue(CKEY_STATSAUTOSCALE, true);
-		m_conf.interval = std::clamp(GetConfigValue(CKEY_STATSINTERVAL, 1.0f), 0.01f, 900.0f);
-		m_conf.items = GetConfigValue(CKEY_STATSITEMS, "fps,frametime");
-		m_conf.scale_to_window = GetConfigValue(CKEY_SCALETOWINDOW, true);
+		m_conf.outline_size       = GetConfigValue(CKEY_STATSOUTLINESIZE, 1.0f);
+		m_conf.combo_key          = ConfigGetComboKey(GetConfigValue<std::int32_t>(CKEY_COMBOKEY, 1));
+		m_conf.key                = GetConfigValue<std::uint32_t>(CKEY_STATSKEY, DIK_INSERT);
+		m_conf.align              = ConfigGetStatsRendererAlignment(GetConfigValue(CKEY_STATSALIGN, 1));
+		m_conf.offset             = GetConfigValue(CKEY_STATSOFFSET, "4 4");
+		m_conf.font_scale         = GetConfigValue(CKEY_STATSSCALE, "1 1");
+		m_conf.font_autoscale     = GetConfigValue(CKEY_STATSAUTOSCALE, true);
+		m_conf.interval           = std::clamp(GetConfigValue(CKEY_STATSINTERVAL, 1.0f), 0.01f, 900.0f);
+		m_conf.items              = GetConfigValue(CKEY_STATSITEMS, "fps,frametime");
+		m_conf.scale_to_window    = GetConfigValue(CKEY_SCALETOWINDOW, true);
 	}
 
 	void DOSD::PostLoadConfig()
@@ -101,7 +99,7 @@ namespace SDT
 				m_conf.key = DIK_INSERT;
 			}
 
-			m_stats.draw = m_conf.initial;
+			m_stats.draw     = m_conf.initial;
 			m_stats.interval = static_cast<long long>(m_conf.interval * 1000000.0f);
 
 			if (!m_conf.font || m_conf.font >= Font::FontMax)
@@ -266,16 +264,16 @@ namespace SDT
 	}
 
 	StatsRenderer::StatsRenderer(
-		ID3D11Device* a_pDevice,
+		ID3D11Device*        a_pDevice,
 		ID3D11DeviceContext* a_pDeviceContext,
-		UINT a_bufferX,
-		UINT a_bufferY,
-		const XMFLOAT2A& a_offset,
-		float a_outlineSize,
-		Align a_alignment,
-		const XMFLOAT2A& a_scale,
-		const XMVECTORF32& a_fontColor,
-		const XMVECTORF32& a_outlineColor) :
+		UINT                 a_bufferX,
+		UINT                 a_bufferY,
+		const XMFLOAT2A&     a_offset,
+		float                a_outlineSize,
+		Align                a_alignment,
+		const XMFLOAT2A&     a_scale,
+		const XMVECTORF32&   a_fontColor,
+		const XMVECTORF32&   a_outlineColor) :
 		m_isLoaded(false),
 		m_pDevice(a_pDevice),
 		m_pDeviceContext(a_pDeviceContext),
@@ -290,7 +288,7 @@ namespace SDT
 		m_origin(g_XMZero)
 	{
 		m_commonStates = std::make_unique<CommonStates>(a_pDevice);
-		m_spriteBatch = std::make_unique<SpriteBatch>(a_pDeviceContext);
+		m_spriteBatch  = std::make_unique<SpriteBatch>(a_pDeviceContext);
 
 		m_blendState = m_commonStates->NonPremultiplied();
 
@@ -303,11 +301,11 @@ namespace SDT
 			m_pos = XMLoadFloat2A(&m_offset);
 			break;
 		case Align::TOP_RIGHT:
-			tmp = XMFLOAT2A(m_bufferSize.x, m_offset.y);
+			tmp   = XMFLOAT2A(m_bufferSize.x, m_offset.y);
 			m_pos = XMLoadFloat2A(std::addressof(tmp));
 			break;
 		case Align::BOTTOM_LEFT:
-			tmp = XMFLOAT2A(m_offset.x, m_bufferSize.y);
+			tmp   = XMFLOAT2A(m_offset.x, m_bufferSize.y);
 			m_pos = XMLoadFloat2A(std::addressof(tmp));
 			break;
 		case Align::BOTTOM_RIGHT:
@@ -392,7 +390,7 @@ finish:
 		try
 		{
 			auto text = m_drawString.c_str();
-			auto sb = m_spriteBatch.get();
+			auto sb   = m_spriteBatch.get();
 
 			m_spriteBatch->Begin(SpriteSortMode_Deferred, m_blendState);
 			m_font->DrawString(sb, text, m_outlinePos[0], m_outlineColor, 0.0f, m_origin, m_scale);
@@ -484,9 +482,9 @@ finish:
 
 	void StatsRenderer::AdjustOutline()
 	{
-		m_outlinePos[0] = _mm_add_ps(m_pos, m_outlineSize);
-		m_outlinePos[1] = _mm_addsub_ps(m_pos, m_outlineSize);
-		m_outlinePos[2] = _mm_sub_ps(m_pos, m_outlineSize);
+		m_outlinePos[0]             = _mm_add_ps(m_pos, m_outlineSize);
+		m_outlinePos[1]             = _mm_addsub_ps(m_pos, m_outlineSize);
+		m_outlinePos[2]             = _mm_sub_ps(m_pos, m_outlineSize);
 		m_outlinePos[3].m128_f32[0] = m_pos.m128_f32[0] + m_outlineSize.m128_f32[0];
 		m_outlinePos[3].m128_f32[1] = m_pos.m128_f32[1] - m_outlineSize.m128_f32[1];
 	}
@@ -496,7 +494,7 @@ finish:
 		if (!m_Instance.m_stats.draw)
 		{
 			m_Instance.m_stats.warmup = 2;
-			m_Instance.m_stats.draw = true;
+			m_Instance.m_stats.draw   = true;
 		}
 		else
 		{
@@ -580,7 +578,7 @@ finish:
 			return;
 		}
 
-		auto e = IPerfCounter::Query();
+		auto e      = IPerfCounter::Query();
 		auto deltaT = IPerfCounter::delta_us(m_Instance.m_stats.lastUpdate, e);
 
 		if (m_Instance.m_stats.warmup || deltaT >= m_Instance.m_stats.interval)
@@ -644,17 +642,17 @@ finish:
 				m_stats.colors.font,
 				m_stats.colors.outline);
 
-			bool res = false;
+			bool res      = false;
 			bool isCustom = false;
 
 			if (!m_conf.font_file.empty())
 			{
 				std::wostringstream ss;
-				ss << OSD_FONT_PATH << StrHelpers::ToWString(m_conf.font_file);
+				ss << OSD_FONT_PATH << str_conv::str_to_wstr(m_conf.font_file);
 
 				auto file = ss.str();
 
-				Debug("Loading OSD font from '%s'", StrHelpers::ToNative(file).c_str());
+				Debug("Loading OSD font from '%s'", str_conv::to_native(file).c_str());
 
 				if (!(res = renderer->Load(file.c_str())))
 				{

@@ -52,7 +52,7 @@ namespace SDT
 	{
 		if (IAL::IsAE())
 		{
-			if (!Hook::Call5(
+			if (!hook::call5(
 					ISKSE::GetBranchTrampoline(),
 					LoadPluginINI_C,
 					reinterpret_cast<std::uintptr_t>(PostLoadPluginINI_AE_Hook),
@@ -64,7 +64,7 @@ namespace SDT
 		}
 		else
 		{
-			if (!Hook::Call5(
+			if (!hook::call5(
 					ISKSE::GetBranchTrampoline(),
 					LoadPluginINI_C,
 					reinterpret_cast<std::uintptr_t>(PostLoadPluginINI_Hook),
@@ -75,7 +75,7 @@ namespace SDT
 			}
 		}
 
-		if (!Hook::Call5(
+		if (!hook::call5(
 				ISKSE::GetBranchTrampoline(),
 				PopulateUIStringHolder_C,
 				reinterpret_cast<std::uintptr_t>(PopulateUIStringHolder_Hook),
@@ -118,17 +118,17 @@ namespace SDT
 	}
 
 	void IEvents::TriggerMenuEventAny(
-		MenuEvent a_code,
-		const MenuOpenCloseEvent* a_evn,
+		MenuEvent                           a_code,
+		const MenuOpenCloseEvent*           a_evn,
 		BSTEventSource<MenuOpenCloseEvent>* a_dispatcher)
 	{
 		m_Instance.TriggerMenuEventImpl(MenuEvent::OnAnyMenu, a_code, a_evn, a_dispatcher);
 	}
 
 	void IEvents::TriggerMenuEventImpl(
-		MenuEvent a_triggercode,
-		MenuEvent a_code,
-		const MenuOpenCloseEvent* a_evn,
+		MenuEvent                           a_triggercode,
+		MenuEvent                           a_code,
+		const MenuOpenCloseEvent*           a_evn,
 		BSTEventSource<MenuOpenCloseEvent>* a_dispatcher)
 	{
 		auto it = m_menu_events.find(a_triggercode);
@@ -153,7 +153,7 @@ namespace SDT
 
 	MenuEvent IEvents::GetMenuEventCode(const BSFixedString& a_str)
 	{
-		auto it = m_Instance.m_mstc_map.find(a_str.data);
+		auto it = m_Instance.m_mstc_map.find(a_str);
 		if (it != m_Instance.m_mstc_map.end())
 			return it->second;
 
@@ -163,12 +163,14 @@ namespace SDT
 	void IEvents::PostLoadPluginINI_Hook()
 	{
 		m_Instance.LoadPluginINI_O();
+		IDDispatcher::DriversOnGameConfigLoaded();
 		m_Instance.TriggerEvent(Event::OnConfigLoad);
 	}
 
 	void IEvents::PostLoadPluginINI_AE_Hook(void* a_unk)
 	{
 		m_Instance.LoadPluginINI_AE_O(a_unk);
+		IDDispatcher::DriversOnGameConfigLoaded();
 		m_Instance.TriggerEvent(Event::OnConfigLoad);
 	}
 
@@ -183,11 +185,9 @@ namespace SDT
 	{
 		if (a_message->type == SKSEMessagingInterface::kMessage_InputLoaded)
 		{
-			auto mm = MenuManager::GetSingleton();
-			if (mm)
+			if (auto mm = MenuManager::GetSingleton())
 			{
-				auto dispatcher = mm->MenuOpenCloseEventDispatcher();
-				dispatcher->AddEventSink(MenuOpenCloseEventHandler::GetSingleton());
+				mm->GetMenuOpenCloseEventDispatcher().AddEventSink(MenuOpenCloseEventHandler::GetSingleton());
 				m_Instance.Debug("Added menu event sink");
 			}
 			else
@@ -210,16 +210,16 @@ namespace SDT
 			for (auto& e : s_mstc_map_desc)
 			{
 				auto& str = sh->GetString(e.index);
-				m_mstc_map.try_emplace(str.data, e.event);
+				m_mstc_map.try_emplace(str, e.event);
 			}
 		}
 
 		BSFixedString customMenu("CustomMenu");
-		m_mstc_map.try_emplace(customMenu.data, MenuEvent::OnCustomMenu);
+		m_mstc_map.try_emplace(customMenu, MenuEvent::OnCustomMenu);
 	}
 
 	auto MenuOpenCloseEventHandler::ReceiveEvent(
-		const MenuOpenCloseEvent* a_evn,
+		const MenuOpenCloseEvent*           a_evn,
 		BSTEventSource<MenuOpenCloseEvent>* a_dispatcher)
 		-> EventResult
 	{

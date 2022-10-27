@@ -7,33 +7,33 @@
 #include <vector>
 
 #ifdef UNICODE
-#	define STD_STRING std::wstring
+#	define STD_STRING   std::wstring
 #	define STD_OFSTREAM std::wofstream
 #	define STD_OSSTREAM std::wostringstream
 #	define STD_ISSTREAM std::wistringstream
-#	define STD_SSTREAM std::wstringstream
-#	define STD_TOSTR std::to_wstring
+#	define STD_SSTREAM  std::wstringstream
+#	define STD_TOSTR    std::to_wstring
 
 #	define VSPRINTF _vsnwprintf_s
-#	define SPRINTF _snwprintf_s
-#	define STRCMP _wcsicmp
-#	define FSOPEN _wfsopen
-#	define MKDIR _wmkdir
-#	define FPUTS fputws
+#	define SPRINTF  _snwprintf_s
+#	define STRCMP   _wcsicmp
+#	define FSOPEN   _wfsopen
+#	define MKDIR    _wmkdir
+#	define FPUTS    fputws
 #else
-#	define STD_STRING std::string
+#	define STD_STRING   std::string
 #	define STD_OFSTREAM std::ofstream
 #	define STD_OSSTREAM std::ostringstream
 #	define STD_ISSTREAM std::istringstream
-#	define STD_SSTREAM std::stringstream
-#	define STD_TOSTR std::to_string
+#	define STD_SSTREAM  std::stringstream
+#	define STD_TOSTR    std::to_string
 
 #	define VSPRINTF _vsnprintf_s
-#	define SPRINTF _snprintf_s
-#	define STRCMP _stricmp
-#	define FSOPEN _fsopen
-#	define MKDIR _mkdir
-#	define FPUTS fputs
+#	define SPRINTF  _snprintf_s
+#	define STRCMP   _stricmp
+#	define FSOPEN   _fsopen
+#	define MKDIR    _mkdir
+#	define FPUTS    fputs
 #endif
 
 namespace FileHelpers

@@ -1,24 +1,25 @@
 #ifndef PCH_H
 #define PCH_H
 
-#include <common/IMemPool.h>
-
-#include <skse64_common/BranchTrampoline.h>
-#include <skse64_common/SafeWrite.h>
-#include <skse64_common/skse_version.h>
-
-#include <skse64/PluginAPI.h>
-#include <xbyak/xbyak.h>
-
 #include <ext/ICommon.h>
+
+#include <skse64/FormTraits.h>
+
+#include <ext/GameHandlesExtra.h>
+
 #include <ext/ID3D11.h>
 #include <ext/IHook.h>
 #include <ext/INIReader.h>
+#include <ext/IPluginInfo.h>
 #include <ext/ITasks.h>
 #include <ext/JITASM.h>
 #include <ext/Patching.h>
 #include <ext/StrHelpers.h>
-#include <ext/IPluginInfo.h>
+#include <ext/stl_containers.h>
+#include <ext/stl_allocator_mm.h>
+#include <ext/stl_math.h>
+#include <ext/str_conv.h>
+
 #include <skse64/GameData.h>
 #include <skse64/GameEvents.h>
 #include <skse64/GameMenus.h>
@@ -39,8 +40,8 @@
 #include <shlobj.h>
 #include <wrl/client.h>
 
-#include <Inc/CommonStates.h>
-#include <Inc/SpriteFont.h>
+#include <directxtk/CommonStates.h>
+#include <directxtk/SpriteFont.h>
 
 #include "common.h"
 #include "config.h"
@@ -50,6 +51,7 @@
 #include "dispatcher.h"
 
 #include "data.h"
+
 #include "controls.h"
 #include "drv_ids.h"
 #include "events.h"

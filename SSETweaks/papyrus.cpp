@@ -1,12 +1,14 @@
 #include "pch.h"
 
+#include <skse64/PapyrusVM.h>
+
 namespace SDT
 {
-	static constexpr const char* CKEY_SEOFIX = "SetExpressionOverridePatch";
-	static constexpr const char* CKEY_DYNBUDGETENABLED = "DynamicUpdateBudget";
-	static constexpr const char* CKEY_UPDATEBUDGET = "UpdateBudgetBase";
-	static constexpr const char* CKEY_MAXTIME = "BudgetMaxFPS";
-	static constexpr const char* CKEY_STATSON = "OSDStatsEnabled";
+	static constexpr const char* CKEY_SEOFIX             = "SetExpressionOverridePatch";
+	static constexpr const char* CKEY_DYNBUDGETENABLED   = "DynamicUpdateBudget";
+	static constexpr const char* CKEY_UPDATEBUDGET       = "UpdateBudgetBase";
+	static constexpr const char* CKEY_MAXTIME            = "BudgetMaxFPS";
+	static constexpr const char* CKEY_STATSON            = "OSDStatsEnabled";
 	static constexpr const char* CKEY_SHOWVMOVERSTRESSED = "OSDWarnVMOverstressed";
 
 	using namespace Patching;
@@ -21,26 +23,21 @@ namespace SDT
 
 	void DPapyrus::LoadConfig()
 	{
-		m_conf.seo_fix = GetConfigValue(CKEY_SEOFIX, false);
+		m_conf.seo_fix           = GetConfigValue(CKEY_SEOFIX, false);
 		m_conf.dynbudget_enabled = GetConfigValue(CKEY_DYNBUDGETENABLED, false);
 		m_conf.dynbudget_fps_min = 60.0f;
 		m_conf.dynbudget_fps_max = std::clamp(GetConfigValue(CKEY_MAXTIME, 144.0f), m_conf.dynbudget_fps_min, 300.0f);
-		m_conf.dynbudget_base = std::clamp(GetConfigValue(CKEY_UPDATEBUDGET, 1.2f), 0.1f, 4.0f);
-		m_conf.stats_enabled = GetConfigValue(CKEY_STATSON, false);
+		m_conf.dynbudget_base    = std::clamp(GetConfigValue(CKEY_UPDATEBUDGET, 1.2f), 0.1f, 4.0f);
+		m_conf.stats_enabled     = GetConfigValue(CKEY_STATSON, false);
 		m_conf.warn_overstressed = GetConfigValue(CKEY_SHOWVMOVERSTRESSED, true);
 	}
 
 	void DPapyrus::PostLoadConfig()
 	{
-		if (!m_gv.fUpdateBudgetMS)
-		{
-			m_conf.dynbudget_enabled = false;
-		}
-
 		m_OSDDriver = IDDispatcher::GetDriver<DOSD>();
 		if (!m_OSDDriver || !m_OSDDriver->IsOK())
 		{
-			m_conf.stats_enabled = false;
+			m_conf.stats_enabled     = false;
 			m_conf.warn_overstressed = false;
 		}
 
@@ -134,10 +131,14 @@ namespace SDT
 		}
 	}
 
-	bool DPapyrus::Prepare()
+	void DPapyrus::OnGameConfigLoaded()
 	{
 		m_gv.fUpdateBudgetMS = ISKSE::GetINISettingAddr<float>("fUpdateBudgetMS:Papyrus");
+		ASSERT(m_gv.fUpdateBudgetMS);
+	}
 
+	bool DPapyrus::Prepare()
+	{
 		return true;
 	}
 

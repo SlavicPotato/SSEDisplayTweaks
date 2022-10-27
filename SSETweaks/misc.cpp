@@ -2,12 +2,14 @@
 
 #include <ext/Patching.cpp>
 
+#include <ext/TESWeather.h>
+
 namespace SDT
 {
-	static constexpr const char* CKEY_SKIPMISSINGINI = "SkipMissingPluginINI";
-	static constexpr const char* CKEY_LSF = "LoadScreenFilter";
-	static constexpr const char* CKEY_LSF_ALLOW = "LoadScreenAllow";
-	static constexpr const char* CKEY_LSF_BLOCK = "LoadScreenBlock";
+	static constexpr const char* CKEY_SKIPMISSINGINI            = "SkipMissingPluginINI";
+	static constexpr const char* CKEY_LSF                       = "LoadScreenFilter";
+	static constexpr const char* CKEY_LSF_ALLOW                 = "LoadScreenAllow";
+	static constexpr const char* CKEY_LSF_BLOCK                 = "LoadScreenBlock";
 	static constexpr const char* CKEY_DISABLE_WEATHER_LENSFLARE = "DisableWeatherLensFlare";
 
 	using namespace Patching;
@@ -20,14 +22,14 @@ namespace SDT
 
 	void DMisc::LoadConfig()
 	{
-		m_conf.skipmissingini = GetConfigValue(CKEY_SKIPMISSINGINI, true);
+		m_conf.skipmissingini    = GetConfigValue(CKEY_SKIPMISSINGINI, true);
 		m_conf.loadscreen_filter = GetConfigValue(CKEY_LSF, false);
 		if (m_conf.loadscreen_filter)
 		{
 			ParseLoadscreenRules();
 		}
-		m_conf.disable_lens_flare = GetConfigValue(CKEY_DISABLE_WEATHER_LENSFLARE, false);
-		m_conf.disable_actor_fade = GetConfigValue("DisableActorFade", false);
+		m_conf.disable_lens_flare  = GetConfigValue(CKEY_DISABLE_WEATHER_LENSFLARE, false);
+		m_conf.disable_actor_fade  = GetConfigValue("DisableActorFade", false);
 		m_conf.disable_player_fade = GetConfigValue("DisablePlayerFade", false);
 	}
 
@@ -156,7 +158,7 @@ namespace SDT
 				}
 			};
 
-			auto target(TESLoadScreen_LoadForm + 0x36);
+			auto                     target(TESLoadScreen_LoadForm + 0x36);
 			LoadScreenLoadFormInject code(target);
 			ISKSE::GetBranchTrampoline().Write6Branch(target, code.get());
 
@@ -198,7 +200,6 @@ namespace SDT
 			{
 				constexpr std::uint8_t data[] = { 0xEB, 0x58 };  // jmp 0x58
 				safe_write(PlayerFade_a, data, sizeof(data));
-
 			}
 			Message("Player fade patch applied");
 		}
@@ -208,10 +209,11 @@ namespace SDT
 	{
 		if (m_conf.skipmissingini)
 		{
-			RegisterHook(
+			ISKSE::GetBranchTrampoline().Write6Call(
 				SkipNoINI + 0x3,
-				GetFnAddr(&Structures::_SettingCollectionList::LoadIni_Hook),
-				HookDescriptor::HookType::kWR6Call);
+				stl::unrestricted_cast<std::uintptr_t>(&Structures::_SettingCollectionList::LoadIni_Hook));
+
+			Message("Skip missing ini patch applied");
 		}
 
 		if (m_conf.disable_lens_flare)
@@ -268,14 +270,14 @@ namespace SDT
 
 			for (auto& e : dh->arrWTHR)
 			{
-				if (e && e->lensFlare)
+				if (e && e->sunGlareLensFlare)
 				{
-					e->lensFlare = nullptr;
+					e->sunGlareLensFlare = nullptr;
 					count++;
 				}
 			}
 
-			m_Instance.Message("Removed lens flare from %zu/%zu weather form(s)", count, static_cast<std::size_t>(dh->arrWTHR.count));
+			m_Instance.Message("Removed lens flare from %zu/%zu weather form(s)", count, static_cast<std::size_t>(dh->arrWTHR.size()));
 		}
 	}
 

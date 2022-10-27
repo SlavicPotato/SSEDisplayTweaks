@@ -8,7 +8,7 @@ namespace SDT
 	class SKMP_ALIGN(16) StatsRenderer
 	{
 	public:
-		SKMP_DECLARE_ALIGNED_ALLOCATOR(16);
+		SKMP_ALIGNED_REDEFINE_NEW_MM(16);
 
 		typedef const wchar_t* (*Callback)(void);
 
@@ -21,15 +21,15 @@ namespace SDT
 		};
 
 		StatsRenderer(
-			ID3D11Device* a_pDevice,
-			ID3D11DeviceContext* a_pDeviceContext,
-			UINT a_bufferX,
-			UINT a_bufferY,
-			const DirectX::XMFLOAT2A& a_offset = { 4.0f, 4.0f },
-			float a_outlineSize = 1.0f,
-			Align a_al = TOP_LEFT,
-			const DirectX::XMFLOAT2A& a_scale = { 1.0f, 1.0f },
-			const DirectX::XMVECTORF32& a_fontColor = DirectX::Colors::White,
+			ID3D11Device*               a_pDevice,
+			ID3D11DeviceContext*        a_pDeviceContext,
+			UINT                        a_bufferX,
+			UINT                        a_bufferY,
+			const DirectX::XMFLOAT2A&   a_offset       = { 4.0f, 4.0f },
+			float                       a_outlineSize  = 1.0f,
+			Align                       a_al           = TOP_LEFT,
+			const DirectX::XMFLOAT2A&   a_scale        = { 1.0f, 1.0f },
+			const DirectX::XMVECTORF32& a_fontColor    = DirectX::Colors::White,
 			const DirectX::XMVECTORF32& a_outlineColor = DirectX::Colors::Black);
 
 		bool Load(int resource);
@@ -76,16 +76,16 @@ namespace SDT
 
 	private:
 		std::unique_ptr<DirectX::CommonStates> m_commonStates;
-		std::unique_ptr<DirectX::SpriteBatch> m_spriteBatch;
-		std::unique_ptr<DirectX::SpriteFont> m_font;
+		std::unique_ptr<DirectX::SpriteBatch>  m_spriteBatch;
+		std::unique_ptr<DirectX::SpriteFont>   m_font;
 
 		except::descriptor m_lastException;
-		bool m_isLoaded;
+		bool               m_isLoaded;
 
 		std::vector<Callback> m_callbacks;
-		std::wstring m_drawString;
+		std::wstring          m_drawString;
 
-		DirectX::XMFLOAT2A m_offset, m_bufferSize;
+		DirectX::XMFLOAT2A   m_offset, m_bufferSize;
 		DirectX::XMVECTORF32 m_fontColor, m_outlineColor;
 
 		DirectX::XMVECTOR m_outlinePos[4], m_pos, m_origin, m_scale;
@@ -93,7 +93,7 @@ namespace SDT
 
 		Align m_alignment;
 
-		ID3D11Device* m_pDevice;
+		ID3D11Device*        m_pDevice;
 		ID3D11DeviceContext* m_pDeviceContext;
 
 		ID3D11BlendState* m_blendState;
@@ -133,22 +133,22 @@ namespace SDT
 
 		struct
 		{
-			bool enabled;
-			bool initial;
-			float interval;
-			Font font;
-			std::string font_file;
-			std::string font_color;
-			std::string font_outline_color;
-			std::string font_scale;
-			bool font_autoscale;
-			std::string offset;
-			std::string items;
-			float outline_size;
-			std::uint32_t combo_key;
-			std::uint32_t key;
+			bool                 enabled;
+			bool                 initial;
+			float                interval;
+			Font                 font;
+			std::string          font_file;
+			std::string          font_color;
+			std::string          font_outline_color;
+			std::string          font_scale;
+			bool                 font_autoscale;
+			std::string          offset;
+			std::string          items;
+			float                outline_size;
+			std::uint32_t        combo_key;
+			std::uint32_t        key;
 			StatsRenderer::Align align;
-			bool scale_to_window;
+			bool                 scale_to_window;
 		} m_conf;
 
 		FN_NAMEPROC("OSD");
@@ -156,7 +156,7 @@ namespace SDT
 		FN_DRVDEF(3);
 
 	private:
-		using itemToFlag_t = stl::iunordered_map<std::string, std::uint32_t, std::allocator<std::pair<const std::string, std::uint32_t>>>;
+		using itemToFlag_t = stl::iunordered_map<std::string, std::uint32_t>;
 
 		DOSD();
 
@@ -166,12 +166,12 @@ namespace SDT
 		virtual bool Prepare() override;
 
 		static StatsRenderer::Align ConfigGetStatsRendererAlignment(std::int32_t param);
-		static int ConfigGetFontResource(Font font);
-		static void ConfigParseColors(const std::string& in, DirectX::XMVECTORF32& out);
-		static void ConfigParseScale(const std::string& in, DirectX::XMFLOAT2A& out);
-		static void ConfigParseVector2(const std::string& in, DirectX::XMFLOAT2A& out);
-		static void ConfigGetFlags(const std::string& in, std::uint32_t& out);
-		static std::uint32_t ConfigGetComboKey(std::int32_t param);
+		static int                  ConfigGetFontResource(Font font);
+		static void                 ConfigParseColors(const std::string& in, DirectX::XMVECTORF32& out);
+		static void                 ConfigParseScale(const std::string& in, DirectX::XMFLOAT2A& out);
+		static void                 ConfigParseVector2(const std::string& in, DirectX::XMFLOAT2A& out);
+		static void                 ConfigGetFlags(const std::string& in, std::uint32_t& out);
+		static std::uint32_t        ConfigGetComboKey(std::int32_t param);
 
 		static const wchar_t* StatsRendererCallback_FPS();
 		static const wchar_t* StatsRendererCallback_SimpleFPS();
@@ -190,8 +190,8 @@ namespace SDT
 
 		static HRESULT STDMETHODCALLTYPE StatsPresent_Hook(
 			IDXGISwapChain* pSwapChain,
-			UINT SyncInterval,
-			UINT PresentFlags);
+			UINT            SyncInterval,
+			UINT            PresentFlags);
 
 		/*typedef HRESULT(STDMETHODCALLTYPE* Present_T)(
             IDXGISwapChain* pSwapChain,
@@ -202,12 +202,12 @@ namespace SDT
 
 		struct SKMP_ALIGN(16)
 		{
-			long long lastUpdate;
-			uint64_t lastFrameCount, frameCounter;
-			volatile bool draw;
+			long long              lastUpdate;
+			uint64_t               lastFrameCount, frameCounter;
+			volatile bool          draw;
 			volatile std::uint32_t warmup;
-			std::uint32_t flags;
-			long long interval;
+			std::uint32_t          flags;
+			long long              interval;
 			struct
 			{
 				DirectX::XMVECTORF32 font;

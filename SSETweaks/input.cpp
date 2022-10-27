@@ -79,7 +79,7 @@ namespace SDT
 	}
 
 	auto DInput::KeyPressHandler::ReceiveEvent(
-		InputEvent* const* evns,
+		InputEvent* const*           evns,
 		BSTEventSource<InputEvent*>* dispatcher)
 		-> EventResult
 	{
@@ -88,31 +88,31 @@ namespace SDT
 			return EventResult::kContinue;
 		}
 
-		for (auto inputEvent = *evns; inputEvent; inputEvent = inputEvent->next)
+		for (auto it = *evns; it; it = it->next)
 		{
-			if (inputEvent->eventType != InputEvent::kEventType_Button)
-				continue;
-
-			auto buttonEvent = RTTI<ButtonEvent>::Cast(inputEvent);
+			auto buttonEvent = it->AsButtonEvent();
 			if (!buttonEvent)
-				continue;
-
-			if (buttonEvent->deviceType != kDeviceType_Keyboard)
 			{
 				continue;
 			}
 
-			std::uint32_t keyCode = buttonEvent->keyMask;
-
-			if (keyCode >= InputMap::kMaxMacros)
-				continue;
-
-			if (buttonEvent->flags != 0)
+			if (buttonEvent->device != INPUT_DEVICE::kKeyboard)
 			{
-				if (buttonEvent->timer == 0.0f)
-					m_Instance.DispatchKeyEvent(KeyEvent::KeyDown, keyCode);
+				continue;
 			}
-			else
+
+			std::uint32_t keyCode = buttonEvent->GetIDCode();
+
+			if (!keyCode || keyCode >= InputMap::kMaxMacros)
+			{
+				continue;
+			}
+
+			if (buttonEvent->IsDown())
+			{
+				m_Instance.DispatchKeyEvent(KeyEvent::KeyDown, keyCode);
+			}
+			else if (buttonEvent->IsUpLF())
 			{
 				m_Instance.DispatchKeyEvent(KeyEvent::KeyUp, keyCode);
 			}

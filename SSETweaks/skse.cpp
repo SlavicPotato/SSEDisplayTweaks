@@ -8,9 +8,11 @@ namespace SDT
 	{
 	}
 
-	const char* ISKSE::GetLogPath() const
+	const char* ISKSE::GetLogPath(std::uint32_t a_version) const
 	{
-		return PLUGIN_LOG_PATH;
+		return a_version >= RUNTIME_VERSION_1_6_659 ?
+		           PLUGIN_LOG_PATH_GOG :
+                   PLUGIN_LOG_PATH;
 	}
 
 	const char* ISKSE::GetPluginName() const

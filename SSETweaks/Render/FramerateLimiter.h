@@ -18,7 +18,7 @@ namespace SDT
 
 		void Wait(long long a_limit)
 		{
-			auto now = IPerfCounter::Query();
+			auto now      = IPerfCounter::Query();
 			auto interval = IPerfCounter::delta_us(m_lastTimePoint, now);
 			auto waitTime = a_limit - interval;
 
@@ -95,6 +95,6 @@ namespace SDT
 		}
 
 		long long m_lastTimePoint;
-		HANDLE m_hTimer;
+		HANDLE    m_hTimer;
 	};
 }

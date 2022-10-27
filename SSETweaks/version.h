@@ -1,11 +1,11 @@
 #pragma once
 
 #include "macro_helpers.h"
-#include "skse64_common/skse_version.h"
+#include <skse_version.h>
 
-#define PLUGIN_VERSION_MAJOR 0
-#define PLUGIN_VERSION_MINOR 5
-#define PLUGIN_VERSION_REVISION 9
+#define PLUGIN_VERSION_MAJOR    0
+#define PLUGIN_VERSION_MINOR    5
+#define PLUGIN_VERSION_REVISION 12
 
 #define PLUGIN_VERSION_APPEND_STR ""
 

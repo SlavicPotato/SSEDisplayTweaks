@@ -48,6 +48,11 @@ namespace SDT
 		return m_Instance.InitializeDriversPost_Impl();
 	}
 
+	void IDDispatcher::DriversOnGameConfigLoaded()
+	{
+		m_Instance.DriversOnGameConfigLoadedImpl();
+	}
+
 	bool IDDispatcher::InitializeDrivers_Impl()
 	{
 		PreProcessDrivers();
@@ -128,9 +133,18 @@ namespace SDT
 
 		FlushInstructionCache(GetCurrentProcess(), nullptr, 0);
 
-		m_drivers.swap(decltype(m_drivers)());
-
 		return true;
+	}
+
+	void IDDispatcher::DriversOnGameConfigLoadedImpl()
+	{
+		for (const auto& drv : m_drivers)
+		{
+			if (drv->IsOK())
+			{
+				drv->OnGameConfigLoaded();
+			}
+		}
 	}
 
 	void IDDispatcher::PreProcessDrivers()

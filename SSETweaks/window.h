@@ -6,7 +6,7 @@ namespace SDT
 {
 	class MsgProc
 	{
-		typedef std::function<void(HWND, UINT, WPARAM, LPARAM)> MsgProcFunc;
+		typedef std::function<void(HWND, UINT, WPARAM, LPARAM)>    MsgProcFunc;
 		typedef std::unordered_map<UINT, std::vector<MsgProcFunc>> MPMap;
 
 	public:
@@ -51,7 +51,7 @@ namespace SDT
 			FindDesc() :
 				found(false) {}
 
-			bool found;
+			bool     found;
 			HMONITOR handle;
 		};
 
@@ -67,21 +67,21 @@ namespace SDT
 		IConfig
 	{
 		typedef HWND(WINAPI* CreateWindowExA_fn_t)(
-			_In_ DWORD dwExStyle,
-			_In_opt_ LPCSTR lpClassName,
-			_In_opt_ LPCSTR lpWindowName,
-			_In_ DWORD dwStyle,
-			_In_ int X,
-			_In_ int Y,
-			_In_ int nWidth,
-			_In_ int nHeight,
-			_In_opt_ HWND hWndParent,
-			_In_opt_ HMENU hMenu,
+			_In_ DWORD         dwExStyle,
+			_In_opt_ LPCSTR    lpClassName,
+			_In_opt_ LPCSTR    lpWindowName,
+			_In_ DWORD         dwStyle,
+			_In_ int           X,
+			_In_ int           Y,
+			_In_ int           nWidth,
+			_In_ int           nHeight,
+			_In_opt_ HWND      hWndParent,
+			_In_opt_ HMENU     hMenu,
 			_In_opt_ HINSTANCE hInstance,
-			_In_opt_ LPVOID lpParam);
+			_In_opt_ LPVOID    lpParam);
 
 		typedef BOOL(WINAPI* GetClientRect_fn_t)(
-			_In_ HWND hWnd,
+			_In_ HWND    hWnd,
 			_Out_ LPRECT lpRect);
 
 	public:
@@ -95,33 +95,34 @@ namespace SDT
 		DWindow();
 
 		typedef BOOL(WINAPI* GetClientRect_pfn)(
-			_In_ HWND hWnd,
+			_In_ HWND    hWnd,
 			_Out_ LPRECT lpRect);
 
 		static HWND WINAPI CreateWindowExA_Hook(
-			_In_ DWORD dwExStyle,
-			_In_opt_ LPCSTR lpClassName,
-			_In_opt_ LPCSTR lpWindowName,
-			_In_ DWORD dwStyle,
-			_In_ int X,
-			_In_ int Y,
-			_In_ int nWidth,
-			_In_ int nHeight,
-			_In_opt_ HWND hWndParent,
-			_In_opt_ HMENU hMenu,
+			_In_ DWORD         dwExStyle,
+			_In_opt_ LPCSTR    lpClassName,
+			_In_opt_ LPCSTR    lpWindowName,
+			_In_ DWORD         dwStyle,
+			_In_ int           X,
+			_In_ int           Y,
+			_In_ int           nWidth,
+			_In_ int           nHeight,
+			_In_opt_ HWND      hWndParent,
+			_In_opt_ HMENU     hMenu,
 			_In_opt_ HINSTANCE hInstance,
-			_In_opt_ LPVOID lpParam);
+			_In_opt_ LPVOID    lpParam);
 
 		void DoUpscale(HWND a_windowHandle, int& X, int& Y, int& nWidth, int& nHeight);
 		void DoCenter(HWND a_windowHandle, int& X, int& Y, int nWidth, int nHeight);
 
 		CreateWindowExA_fn_t m_createWindowExA_O;
-		GetClientRect_fn_t m_getClientRect_O;
+		GetClientRect_fn_t   m_getClientRect_O;
 
 		virtual void LoadConfig() override;
 		virtual void PostLoadConfig() override;
 		virtual void RegisterHooks() override;
 		virtual bool Prepare() override;
+		virtual void OnGameConfigLoaded() override;
 
 		void SetupCursorLockMP();
 		void SetupForceMinimizeMP();
@@ -143,12 +144,12 @@ namespace SDT
 
 		static BOOL WINAPI
 			GetClientRect_Hook(
-				_In_ HWND hWnd,
+				_In_ HWND    hWnd,
 				_Out_ LPRECT lpRect);
 
 		static LRESULT CALLBACK WndProc_Hook(
-			HWND hWnd,
-			UINT uMsg,
+			HWND   hWnd,
+			UINT   uMsg,
 			WPARAM wParam,
 			LPARAM lParam);
 
@@ -159,8 +160,8 @@ namespace SDT
 			bool force_minimize;
 			bool upscale;
 			bool center_window;
-			int offset_x;
-			int offset_y;
+			int  offset_x;
+			int  offset_y;
 		} m_conf;
 
 		MsgProc m_mp;
@@ -170,8 +171,8 @@ namespace SDT
 
 		struct
 		{
-			int* iLocationX;
-			int* iLocationY;
+			int* iLocationX{ nullptr };
+			int* iLocationY{ nullptr };
 		} m_gv;
 
 		static DWindow m_Instance;

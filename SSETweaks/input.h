@@ -5,7 +5,7 @@ namespace SDT
 	enum KeyEvent
 	{
 		KeyDown = 0,
-		KeyUp = 1
+		KeyUp   = 1
 	};
 
 	typedef void (*KeyEventCallback)(KeyEvent, std::uint32_t);
@@ -28,7 +28,7 @@ namespace SDT
 
 		SKMP_FORCEINLINE void SetComboKey(std::uint32_t a_key)
 		{
-			m_comboKey = a_key;
+			m_comboKey     = a_key;
 			m_comboKeyDown = false;
 		}
 
@@ -39,8 +39,8 @@ namespace SDT
 
 		SKMP_FORCEINLINE void SetKeys(std::uint32_t a_comboKey, std::uint32_t a_key)
 		{
-			m_comboKey = a_comboKey;
-			m_key = a_key;
+			m_comboKey     = a_comboKey;
+			m_key          = a_key;
 			m_comboKeyDown = false;
 		}
 

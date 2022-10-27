@@ -74,7 +74,7 @@ namespace SDT
 	{
 	public:
 		virtual EventResult ReceiveEvent(
-			const MenuOpenCloseEvent* evn,
+			const MenuOpenCloseEvent*           evn,
 			BSTEventSource<MenuOpenCloseEvent>* dispatcher) override;
 
 		static MenuOpenCloseEventHandler* GetSingleton()
@@ -115,11 +115,11 @@ namespace SDT
 
 	protected:
 		std::vector<MenuEvent> m_stack;
-		bool m_tracked[stl::underlying(MenuEvent::Max)];
+		bool                   m_tracked[stl::underlying(MenuEvent::Max)];
 	};
 
 	class IEvents :
-		protected IHook
+		protected ILog
 	{
 		friend class MenuEventTrack;
 		friend class MenuOpenCloseEventInitializer;
@@ -127,7 +127,7 @@ namespace SDT
 		typedef void (*inihookproc)(void);
 		typedef UIStringHolder* (*PopulateUIStringHolder_t)(void*);
 
-		using mstcMap_t = std::unordered_map<const char*, MenuEvent>;
+		using mstcMap_t = std::unordered_map<BSFixedString, MenuEvent>;
 
 	public:
 		static inline constexpr auto ID = DRIVER_ID::EVENTS;
@@ -135,10 +135,10 @@ namespace SDT
 		struct uistr_desc_t
 		{
 			UIStringHolder::STRING_INDICES index;
-			MenuEvent event;
+			MenuEvent                      event;
 		};
 
-		typedef EventTriggerDescriptor<Event, EventCallback> _EventTriggerDescriptor;
+		typedef EventTriggerDescriptor<Event, EventCallback>         _EventTriggerDescriptor;
 		typedef EventTriggerDescriptor<MenuEvent, MenuEventCallback> _MenuEventCallbackDescriptor;
 
 		static bool Initialize();
@@ -158,24 +158,24 @@ namespace SDT
 	private:
 		IEvents() = default;
 
-		static void PostLoadPluginINI_Hook();
-		static void PostLoadPluginINI_AE_Hook(void* a_unk);
+		static void            PostLoadPluginINI_Hook();
+		static void            PostLoadPluginINI_AE_Hook(void* a_unk);
 		static UIStringHolder* PopulateUIStringHolder_Hook(void* a_dest);
 
 		static void MessageHandler(SKSEMessagingInterface::Message* a_message);
 
 		void CreateMSTCMap();
 
-		std::unordered_map<Event, std::vector<_EventTriggerDescriptor>> m_events;
+		std::unordered_map<Event, std::vector<_EventTriggerDescriptor>>          m_events;
 		std::unordered_map<MenuEvent, std::vector<_MenuEventCallbackDescriptor>> m_menu_events;
 
-		decltype(&PostLoadPluginINI_Hook) LoadPluginINI_O;
+		decltype(&PostLoadPluginINI_Hook)    LoadPluginINI_O;
 		decltype(&PostLoadPluginINI_AE_Hook) LoadPluginINI_AE_O;
 
 		PopulateUIStringHolder_t PopulateUIStringHolder_O;
 
-		inline static const auto LoadPluginINI_C = IAL::Addr(AID::Init0, 36547, Offsets::LoadPluginINI_C, IAL::ver() >= VER_1_6_342 ? 0xA91 : 0xA71);
-		inline static const auto PopulateUIStringHolder_C = IAL::Addr(AID::Init0, 36547, Offsets::PopulateUIStringHolder_C, IAL::ver() >= VER_1_6_342 ? 0xEA4 : 0xE85);
+		inline static const auto LoadPluginINI_C          = IAL::Addr(AID::Init0, 36547, Offsets::LoadPluginINI_C, IAL::ver() >= VER_1_6_342 ? IAL::ver() >= VER_1_6_629 ? 0xAB1 : 0xA91 : 0xA71);
+		inline static const auto PopulateUIStringHolder_C = IAL::Addr(AID::Init0, 36547, Offsets::PopulateUIStringHolder_C, IAL::ver() >= VER_1_6_342 ? IAL::ver() >= VER_1_6_629 ? 0xEC4 : 0xEA4 : 0xE85);
 
 		mstcMap_t m_mstc_map;
 

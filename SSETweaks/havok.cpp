@@ -6,14 +6,14 @@ namespace SDT
 {
 	static constexpr const char* SECTION_GENERAL = "General";
 
-	static constexpr const char* CKEY_HAVOKON = "DynamicMaxTimeScaling";
-	static constexpr const char* CKEY_HAVOKENABLED = "Enabled";
-	static constexpr const char* CKEY_MAXFPS = "MaximumFramerate";
-	static constexpr const char* CKEY_MINFPS = "MinimumFramerate";
-	static constexpr const char* CKEY_FMTCOFFSET = "MaxTimeComplexOffset";
-	static constexpr const char* CKEY_STATSON = "OSDStatsEnabled";
-	static constexpr const char* CKEY_PERFMODE = "PerformanceMode";
-	static constexpr const char* CKEY_PHYSDAMAGE = "PhysicsDamagePatch";
+	static constexpr const char* CKEY_HAVOKON         = "DynamicMaxTimeScaling";
+	static constexpr const char* CKEY_HAVOKENABLED    = "Enabled";
+	static constexpr const char* CKEY_MAXFPS          = "MaximumFramerate";
+	static constexpr const char* CKEY_MINFPS          = "MinimumFramerate";
+	static constexpr const char* CKEY_FMTCOFFSET      = "MaxTimeComplexOffset";
+	static constexpr const char* CKEY_STATSON         = "OSDStatsEnabled";
+	static constexpr const char* CKEY_PERFMODE        = "PerformanceMode";
+	static constexpr const char* CKEY_PHYSDAMAGE      = "PhysicsDamagePatch";
 	static constexpr const char* CKEY_PHYSDAMAGE_MULT = "PhysicsDamageMult";
 
 	static constexpr const char* CKEY_ADJUSTINICFG = "AdjustGameSettings";
@@ -22,15 +22,15 @@ namespace SDT
 
 	void DHavok::LoadConfig()
 	{
-		m_conf.havok_enabled = GetConfigValue(CKEY_HAVOKENABLED, false);
-		m_conf.havok_dyn = GetConfigValue(CKEY_HAVOKON, true);
-		m_conf.fmt_min = GetConfigValue(CKEY_MINFPS, 60.0f);
-		m_conf.fmt_max = GetConfigValue(CKEY_MAXFPS, 0.0f);
-		m_conf.fmtc_offset = std::clamp(GetConfigValue(CKEY_FMTCOFFSET, 30.0f), 0.0f, 30.0f);
-		m_conf.stats_enabled = GetConfigValue(CKEY_STATSON, false);
-		m_conf.perf_mode = GetConfigValue(CKEY_PERFMODE, false);
+		m_conf.havok_enabled     = GetConfigValue(CKEY_HAVOKENABLED, false);
+		m_conf.havok_dyn         = GetConfigValue(CKEY_HAVOKON, true);
+		m_conf.fmt_min           = GetConfigValue(CKEY_MINFPS, 60.0f);
+		m_conf.fmt_max           = GetConfigValue(CKEY_MAXFPS, 0.0f);
+		m_conf.fmtc_offset       = std::clamp(GetConfigValue(CKEY_FMTCOFFSET, 30.0f), 0.0f, 30.0f);
+		m_conf.stats_enabled     = GetConfigValue(CKEY_STATSON, false);
+		m_conf.perf_mode         = GetConfigValue(CKEY_PERFMODE, false);
 		m_conf.phys_damage_patch = GetConfigValue(CKEY_PHYSDAMAGE, true);
-		m_conf.phys_damage_mult = std::clamp(GetConfigValue(CKEY_PHYSDAMAGE_MULT, 1.0f), 0.0f, 1.0f);
+		m_conf.phys_damage_mult  = std::clamp(GetConfigValue(CKEY_PHYSDAMAGE_MULT, 1.0f), 0.0f, 1.0f);
 
 		m_conf.adjust_ini = IConfigS(SECTION_GENERAL).GetConfigValue(CKEY_ADJUSTINICFG, true);
 	}
@@ -51,7 +51,7 @@ namespace SDT
 			if (m_conf.fmt_max > 0.0f)
 			{
 				m_conf.fmt_max = std::max(m_conf.fmt_max, HAVOK_MAXTIME_MIN);
-				fmt_min = 1.0f / m_conf.fmt_max;
+				fmt_min        = 1.0f / m_conf.fmt_max;
 			}
 
 			m_conf.fmt_min = std::max(m_conf.fmt_min, HAVOK_MAXTIME_MIN);
@@ -97,15 +97,15 @@ namespace SDT
 				    m_conf.stats_enabled)
 				{
 					regOSDEvent = true;
-					hf = reinterpret_cast<std::uintptr_t>(hookRTHStats);
+					hf          = reinterpret_cast<std::uintptr_t>(hookRTHStats);
 				}
 				else
 				{
 					regOSDEvent = false;
-					hf = reinterpret_cast<std::uintptr_t>(hookRTH);
+					hf          = reinterpret_cast<std::uintptr_t>(hookRTH);
 				}
 
-				if (!Hook::Call5(
+				if (!hook::call5(
 						ISKSE::GetBranchTrampoline(),
 						PhysCalcMaxTime,
 						hf,
@@ -152,31 +152,22 @@ namespace SDT
 
 	bool DHavok::Prepare()
 	{
+		return true;
+	}
+
+	void DHavok::OnGameConfigLoaded()
+	{
 		m_gv.fMaxTime = ISKSE::GetINISettingAddr<float>("fMaxTime:HAVOK");
-		if (!m_gv.fMaxTime)
-		{
-			return false;
-		}
+		ASSERT(m_gv.fMaxTime);
 
 		m_gv.fMaxTimeComplex = ISKSE::GetINISettingAddr<float>("fMaxTimeComplex:HAVOK");
-		if (!m_gv.fMaxTimeComplex)
-		{
-			return false;
-		}
+		ASSERT(m_gv.fMaxTimeComplex);
 
 		m_gv.uMaxNumPhysicsStepsPerUpdate = ISKSE::GetINISettingAddr<std::uint32_t>("uMaxNumPhysicsStepsPerUpdate:HAVOK");
-		if (!m_gv.uMaxNumPhysicsStepsPerUpdate)
-		{
-			return false;
-		}
+		ASSERT(m_gv.uMaxNumPhysicsStepsPerUpdate);
 
 		m_gv.uMaxNumPhysicsStepsPerUpdateComplex = ISKSE::GetINISettingAddr<std::uint32_t>("uMaxNumPhysicsStepsPerUpdateComplex:HAVOK");
-		if (!m_gv.uMaxNumPhysicsStepsPerUpdateComplex)
-		{
-			return false;
-		}
-
-		return true;
+		ASSERT(m_gv.uMaxNumPhysicsStepsPerUpdateComplex);
 	}
 
 	void DHavok::Patch_PhysicsDamage() const

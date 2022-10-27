@@ -5,30 +5,30 @@ namespace SDT
 	class IConfig
 	{
 	public:
-		static int LoadConfiguration();
+		static int  LoadConfiguration();
 		static void ClearConfiguration();
 
-		SKMP_FORCEINLINE static bool IsCustomLoaded()
+		inline static bool IsCustomLoaded()
 		{
 			return m_confReaderCustom.ParseError() == 0;
 		}
 
-		SKMP_FORCEINLINE const char* GetConfigValue(const std::string& key, const char* default) const
+		inline const char* GetConfigValue(const std::string& key, const char* default) const
 		{
 			return GetValue(key, default);
 		}
 
-		SKMP_FORCEINLINE float GetConfigValue(const std::string& key, float default) const
+		inline float GetConfigValue(const std::string& key, float default) const
 		{
 			return GetValue(key, default);
 		}
 
-		SKMP_FORCEINLINE double GetConfigValue(const std::string& key, double default) const
+		inline double GetConfigValue(const std::string& key, double default) const
 		{
 			return GetValue(key, default);
 		}
 
-		SKMP_FORCEINLINE bool GetConfigValue(const std::string& key, bool default) const
+		inline bool GetConfigValue(const std::string& key, bool default) const
 		{
 			return GetValue(key, default);
 		}
@@ -39,7 +39,7 @@ namespace SDT
 			return static_cast<T>(GetValue(key, static_cast<std::int64_t>(default)));
 		}
 
-		SKMP_FORCEINLINE bool HasConfigValue(const std::string& key) const
+		inline bool HasConfigValue(const std::string& key) const
 		{
 			return Exists(key);
 		}
@@ -164,8 +164,8 @@ namespace SDT
 		}
 
 		std::string m_path;
-		bool m_attemptedLoad;
-		INIReader m_reader;
+		bool        m_attemptedLoad;
+		INIReader   m_reader;
 	};
 
 }
